@@ -1,9 +1,26 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-orange-50 flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-gray-800">
-        Luminosa - Sistema Cosmetológico
-      </h1>
-    </div>
+    // Envuelvo toda mi aplicación con mi proveedor de autenticación
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
