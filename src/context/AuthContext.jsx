@@ -1,31 +1,42 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "../config/firebase";
-import { iniciarSesionGoogle, cerrarSesionApp } from "../services/authService";
+import { iniciarSesionGoogle, cerrarSesionApp, obtenerRolUsuario } from "../services/authService";
 
-// Creo mi contexto para compartir mi estado globalmente
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Defino mis estados para el usuario y el tiempo de validación
   const [usuario, setUsuario] = useState(null);
+  const [rol, setRol] = useState(null); // Mi nuevo estado para guardar el rol actual
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const auth = getAuth(app);
-    // Me suscribo a los cambios de sesión de mi app
-    const desuscribir = onAuthStateChanged(auth, (usuarioActual) => {
-      setUsuario(usuarioActual);
+    
+    const desuscribir = onAuthStateChanged(auth, async (usuarioActual) => {
+      if (usuarioActual) {
+        try {
+          // Si hay sesión de Google, voy a buscar su rol a mi servicio de Firestore
+          const rolAsignado = await obtenerRolUsuario(usuarioActual.email);
+          setUsuario(usuarioActual);
+          setRol(rolAsignado); // Guardo mi rol en mi estado global
+        } catch (error) {
+          console.error("Error al mapear mi usuario con su rol:", error);
+        }
+      } else {
+        // Si no hay nadie, limpio mis estados
+        setUsuario(null);
+        setRol(null);
+      }
       setCargando(false);
     });
     
-    // Limpio mi suscripción cuando el componente se desmonta para evitar fugas de memoria
     return () => desuscribir();
   }, []);
 
-  // Agrupo mis funciones e información para enviarlas a mis vistas
   const valores = {
     usuario,
+    rol, // Expongo mi rol para que mis pantallas puedan leerlo
     cargando,
     login: iniciarSesionGoogle,
     logout: cerrarSesionApp
@@ -33,10 +44,9 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={valores}>
-      {/* Si estoy cargando la seguridad, muestro una pantalla de espera; si no, cargo mis componentes */}
       {cargando ? (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <p className="text-gray-500">Validando mis credenciales...</p>
+          <p className="text-gray-500">Validando mis accesos y niveles de seguridad...</p>
         </div>
       ) : (
         children
@@ -45,7 +55,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Creo mi propio hook personalizado para consumir mi contexto fácilmente en cualquier archivo
 export const useAuth = () => {
   return useContext(AuthContext);
 };
