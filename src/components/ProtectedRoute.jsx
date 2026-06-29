@@ -1,26 +1,15 @@
-import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from '../config/firebase';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children }) {
-  const [user, setUser] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const auth = getAuth(app);
+  // Extraigo mi usuario directamente desde mi custom hook
+  const { usuario } = useAuth();
 
-  useEffect(() => {
-    const desuscribir = onAuthStateChanged(auth, (usuarioActual) => {
-      setUser(usuarioActual);
-      setCargando(false); 
-    });
-    
-    return () => desuscribir();
-  }, [auth]);
+  // Si no tengo un usuario activo, lo expulso al login
+  if (!usuario) {
+    return <Navigate to="/" />;
+  }
 
-  if (cargando) return <div className="min-h-screen flex items-center justify-center bg-gray-50">Cargando seguridad...</div>;
-
-  // Regreso a la pantalla de Login
-  if (!user) return <Navigate to="/" />;
-
+  // Si pasó el filtro de seguridad, le muestro mi componente protegido
   return children;
 }
