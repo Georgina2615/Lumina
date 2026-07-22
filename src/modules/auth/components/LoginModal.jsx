@@ -1,6 +1,6 @@
 import { FcGoogle } from "react-icons/fc";
 import { IoClose } from "react-icons/io5"; 
-import { useLogin } from "../../hooks/useLogin"; 
+import { useLogin } from "../hooks"; 
 
 export default function LoginModal({ isOpen, onClose }) {
   // Variables y la función

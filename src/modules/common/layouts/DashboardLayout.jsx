@@ -1,10 +1,14 @@
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { menuItems } from '../../config/navigation';
-import { useLogout } from '../../hooks/useLogout';
-import Sidebar from './Sidebar'; 
-import MobileTabBar from './MobileTabBar';
 
+// Configuración Global
+import { menuItems } from '../../../config/navigation';
+
+// Módulo Auth (Seguridad)
+import { useAuth } from '../../auth/context';
+import { useLogout } from '../../auth/hooks';
+
+// Módulo Common (Herramientas visuales)
+import { Sidebar, MobileTabBar } from '../components';
 export default function DashboardLayout() {
   const { usuario, rol } = useAuth();
   const { manejarCierreSesion } = useLogout();

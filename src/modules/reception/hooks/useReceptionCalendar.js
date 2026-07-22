@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, where, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../config/firebase'; 
+import { db } from '../../../config/firebase';
 
 export const useReceptionCalendar = () => {
   const [citasCalendario, setCitasCalendario] = useState([]);

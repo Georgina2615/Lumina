@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../config/firebase'; 
+import { db } from '../../../config/firebase';
 
 export const useReceptionAppointments = () => {
   const [cargando, setCargando] = useState(false);

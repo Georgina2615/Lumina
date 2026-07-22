@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useReceptionAppointments } from "../../hooks/useReceptionAppointments"; 
-import ReceptionClientSection from "./ReceptionClientSection";
-import ReceptionDetailsSection from "./ReceptionDetailsSection";
+import { useReceptionAppointments } from "../hooks"; 
+import { ReceptionClientSection, ReceptionDetailsSection } from ".";
 
 export default function ReceptionAppointmentForm({ onClose }) {
   const { agendarCitaPresencial, buscarCliente, cargando, errorLocal, exito } = useReceptionAppointments();

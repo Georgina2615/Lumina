@@ -1,7 +1,7 @@
 import { useState } from 'react'; 
 import { Outlet, NavLink, Link } from 'react-router-dom';
 import { FaInstagram, FaTiktok, FaWhatsapp, FaMapMarkerAlt } from 'react-icons/fa';
-import LoginModal from '../auth/LoginModal'; 
+import { LoginModal } from '../../auth/components';
 
 export default function PublicLayout() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);

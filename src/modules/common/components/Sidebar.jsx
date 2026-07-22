@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FiMenu, FiLogOut } from 'react-icons/fi'; 
 
+
 export default function Sidebar({ usuario, menuPermitido, onLogout }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const sidebarRef = useRef(null);

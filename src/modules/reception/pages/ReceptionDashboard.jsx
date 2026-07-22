@@ -1,5 +1,5 @@
-import { useReceptionKanban } from '../../hooks/useReceptionKanban';
-import AppointmentCard from '../../components/common/AppointmentCard';
+import { useReceptionKanban } from '../hooks';
+import { AppointmentCard } from '../../common/components';
 
 export default function ReceptionDashboard() {
   // Se extrae la función de actualización real
