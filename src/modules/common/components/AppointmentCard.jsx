@@ -1,15 +1,14 @@
+const getStatusConfig = (estado) => {
+  switch (estado) {
+    case 'por_confirmar': return { bg: 'bg-status-pending', text: 'text-surface', label: 'Por Confirmar' };
+    case 'confirmada': return { bg: 'bg-status-confirmed', text: 'text-surface', label: 'Confirmada' };
+    case 'en_cabina': return { bg: 'bg-status-incabin', text: 'text-surface', label: 'En Cabina' };
+    case 'finalizada': return { bg: 'bg-status-completed', text: 'text-surface', label: 'Finalizada' };
+    default: return { bg: 'bg-surface-hover', text: 'text-primary', label: estado };
+  }
+};
+
 export default function AppointmentCard({ cita, children }) {
-
-  const getStatusConfig = (estado) => {
-    switch (estado) {
-      case 'por_confirmar': return { bg: 'bg-status-pending', text: 'text-surface', label: 'Por Confirmar' };
-      case 'confirmada': return { bg: 'bg-status-confirmed', text: 'text-surface', label: 'Confirmada' };
-      case 'en_cabina': return { bg: 'bg-status-incabin', text: 'text-surface', label: 'En Cabina' };
-      case 'finalizada': return { bg: 'bg-status-completed', text: 'text-surface', label: 'Finalizada' };
-      default: return { bg: 'bg-surface-hover', text: 'text-primary', label: estado };
-    }
-  };
-
   const status = getStatusConfig(cita.estado);
 
   return (

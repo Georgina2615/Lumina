@@ -6,7 +6,7 @@ export const useReceptionCalendar = () => {
   const [citasCalendario, setCitasCalendario] = useState([]);
   const [cargandoCalendario, setCargandoCalendario] = useState(true);
 
-  // Consulta en tiempo real
+  // Consulta en tiempo real: Se sincronizará automáticamente con el Kanban
   useEffect(() => {
     const citasRef = collection(db, 'citas');
     const consulta = query(citasRef, where("estado", "!=", "cancelada")); 
@@ -14,7 +14,10 @@ export const useReceptionCalendar = () => {
     const desuscribir = onSnapshot(consulta, (snapshot) => {
       const citasFormateadas = snapshot.docs.map(documento => {
         const data = documento.data();
+        // Armamos la fecha inicial
         const fechaInicio = new Date(`${data.fecha}T${data.hora}:00`);
+        
+        // Calculamos la fecha fin (Ej. 3 horas de duración para la vista del calendario)
         const fechaFin = new Date(fechaInicio.getTime() + (3 * 60 * 60 * 1000)); 
 
         return {
@@ -38,16 +41,14 @@ export const useReceptionCalendar = () => {
     try {
       const citaRef = doc(db, 'citas', citaId);
       await updateDoc(citaRef, { estado: 'cancelada' });
-      return true; // 
+      // Al actualizar a "cancelada", el onSnapshot de arriba la desaparecerá del calendario
+      // y también desaparecerá del Kanban automáticamente.
+      return true; 
     } catch (error) {
       console.error("Error al cancelar la cita:", error);
       throw error;
     }
   };
 
-  return { 
-    citasCalendario, 
-    cargandoCalendario, 
-    cancelarCita 
-  };
+  return { citasCalendario, cargandoCalendario, cancelarCita };
 };
