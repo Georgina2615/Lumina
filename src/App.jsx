@@ -11,7 +11,7 @@ import { PublicLayout, DashboardLayout } from './modules/common/layouts';
 import LandingPage from './modules/public/pages/LandingPage';
 
 // Vistas Privadas Recepción
-import { ReceptionDashboard, ReceptionCalendar, ReceptionClientDirectory } from './modules/reception/pages';
+import { ReceptionDashboard, ReceptionCalendar, ReceptionClientDirectory, ReceptionPOS } from './modules/reception/pages';
 
 const DashboardIndex = () => {
   const { rol } = useAuth(); 
@@ -40,7 +40,7 @@ export default function App() {
               <Route path="reception" element={<ReceptionDashboard />} />
               <Route path="calendar" element={<ReceptionCalendar />} />
               <Route path="clientes" element={<ReceptionClientDirectory />} />
-              <Route path="pos" element={<div className="p-8 text-center"><h2 className="text-3xl font-title text-primary">Punto de Venta</h2></div>} />
+              <Route path="pos" element={<ReceptionPOS />} />
             </Route>
 
             {/* GRUPO DE CLÍNICA (Futuro) */}

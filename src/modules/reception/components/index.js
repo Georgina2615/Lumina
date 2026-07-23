@@ -7,3 +7,6 @@ export { default as CancelAppointmentModal } from './CancelAppointmentModal';
 export { default as SignatureModal } from './SignatureModal';
 export { default as ClientProfileModal } from './ClientProfileModal';
 export { default as ClientTable } from './ClientTable';
+export { default as POSCatalog } from './POSCatalog';
+export { default as POSCart } from './POSCart';
+export { default as POSCheckoutModal } from './POSCheckoutModal';
