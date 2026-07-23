@@ -19,7 +19,6 @@ export const useReceptionKanban = () => {
   };
 
   useEffect(() => {
-    // BLINDAJE DE ZONA HORARIA: Construimos el string YYYY-MM-DD manualmente
     const hoy = new Date();
     const yyyy = hoy.getFullYear();
     const mm = String(hoy.getMonth() + 1).padStart(2, '0');
@@ -28,14 +27,14 @@ export const useReceptionKanban = () => {
 
     const citasRef = collection(db, 'citas');
 
-    // Listener 1: Por Confirmar (Cualquier fecha)
+    // Por Confirmar (Cualquier fecha)
     const consultaPorConfirmar = query(citasRef, where("estado", "==", "por_confirmar"));
     const desuscribirPorConfirmar = onSnapshot(consultaPorConfirmar, (snapshot) => {
       const citas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCitasPorConfirmar(citas);
     });
 
-    // Listener 2: Confirmadas (SOLO HOY)
+    // Confirmadas (SOLO HOY)
     const consultaConfirmadas = query(
       citasRef,
       where("fecha", "==", fechaHoyLocal),
@@ -46,7 +45,7 @@ export const useReceptionKanban = () => {
       setCitasConfirmadas(citas);
     });
 
-    // Listener 3: En Cabina (SOLO HOY)
+    // En Cabina (SOLO HOY)
     const consultaEnCabina = query(
       citasRef,
       where("fecha", "==", fechaHoyLocal),

@@ -14,7 +14,7 @@ export default function CancelAppointmentModal({ cita, onClose, onCancel }) {
             onClick={onCancel} 
             className="w-full py-2 bg-error text-white rounded-lg font-medium hover:opacity-90 transition"
           >
-            Cancelar Cita (No Show)
+            Cancelar Cita
           </button>
           <button 
             onClick={onClose} 

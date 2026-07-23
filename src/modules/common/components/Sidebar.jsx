@@ -43,7 +43,6 @@ export default function Sidebar({ usuario, menuPermitido, onLogout }) {
       {/* ZONA CENTRAL: Navegación de Botones */}
       <nav className="flex-1 py-6 flex flex-col gap-2 px-3 overflow-y-auto overflow-x-hidden">
         {menuPermitido.map((item, index) => {
-          // MAGIA AQUÍ: Guardamos el ícono en una variable con Mayúscula para que React lo renderice
           const Icono = item.icon; 
           
           return (
