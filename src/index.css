@@ -1,1 +1,41 @@
+/* Fuentes minimalistas y elegantes desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@400;600;700&display=swap');
+
 @import "tailwindcss";
+
+@theme {
+  /* Colores Base */
+  --color-background: #F8F3F0; 
+  --color-surface: #F2EDEA;
+  --color-surface-hover: #DED9D6;
+  
+  /* Colores Texto */
+  --color-primary: #3B2F2F;
+  --color-secondary: #665D4E;
+  --color-muted: #5C5E67;
+  
+  /* Colores Estado */
+  --color-error: #BA1A1A;
+
+  /* Tipografía */
+  --font-title: 'Playfair Display', serif;
+  --font-body: 'Montserrat', sans-serif;
+
+
+  /* Colores de Estado (Agenda) adaptados a la paleta de Lumina */
+  --color-status-pending: #D4B872;   /* Amarillo Mostaza/Dorado suave */
+  --color-status-confirmed: #7A8B76; /* Verde Salvia/Olivo */
+  --color-status-incabin: #7D8C9C;   /* Azul Pizarra/Grisáceo */
+  --color-status-completed: #4A4A4A; /* Gris Carbón Cálido */
+}
+
+
+@layer base {
+  body {
+    @apply bg-background text-primary font-body antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-title font-bold;
+  }
+}
