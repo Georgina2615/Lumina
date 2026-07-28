@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Comprueba que existe una sesión activa
+    function isSignedIn() {
+      // Devuelve el estado de autenticación
+      return request.auth != null;
+    }
+
+    // Comprueba el rol activo del usuario
+    function hasRole(role) {
+      // Devuelve la coincidencia del rol
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.activo == true
+        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == role;
+    }
+
+    // Comprueba el acceso administrativo
+    function isAdmin() {
+      // Devuelve el acceso administrativo
+      return hasRole('admin');
+    }
+
+    // Comprueba el acceso de recepción
+    function isReception() {
+      // Devuelve el acceso de recepción
+      return hasRole('recepcion');
+    }
+
+    // Comprueba el acceso clínico
+    function isClinical() {
+      // Devuelve el acceso clínico
+      return hasRole('cosmetologa');
+    }
+
+    // Comprueba el acceso operativo
+    function isReceptionOrAdmin() {
+      // Devuelve el acceso operativo
+      return isReception() || isAdmin();
+    }
+
+    // Comprueba el acceso al usuario propio
+    function isOwnUser(userId) {
+      // Devuelve la coincidencia por identidad
+      return isSignedIn()
+        && (
+          userId == request.auth.uid
+          || (
+            request.auth.token.email is string
+            && request.auth.token.email_verified == true
+            && resource.data.correo == request.auth.token.email
+          )
+        );
+    }
+
+    // Comprueba la estructura del usuario
+    function hasValidUserData() {
+      // Devuelve la validez de los campos de acceso
+      return request.resource.data.correo is string
+        && request.resource.data.rol in ['admin', 'recepcion', 'cosmetologa']
+        && request.resource.data.activo is bool;
+    }
+
+    match /usuarios/{userId} {
+      allow read: if isAdmin() || isOwnUser(userId);
+      allow create: if isAdmin() && hasValidUserData();
+      allow update: if isAdmin()
+        && hasValidUserData()
+        && (
+          userId != request.auth.uid
+          || (
+            request.resource.data.rol == 'admin'
+            && request.resource.data.activo == true
+          )
+        );
+      allow delete: if isAdmin() && userId != request.auth.uid;
+    }
+
+    match /clientes/{clientId} {
+      allow read: if isReceptionOrAdmin() || isClinical();
+      allow create, update: if isReceptionOrAdmin();
+      allow delete: if false;
+    }
+
+    match /citas/{appointmentId} {
+      allow read: if isReceptionOrAdmin() || isClinical();
+      allow create, update: if isReceptionOrAdmin();
+      allow delete: if false;
+    }
+
+    match /ventas/{saleId} {
+      allow read, create: if isReceptionOrAdmin();
+      allow update, delete: if false;
+    }
+
+    match /pacientes/{patientId} {
+      allow read, create, update: if isAdmin() || isClinical();
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
