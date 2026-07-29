@@ -84,10 +84,168 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Comprueba una transición operativa de cita
+    function isAllowedTrackedAppointmentTransition(
+      previousStatus,
+      nextStatus
+    ) {
+      // Devuelve la validez de la transición
+      return (
+          previousStatus == 'por_confirmar'
+          && nextStatus in ['confirmada', 'cancelada']
+        )
+        || (
+          previousStatus == 'confirmada'
+          && nextStatus in ['en_cabina', 'cancelada']
+        )
+        || (
+          previousStatus == 'en_cabina'
+          && nextStatus == 'completada'
+        );
+    }
+
+    // Comprueba una actualización auditada de cita
+    function isValidTrackedAppointmentUpdate(appointmentId) {
+      // Obtiene los estados y campos modificados
+      let previousStatus = resource.data.estado;
+      let nextStatus = request.resource.data.estado;
+      let changedFields = request.resource.data
+        .diff(resource.data)
+        .affectedKeys();
+
+      // Devuelve la validez de la actualización
+      return isAllowedTrackedAppointmentTransition(
+          previousStatus,
+          nextStatus
+        )
+        && request.resource.data.actualizadaEn == request.time
+        && request.resource.data.actualizadaPor == request.auth.uid
+        && (
+          (
+            nextStatus == 'cancelada'
+            && changedFields.hasOnly([
+              'estado',
+              'actualizadaEn',
+              'actualizadaPor',
+              'cancelacion'
+            ])
+          )
+          || (
+            nextStatus != 'cancelada'
+            && changedFields.hasOnly([
+              'estado',
+              'actualizadaEn',
+              'actualizadaPor'
+            ])
+          )
+        )
+        && existsAfter(
+          /databases/$(database)/documents/citas/$(appointmentId)/eventos/$(nextStatus)
+        );
+    }
+
+    // Conserva la compatibilidad temporal con el cobro
+    function isValidLegacyCheckoutUpdate() {
+      // Obtiene los campos modificados
+      let changedFields = request.resource.data
+        .diff(resource.data)
+        .affectedKeys();
+
+      // Devuelve la única transición heredada permitida
+      return resource.data.estado == 'completada'
+        && request.resource.data.estado == 'finalizada'
+        && changedFields.hasOnly(['estado']);
+    }
+
+    // Comprueba la integridad de un evento auditado
+    function hasValidAppointmentEvent(appointmentId, eventId) {
+      // Obtiene el evento y las versiones de la cita
+      let eventData = request.resource.data;
+      let appointmentBefore = get(
+        /databases/$(database)/documents/citas/$(appointmentId)
+      ).data;
+      let appointmentAfter = getAfter(
+        /databases/$(database)/documents/citas/$(appointmentId)
+      ).data;
+
+      // Devuelve la validez del evento y su transición
+      return eventData.keys().hasAll([
+          'tipo',
+          'estadoAnterior',
+          'estadoNuevo',
+          'motivo',
+          'actorUid',
+          'fecha',
+          'anticipoResultado'
+        ])
+        && eventData.keys().hasOnly([
+          'tipo',
+          'estadoAnterior',
+          'estadoNuevo',
+          'motivo',
+          'actorUid',
+          'fecha',
+          'anticipoResultado'
+        ])
+        && eventData.tipo == 'cambio_estado'
+        && eventId == eventData.estadoNuevo
+        && isAllowedTrackedAppointmentTransition(
+          eventData.estadoAnterior,
+          eventData.estadoNuevo
+        )
+        && eventData.actorUid == request.auth.uid
+        && eventData.fecha == request.time
+        && appointmentBefore.estado == eventData.estadoAnterior
+        && appointmentAfter.estado == eventData.estadoNuevo
+        && appointmentAfter.actualizadaEn == request.time
+        && appointmentAfter.actualizadaPor == request.auth.uid
+        && (
+          (
+            eventData.estadoNuevo == 'cancelada'
+            && eventData.motivo is string
+            && eventData.motivo.size() >= 5
+            && eventData.motivo.size() <= 500
+            && eventData.anticipoResultado in ['retenido', 'no_aplica']
+            && appointmentAfter.cancelacion.motivo == eventData.motivo
+            && appointmentAfter.cancelacion.fecha == request.time
+            && appointmentAfter.cancelacion.actorUid == request.auth.uid
+            && appointmentAfter.cancelacion.anticipoResultado
+              == eventData.anticipoResultado
+            && (
+              (
+                appointmentBefore.get('anticipoPagado', false) == true
+                && eventData.anticipoResultado == 'retenido'
+              )
+              || (
+                appointmentBefore.get('anticipoPagado', false) != true
+                && eventData.anticipoResultado == 'no_aplica'
+              )
+            )
+          )
+          || (
+            eventData.estadoNuevo != 'cancelada'
+            && eventData.motivo == null
+            && eventData.anticipoResultado == null
+          )
+        );
+    }
+
     match /citas/{appointmentId} {
       allow read: if isReceptionOrAdmin() || isClinical();
-      allow create, update: if isReceptionOrAdmin();
+      allow create: if isReceptionOrAdmin();
+      allow update: if isReceptionOrAdmin()
+        && (
+          isValidTrackedAppointmentUpdate(appointmentId)
+          || isValidLegacyCheckoutUpdate()
+        );
       allow delete: if false;
+
+      match /eventos/{eventId} {
+        allow read: if isReceptionOrAdmin() || isClinical();
+        allow create: if isReceptionOrAdmin()
+          && hasValidAppointmentEvent(appointmentId, eventId);
+        allow update, delete: if false;
+      }
     }
 
     match /ventas/{saleId} {
