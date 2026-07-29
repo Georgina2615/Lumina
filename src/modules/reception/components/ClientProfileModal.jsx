@@ -114,7 +114,14 @@ function ClientProfileDialog({ client, onClose, onUpdateContact }) {
             <label className="mb-1 block text-xs font-semibold text-muted" htmlFor="client-profile-email">
               Correo electrónico <span className="ml-2 font-normal">Opcional</span>
             </label>
+            {client.emailPendienteCorreccion && (
+              <p className="mb-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+                id="client-profile-email-warning" role="alert">
+                El correo heredado está incompleto Corrígelo o bórralo antes de guardar
+              </p>
+            )}
             <input autoComplete="email"
+              aria-describedby={client.emailPendienteCorreccion ? 'client-profile-email-warning' : undefined}
               className="w-full rounded-xl border border-surface-hover bg-background p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
               id="client-profile-email" maxLength={160}
               onChange={(event) => setEmail(event.target.value)} type="email" value={email} />

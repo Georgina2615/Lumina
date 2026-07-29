@@ -182,7 +182,9 @@ export const createAppointmentBooking = async ({
         storedClient.telefonoNormalizado || storedClient.telefono
       ),
       email: normalizeEmail(
-        storedClient.emailNormalizado || storedClient.email
+        Object.hasOwn(storedClient, 'emailNormalizado')
+          ? storedClient.emailNormalizado
+          : storedClient.email
       )
     };
     const identities = [{

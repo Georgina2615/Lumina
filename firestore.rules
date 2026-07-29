@@ -97,6 +97,59 @@ service cloud.firestore {
         && (normalizedEmail == ''
           || normalizedEmail.matches('[^/@ ]+@[^/@ ]+[.][^/@ ]+'));
     }
+    function hasValidClientEmailState(data) {
+      let pendingCorrection = data.get('emailPendienteCorreccion', false);
+      return pendingCorrection is bool
+        && (
+          (pendingCorrection == false
+            && hasValidClientEmail(data.email, data.emailNormalizado)
+          )
+          || (pendingCorrection == true
+            && data.email is string
+            && data.email == data.email.trim()
+            && data.email.size() > 0
+            && data.email.size() <= 254
+            && data.emailNormalizado is string
+            && data.emailNormalizado == ''
+          )
+        );
+    }
+    function hasValidMigrationAudit(data) {
+      let hasMigrationAudit = data.keys().hasAny(['migradoEn', 'migradoPor']);
+      return !hasMigrationAudit
+        || (
+          data.keys().hasAll(['migradoEn', 'migradoPor'])
+          && data.migradoEn is timestamp
+          && data.migradoPor is string
+          && data.migradoPor.size() > 0
+        );
+    }
+    function hasValidClientCreator(data) {
+      return (data.creadoPor is string && data.creadoPor.size() > 0)
+        || (
+          data.creadoPor == null
+          && data.keys().hasAll(['migradoEn', 'migradoPor'])
+          && data.migradoEn is timestamp
+          && data.migradoPor is string
+          && data.migradoPor.size() > 0
+        );
+    }
+    function hasValidClientMerge(data) {
+      let mergeFields = [
+        'fusionadoCon', 'fusionadoEn', 'fusionadoPor', 'motivoFusion'
+      ];
+      return (data.fusionado == false && !data.keys().hasAny(mergeFields))
+        || (
+          data.fusionado == true
+          && data.keys().hasAll(mergeFields)
+          && data.fusionadoCon is string
+          && data.fusionadoCon.size() > 0
+          && data.fusionadoEn is timestamp
+          && data.fusionadoPor is string
+          && data.fusionadoPor.size() > 0
+          && data.motivoFusion == 'duplicado_contacto'
+        );
+    }
     function hasValidClientCore(data) {
       return data.keys().hasAll([
           'nombreCompleto', 'telefono', 'telefonoNormalizado', 'email',
@@ -106,15 +159,19 @@ service cloud.firestore {
         && data.keys().hasOnly([
           'nombreCompleto', 'telefono', 'telefonoNormalizado', 'email',
           'emailNormalizado', 'consentimientoFirmado', 'fusionado', 'fechaRegistro',
-          'creadoPor', 'firmaUrl', 'fechaFirma', 'actualizadaEn', 'actualizadaPor'
+          'creadoPor', 'firmaUrl', 'fechaFirma', 'actualizadaEn', 'actualizadaPor',
+          'emailPendienteCorreccion', 'migradoEn', 'migradoPor',
+          'fusionadoCon', 'fusionadoEn', 'fusionadoPor', 'motivoFusion'
         ])
         && hasValidClientName(data.nombreCompleto)
         && hasValidClientPhone(data.telefono, data.telefonoNormalizado)
-        && hasValidClientEmail(data.email, data.emailNormalizado)
+        && hasValidClientEmailState(data)
         && data.consentimientoFirmado is bool
         && data.fusionado is bool
         && data.fechaRegistro is timestamp
-        && data.creadoPor is string && data.creadoPor.size() > 0
+        && hasValidMigrationAudit(data)
+        && hasValidClientCreator(data)
+        && hasValidClientMerge(data)
         && data.get('firmaUrl', '') is string
         && data.get('fechaFirma', '') is string
         && data.get('actualizadaEn', request.time) is timestamp
@@ -143,10 +200,18 @@ service cloud.firestore {
     }
     function hasPairedContactChanges() {
       let changed = request.resource.data.diff(resource.data).affectedKeys();
-      return (!changed.hasAny(['telefono', 'telefonoNormalizado'])
-          || changed.hasAll(['telefono', 'telefonoNormalizado']))
-        && (!changed.hasAny(['email', 'emailNormalizado'])
-          || changed.hasAll(['email', 'emailNormalizado']));
+      return !changed.hasAny(['telefono', 'telefonoNormalizado'])
+        || changed.hasAll(['telefono', 'telefonoNormalizado']);
+    }
+    function resolvesPendingEmail(changed, data) {
+      return !changed.hasAny(['email', 'emailNormalizado'])
+        || (
+          data.get('emailPendienteCorreccion', false) == false
+          && (
+            resource.data.get('emailPendienteCorreccion', false) == false
+            || changed.hasAny(['emailPendienteCorreccion'])
+          )
+        );
     }
     function isValidClientCreate(clientId) {
       let data = request.resource.data;
@@ -167,17 +232,20 @@ service cloud.firestore {
       let changed = data.diff(resource.data).affectedKeys();
       return hasValidClientCore(resource.data)
         && hasValidClientCore(data)
+        && resource.data.fusionado == false
+        && data.fusionado == false
         && changed.hasAny([
           'telefono', 'telefonoNormalizado', 'email', 'emailNormalizado'
         ])
         && changed.hasOnly([
           'telefono', 'telefonoNormalizado', 'email', 'emailNormalizado',
-          'actualizadaEn', 'actualizadaPor'
+          'emailPendienteCorreccion', 'actualizadaEn', 'actualizadaPor'
         ])
         && changed.hasAll(['actualizadaEn', 'actualizadaPor'])
         && data.actualizadaEn == request.time
         && data.actualizadaPor == request.auth.uid
         && hasPairedContactChanges()
+        && resolvesPendingEmail(changed, data)
         && hasRequiredIdentitiesAfter(clientId, data)
         && releasesIdentity('telefono', resource.data.telefonoNormalizado,
           data.telefonoNormalizado)
@@ -187,7 +255,9 @@ service cloud.firestore {
     function isValidClientSignatureUpdate() {
       let data = request.resource.data;
       let changed = data.diff(resource.data).affectedKeys();
-      return changed.hasOnly(['consentimientoFirmado', 'firmaUrl', 'fechaFirma'])
+      return resource.data.get('fusionado', false) == false
+        && data.get('fusionado', false) == false
+        && changed.hasOnly(['consentimientoFirmado', 'firmaUrl', 'fechaFirma'])
         && changed.hasAll(['consentimientoFirmado', 'firmaUrl', 'fechaFirma'])
         && data.nombreCompleto is string
         && data.telefono is string
@@ -405,7 +475,7 @@ service cloud.firestore {
         && data.duracionBloqueMinutos is int && data.duracionBloqueMinutos == 180
         && data.finBloque == data.inicio + duration.value(180, 'm')
         && data.creadoEn is timestamp && data.creadoPor is string
-        && data.schemaVersion is int && data.schemaVersion == 2;
+        && data.schemaVersion is int && data.schemaVersion in [1, 2];
     }
     function slotAfter(slotId) { return getAfter(/databases/$(database)/documents/cupos/$(slotId)).data; }
     function appointmentBefore(appointmentId) { return get(/databases/$(database)/documents/citas/$(appointmentId)).data; }
@@ -461,8 +531,7 @@ service cloud.firestore {
     function hasValidSlotLifecycle(appointmentId, nextStatus) {
       let slotId = resource.data.get('cupoId', '');
       let schemaVersion = resource.data.get('schemaVersion', 0);
-      return schemaVersion != 2
-        || slotId == ''
+      return !(schemaVersion in [1, 2])
         || (nextStatus == 'cancelada'
           && exists(/databases/$(database)/documents/cupos/$(slotId))
           && get(/databases/$(database)/documents/cupos/$(slotId)).data.citaId
@@ -546,7 +615,7 @@ service cloud.firestore {
       return hasValidSlotData(slotId, data)
         && exists(/databases/$(database)/documents/citas/$(data.citaId))
         && existsAfter(/databases/$(database)/documents/citas/$(data.citaId))
-        && beforeData.schemaVersion == 2
+        && beforeData.schemaVersion in [1, 2]
         && beforeData.cupoId == slotId
         && afterData.cupoId == slotId
         && isAllowedTrackedAppointmentTransition(
@@ -562,6 +631,7 @@ service cloud.firestore {
       allow read: if canReadOperations();
       allow create: if isReceptionOrAdmin()
         && hasValidSlotData(slotId, request.resource.data)
+        && request.resource.data.schemaVersion == 2
         && request.resource.data.creadoEn == request.time
         && request.resource.data.creadoPor == request.auth.uid
         && hasMatchingAppointmentAfter(slotId, request.resource.data);

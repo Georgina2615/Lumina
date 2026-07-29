@@ -249,14 +249,14 @@ export const cancelAppointment = async ({
       ? doc(db, 'cupos', appointment.cupoId)
       : null;
     const slotSnapshot = slotReference ? await transaction.get(slotReference) : null;
+    const usesManagedSlot = [1, 2].includes(appointment.schemaVersion);
 
     // Detiene cancelaciones fuera del flujo
     if (!canCancelAppointment(appointment)) {
       throw new Error('Esta cita ya no admite cancelación');
     }
-    if (appointment.schemaVersion === 2 && (
-      !slotReference
-      || !slotSnapshot?.exists()
+    if (usesManagedSlot && (
+      !slotSnapshot?.exists()
       || slotSnapshot.data().citaId !== appointmentId
     )) {
       throw new Error('No se pudo comprobar el cupo de esta cita');
@@ -287,9 +287,8 @@ export const cancelAppointment = async ({
     );
 
     if (
-      appointment.schemaVersion === 2
-      && slotReference
-      && slotSnapshot.exists()
+      usesManagedSlot
+      && slotSnapshot?.exists()
       && slotSnapshot.data().citaId === appointmentId
     ) {
       transaction.delete(slotReference);

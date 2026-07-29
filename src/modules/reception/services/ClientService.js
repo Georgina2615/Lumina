@@ -1,4 +1,6 @@
-import { collection, doc, getDoc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
+import {
+  collection, deleteField, doc, getDoc, onSnapshot, runTransaction, serverTimestamp
+} from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 
 const CLIENTS_COLLECTION = 'clientes';
@@ -180,7 +182,9 @@ export const updateClientContact = async ({
     }
 
     const previousPhone = safelyNormalizePhone(client.telefono);
-    const previousEmail = safelyNormalizeEmail(client.email);
+    const previousEmail = Object.hasOwn(client, 'emailNormalizado')
+      ? safelyNormalizeEmail(client.emailNormalizado)
+      : safelyNormalizeEmail(client.email);
     const nextPhoneReference = getClientIdentityReference(
       'telefono',
       normalizedPhone
@@ -216,6 +220,7 @@ export const updateClientContact = async ({
     const contactChanged = (
       previousPhone !== normalizedPhone
       || (previousEmail ?? '') !== (normalizedEmail ?? '')
+      || client.emailPendienteCorreccion === true
     );
 
     if (
@@ -284,6 +289,7 @@ export const updateClientContact = async ({
       telefonoNormalizado: normalizedPhone,
       email: normalizedEmail ?? '',
       emailNormalizado: normalizedEmail ?? '',
+      emailPendienteCorreccion: deleteField(),
       actualizadaEn: serverTimestamp(),
       actualizadaPor: actorUid
     });
