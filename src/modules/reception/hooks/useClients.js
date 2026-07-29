@@ -1,53 +1,59 @@
-import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../config/firebase'; 
+import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '../../auth/context';
+import {
+  subscribeClients,
+  updateClientContact
+} from '../services/ClientService';
 
+// Coordina el directorio y la actualización de contacto
 export const useClients = () => {
-  const [clientes, setClientes] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [errorLocal, setErrorLocal] = useState(null);
+  const { usuario: user } = useAuth();
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // 1.Se trae el directorio en tiempo real, pero solo lectura
-  useEffect(() => {
-    const clientesRef = collection(db, 'clientes');
-    // Ordenamos por fechaRegistro, los más nuevos primero
-    const consulta = query(clientesRef, orderBy('fechaRegistro', 'desc'));
+  // Mantiene el directorio sincronizado
+  useEffect(() => (
+    subscribeClients({
+      onData: (clientData) => {
+        setClients(clientData);
+        setError(null);
+        setLoading(false);
+      },
+      onError: (subscriptionError) => {
+        console.error(
+          'Error al sincronizar el directorio',
+          subscriptionError
+        );
+        setClients([]);
+        setError('Error al cargar la base de datos de clientes');
+        setLoading(false);
+      }
+    })
+  ), []);
 
-    const desuscribir = onSnapshot(consulta, (snapshot) => {
-      const listaClientes = snapshot.docs.map(documento => ({
-        id: documento.id,
-        ...documento.data()
-      }));
-      setClientes(listaClientes);
-      setCargando(false);
-    }, (error) => {
-      console.error("Error al cargar el directorio:", error);
-      setErrorLocal("Error al cargar la base de datos de clientes.");
-      setCargando(false);
-    });
-
-    return () => desuscribir();
-  }, []);
-
-  // 2. Edición restringido solo se edita teléfono y correo
-  const actualizarContacto = async (clienteId, datosContacto) => {
+  const updateContact = useCallback(async (clientId, contact) => {
     try {
-      const clienteRef = doc(db, 'clientes', clienteId);
-      
-      // Si se trata de editar se ignoran.
-      const { telefono, email } = datosContacto;
-      
-      await updateDoc(clienteRef, {
-        telefono,
-        email
+      return await updateClientContact({
+        clientId,
+        phone: contact?.phone ?? contact?.telefono,
+        email: contact?.email,
+        actorUid: user?.uid
       });
-      
-      return true;
-    } catch (error) {
-      console.error("Error al actualizar datos de contacto:", error);
-      throw new Error("No se pudieron actualizar los datos del cliente.");
+    } catch (updateError) {
+      console.error('Error al actualizar el contacto', updateError);
+      throw updateError;
     }
-  };
+  }, [user]);
 
-  return { clientes, cargando, errorLocal, actualizarContacto };
+  return {
+    clients,
+    loading,
+    error,
+    updateContact,
+    ['clientes']: clients,
+    ['cargando']: loading,
+    ['errorLocal']: error,
+    ['actualizarContacto']: updateContact
+  };
 };

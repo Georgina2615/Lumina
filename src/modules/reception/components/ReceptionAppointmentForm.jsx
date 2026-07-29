@@ -1,46 +1,42 @@
-import { useState } from "react";
-import { useReceptionAppointments } from "../hooks"; 
-import { ReceptionClientSection, ReceptionDetailsSection } from ".";
+import { useReceptionAppointmentForm } from '../hooks/UseReceptionAppointmentForm';
+import ReceptionClientSection from './ReceptionClientSection';
+import ReceptionDetailsSection from './ReceptionDetailsSection';
+import ReceptionPaymentSection from './ReceptionPaymentSection';
 
-export default function ReceptionAppointmentForm({ onClose }) {
-  const { agendarCitaPresencial, buscarCliente, cargando, errorLocal, exito } = useReceptionAppointments();
-  
-  const [terminoBusqueda, setTerminoBusqueda] = useState("");
-  const [buscando, setBuscando] = useState(false);
-  const [datosCliente, setDatosCliente] = useState({ nombreCompleto: "", telefono: "", email: "", id: null });
-  const [datosCita, setDatosCita] = useState({ fecha: "", hora: "", servicio: "" });
+// Presenta la creación presencial
+export default function ReceptionAppointmentForm(props) {
+  const {
+    clientSectionProps,
+    confirmedName,
+    detailsSectionProps,
+    error,
+    handleSubmit,
+    handleSuccessClose,
+    isBooking,
+    onClose,
+    paymentSectionProps,
+    showPayment,
+    submitDisabled,
+    success
+  } = useReceptionAppointmentForm(props);
 
-  // Trigger de búsqueda onBlur corregido
-  const manejarBusqueda = async () => {
-    if (terminoBusqueda.length < 4) return; 
-    setBuscando(true);
-    
-    // Recuerda: La búsqueda es exacta. Se recomienda buscar por los 10 dígitos del teléfono.
-    const clienteEncontrado = await buscarCliente(terminoBusqueda);
-    
-    if (clienteEncontrado) {
-      setDatosCliente(clienteEncontrado);
-    } else {
-      setTerminoBusqueda(""); // Limpiamos la barra
-      setDatosCliente({ nombreCompleto: "", telefono: "", email: "", id: null });
-    }
-    setBuscando(false);
-  };
-
-  const manejarCambioCliente = (e) => setDatosCliente({ ...datosCliente, [e.target.name]: e.target.value });
-  const manejarCambioCita = (e) => setDatosCita({ ...datosCita, [e.target.name]: e.target.value });
-
-  const manejarEnvio = async (e) => {
-    e.preventDefault();
-    await agendarCitaPresencial(datosCliente, datosCita);
-  };
-
-  if (exito) {
+  if (success) {
     return (
-      <div className="p-8 text-center bg-surface rounded-2xl border border-surface-hover">
-        <h2 className="text-2xl font-title font-bold text-status-confirmed mb-4">¡Cita Agendada!</h2>
-        <p className="text-muted font-body mb-6">Cita de <strong>{datosCliente.nombreCompleto}</strong> confirmada.</p>
-        <button onClick={onClose} className="bg-primary text-surface px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
+      <div
+        aria-live="polite"
+        className="m-5 rounded-2xl border border-status-confirmed/30 bg-status-confirmed/10 p-7 text-center sm:m-6"
+      >
+        <h3 className="font-title text-2xl font-bold text-primary">
+          Cita confirmada
+        </h3>
+        <p className="mt-2 text-sm text-muted">
+          La cita de <strong className="text-primary">{confirmedName}</strong> quedó registrada
+        </p>
+        <button
+          className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-surface"
+          onClick={handleSuccessClose}
+          type="button"
+        >
           Cerrar
         </button>
       </div>
@@ -48,27 +44,40 @@ export default function ReceptionAppointmentForm({ onClose }) {
   }
 
   return (
-    <form onSubmit={manejarEnvio} className="bg-surface p-6 rounded-2xl border border-surface-hover flex flex-col gap-6">
-      
-      <ReceptionClientSection 
-        terminoBusqueda={terminoBusqueda}
-        setTerminoBusqueda={setTerminoBusqueda}
-        manejarBusqueda={manejarBusqueda}
-        buscando={buscando}
-        datosCliente={datosCliente}
-        manejarCambioCliente={manejarCambioCliente}
-      />
-
-      <ReceptionDetailsSection 
-        datosCita={datosCita}
-        manejarCambioCita={manejarCambioCita}
-      />
-
-      {errorLocal && <div className="p-3 bg-error/10 text-error rounded-lg text-sm">{errorLocal}</div>}
-
-      <button type="submit" disabled={cargando} className={`w-full py-4 rounded-xl font-medium text-lg shadow-sm transition-all ${cargando ? "bg-surface-hover text-muted cursor-not-allowed" : "bg-primary text-surface hover:opacity-90"}`}>
-        {cargando ? "Guardando..." : "Agendar y Confirmar"}
-      </button>
+    <form
+      aria-busy={isBooking}
+      className="flex flex-col gap-6 p-5 sm:p-6"
+      onSubmit={handleSubmit}
+    >
+      <ReceptionClientSection {...clientSectionProps} />
+      <ReceptionDetailsSection {...detailsSectionProps} />
+      {showPayment && <ReceptionPaymentSection {...paymentSectionProps} />}
+      {error && (
+        <div
+          aria-live="assertive"
+          className="rounded-2xl border border-error/20 bg-error/10 p-3 text-sm text-error"
+          role="alert"
+        >
+          {error}
+        </div>
+      )}
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button
+          className="rounded-xl border border-surface-hover px-5 py-3 font-semibold text-muted"
+          disabled={isBooking}
+          onClick={onClose}
+          type="button"
+        >
+          Cancelar
+        </button>
+        <button
+          className="rounded-xl bg-primary px-6 py-3 font-semibold text-surface disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={submitDisabled}
+          type="submit"
+        >
+          {isBooking ? 'Confirmando cita' : 'Registrar anticipo y confirmar'}
+        </button>
+      </div>
     </form>
   );
 }

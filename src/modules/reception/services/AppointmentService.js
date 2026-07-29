@@ -233,25 +233,33 @@ export const cancelAppointment = async ({
   const normalizedReason = reason?.trim();
 
   // Detiene cancelaciones sin motivo suficiente
-  if (
-    !normalizedReason
+  if (!normalizedReason
     || normalizedReason.length < 5
-    || normalizedReason.length > 500
-  ) {
+    || normalizedReason.length > 500) {
     throw new Error('Escribe un motivo de entre cinco y quinientos caracteres');
   }
-
   // Define la referencia de la cita
   const appointmentReference = doc(db, 'citas', appointmentId);
-
   // Ejecuta la cancelación protegida
   return runTransaction(db, async (transaction) => {
-    // Obtiene la cita vigente
     const appointment = await requireAppointment(transaction, appointmentReference);
+    const slotReference = (typeof appointment.cupoId === 'string'
+      && appointment.cupoId
+      && !appointment.cupoId.includes('/'))
+      ? doc(db, 'cupos', appointment.cupoId)
+      : null;
+    const slotSnapshot = slotReference ? await transaction.get(slotReference) : null;
 
     // Detiene cancelaciones fuera del flujo
     if (!canCancelAppointment(appointment)) {
       throw new Error('Esta cita ya no admite cancelación');
+    }
+    if (appointment.schemaVersion === 2 && (
+      !slotReference
+      || !slotSnapshot?.exists()
+      || slotSnapshot.data().citaId !== appointmentId
+    )) {
+      throw new Error('No se pudo comprobar el cupo de esta cita');
     }
 
     // Define el resultado real del anticipo
@@ -278,7 +286,15 @@ export const cancelAppointment = async ({
       depositOutcome
     );
 
-    // Devuelve el resultado financiero registrado
+    if (
+      appointment.schemaVersion === 2
+      && slotReference
+      && slotSnapshot.exists()
+      && slotSnapshot.data().citaId === appointmentId
+    ) {
+      transaction.delete(slotReference);
+    }
+
     return depositOutcome;
   });
 };

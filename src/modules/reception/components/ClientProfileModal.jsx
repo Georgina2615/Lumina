@@ -1,106 +1,165 @@
-import { useState, useEffect } from 'react';
-import { useClients } from '../hooks';
+import { useEffect, useRef, useState } from 'react';
 
-export default function ClientProfileModal({ isOpen, onClose, cliente }) {
-  const { actualizarContacto } = useClients();
-  
-  // Estados para los campos editables
-  const [telefono, setTelefono] = useState('');
-  const [email, setEmail] = useState('');
-  const [guardando, setGuardando] = useState(false);
+const focusableSelector = 'button:not([disabled]), input:not([disabled]), [href]';
 
-  // Sincronizamos los datos del cliente al abrir el modal
+// Aísla el estado editable de cada cliente
+function ClientProfileDialog({ client, onClose, onUpdateContact }) {
+  const [phone, setPhone] = useState(() => client.telefono || '');
+  const [email, setEmail] = useState(() => client.email || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const dialogRef = useRef(null);
+  const phoneRef = useRef(null);
+
+  // Restaura el foco al cerrar
   useEffect(() => {
-    if (cliente) {
-      setTelefono(cliente.telefono || '');
-      setEmail(cliente.email || '');
+    const returnFocusElement = document.activeElement;
+    phoneRef.current?.focus();
+    return () => {
+      if (returnFocusElement instanceof HTMLElement) {
+        returnFocusElement.focus();
+      }
+    };
+  }, []);
+
+  // Cierra cuando no existe una operación activa
+  const handleClose = () => {
+    if (!isSaving) {
+      onClose();
     }
-  }, [cliente]);
+  };
 
-  if (!isOpen || !cliente) return null;
+  // Mantiene el teclado dentro del diálogo
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape' && !isSaving) {
+      event.preventDefault();
+      onClose();
+      return;
+    }
+    if (event.key !== 'Tab') {
+      return;
+    }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setGuardando(true);
+    const controls = dialogRef.current?.querySelectorAll(focusableSelector);
+    if (!controls?.length) {
+      event.preventDefault();
+      return;
+    }
+    const firstControl = controls[0];
+    const lastControl = controls[controls.length - 1];
+    const target = event.shiftKey && document.activeElement === firstControl
+      ? lastControl
+      : !event.shiftKey && document.activeElement === lastControl
+        ? firstControl
+        : null;
+    if (target) {
+      event.preventDefault();
+      target.focus();
+    }
+  };
+
+  // Guarda el contacto con la API heredada
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (isSaving) {
+      return;
+    }
+    setIsSaving(true);
+    setError(null);
     try {
-      await actualizarContacto(cliente.id, { telefono, email });
-      onClose(); // Cerramos al terminar
-    } catch (error) {
-      alert("Hubo un error al actualizar los datos.");
+      await onUpdateContact(client.id, {
+        telefono: phone,
+        email: email.trim() || null
+      });
+      onClose();
+    } catch (updateError) {
+      setError(updateError.message || 'No pudimos actualizar el contacto');
     } finally {
-      setGuardando(false);
+      setIsSaving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm">
-      <div className="bg-background rounded-2xl max-w-md w-full p-6 shadow-xl">
-        
-        <div className="flex justify-between items-center mb-6 border-b border-surface-hover pb-3">
-          <h2 className="font-title font-bold text-xl text-primary">Perfil del Cliente</h2>
-          <button onClick={onClose} className="text-muted hover:text-error text-xl font-bold">✕</button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          
-          {/* CAMPO BLOQUEADO (Solo lectura) */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/45 p-4 backdrop-blur-sm">
+      <div aria-labelledby="client-profile-title" aria-modal="true"
+        className="max-h-[calc(100vh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-surface-hover bg-background p-6 shadow-2xl"
+        onKeyDown={handleKeyDown} ref={dialogRef} role="dialog">
+        <header className="mb-5 flex items-start justify-between gap-4 border-b border-surface-hover pb-4">
           <div>
-            <label className="text-xs font-semibold text-muted mb-1 block">Nombre Completo (No editable)</label>
-            <input 
-              type="text" 
-              value={cliente.nombreCompleto} 
-              disabled 
-              className="w-full p-3 rounded-xl border border-surface-hover bg-surface-hover text-muted cursor-not-allowed" 
-            />
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Directorio</p>
+            <h2 className="mt-1 font-title text-2xl font-bold text-primary" id="client-profile-title">
+              Perfil del cliente
+            </h2>
           </div>
+          <button aria-label="Cerrar" className="rounded-full p-2 text-xl text-muted transition hover:bg-surface-hover hover:text-primary disabled:opacity-50"
+            disabled={isSaving} onClick={handleClose} type="button">×</button>
+        </header>
 
-          {/* CAMPOS EDITABLES */}
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <div className="rounded-2xl bg-surface p-4">
+            <p className="text-xs font-semibold text-muted">Nombre completo</p>
+            <p className="mt-1 font-semibold text-primary">{client.nombreCompleto}</p>
+          </div>
           <div>
-            <label className="text-xs font-semibold text-muted mb-1 block">Teléfono *</label>
-            <input 
-              type="tel" 
-              required
-              value={telefono} 
-              onChange={(e) => setTelefono(e.target.value)}
-              className="w-full p-3 rounded-xl border border-surface-hover bg-background text-primary focus:border-primary focus:outline-none transition-colors" 
-            />
+            <label className="mb-1 block text-xs font-semibold text-muted" htmlFor="client-profile-phone">
+              Teléfono
+            </label>
+            <input autoComplete="tel-national"
+              className="w-full rounded-xl border border-surface-hover bg-background p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+              id="client-profile-phone" inputMode="numeric" maxLength={10}
+              onChange={(event) => setPhone(event.target.value)} pattern="[0-9]{10}"
+              ref={phoneRef} required type="tel" value={phone} />
           </div>
-
           <div>
-            <label className="text-xs font-semibold text-muted mb-1 block">Correo Electrónico *</label>
-            <input 
-              type="email" 
-              required
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 rounded-xl border border-surface-hover bg-background text-primary focus:border-primary focus:outline-none transition-colors" 
-            />
+            <label className="mb-1 block text-xs font-semibold text-muted" htmlFor="client-profile-email">
+              Correo electrónico <span className="ml-2 font-normal">Opcional</span>
+            </label>
+            <input autoComplete="email"
+              className="w-full rounded-xl border border-surface-hover bg-background p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+              id="client-profile-email" maxLength={160}
+              onChange={(event) => setEmail(event.target.value)} type="email" value={email} />
           </div>
-
-          {/* ESTADO LEGAL */}
-          <div className="mt-2 p-3 rounded-lg bg-surface flex justify-between items-center border border-surface-hover">
-            <span className="text-sm font-semibold text-muted">Estatus Legal:</span>
-            {cliente.consentimientoFirmado ? (
-              <span className="text-xs font-bold text-status-confirmed bg-status-confirmed/10 px-3 py-1 rounded-full">Firma Registrada</span>
-            ) : (
-              <span className="text-xs font-bold text-error bg-error/10 px-3 py-1 rounded-full">Sin Firma</span>
-            )}
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-surface-hover bg-surface p-4 text-sm">
+            <span className="font-semibold text-muted">Consentimiento</span>
+            <span className={client.consentimientoFirmado
+              ? 'font-semibold text-status-confirmed' : 'font-semibold text-error'}>
+              {client.consentimientoFirmado ? 'Firma registrada' : 'Sin firma'}
+            </span>
           </div>
-
-          <div className="mt-4">
-            <button 
-              type="submit" 
-              disabled={guardando}
-              className={`w-full py-3 text-sm font-medium rounded-xl text-surface shadow-sm transition-colors ${
-                guardando ? 'bg-surface-hover cursor-not-allowed' : 'bg-primary hover:opacity-90'
-              }`}
-            >
-              {guardando ? "Actualizando..." : "Actualizar Contacto"}
+          {error && (
+            <div aria-live="assertive" className="rounded-2xl border border-error/20 bg-error/10 p-3 text-sm text-error"
+              role="alert">{error}</div>
+          )}
+          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+            <button className="rounded-xl border border-surface-hover px-5 py-3 font-semibold text-muted transition hover:bg-surface-hover disabled:opacity-50"
+              disabled={isSaving} onClick={handleClose} type="button">Cancelar</button>
+            <button className="rounded-xl bg-primary px-5 py-3 font-semibold text-surface transition hover:opacity-90 disabled:opacity-50"
+              disabled={isSaving} type="submit">
+              {isSaving ? 'Actualizando contacto' : 'Actualizar contacto'}
             </button>
           </div>
         </form>
-
       </div>
     </div>
+  );
+}
+
+// Presenta la edición de contacto del cliente
+export default function ClientProfileModal({
+  cliente: client,
+  isOpen,
+  onClose,
+  onUpdateContact
+}) {
+  if (!isOpen || !client) {
+    return null;
+  }
+  return (
+    <ClientProfileDialog
+      client={client}
+      key={client.id}
+      onClose={onClose}
+      onUpdateContact={onUpdateContact}
+    />
   );
 }

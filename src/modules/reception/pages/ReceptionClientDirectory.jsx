@@ -4,7 +4,12 @@ import { ClientTable, ClientProfileModal, SignatureModal } from '../components';
 
 export default function ReceptionClientDirectory() {
   // Lógica principal
-  const { clientes, cargando, errorLocal } = useClients();
+  const {
+    clientes,
+    cargando,
+    errorLocal,
+    actualizarContacto: updateContact
+  } = useClients();
 
   // Estados para controlar los modales
   const [clienteActivo, setClienteActivo] = useState(null);
@@ -49,7 +54,7 @@ export default function ReceptionClientDirectory() {
         </p>
       </div>
 
-      {/* Contenido Principal (La Tabla) */}
+      {/* Contenido principal de la tabla */}
       <div className="flex-1 min-h-[500px]">
         <ClientTable 
           clientes={clientes} 
@@ -63,6 +68,7 @@ export default function ReceptionClientDirectory() {
         isOpen={modalPerfilAbierto} 
         onClose={() => setModalPerfilAbierto(false)} 
         cliente={clienteActivo}
+        onUpdateContact={updateContact}
       />
 
       <SignatureModal 

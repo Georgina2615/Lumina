@@ -1,72 +1,18 @@
-import { useState } from 'react';
-import { format, getDay, parse, startOfWeek } from 'date-fns';
-import { es } from 'date-fns/locale/es';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { useCallback, useState } from 'react';
+import { format } from 'date-fns';
+import { Calendar } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { CancelAppointmentModal, NewAppointmentModal } from '../components';
+import {
+  calendarLocalizer,
+  calendarMessages,
+  getAppointmentEventStyle,
+  getCalendarSlotStyle
+} from '../components/ReceptionCalendarConfig';
 import { useReceptionCalendar } from '../hooks';
 
-// Configura las fechas en español
-const localizer = dateFnsLocalizer({
-  format, parse, startOfWeek, getDay, locales: { es }
-});
-
-// Define los textos del calendario
-const calendarMessages = {
-  next: 'Siguiente', previous: 'Anterior', today: 'Hoy', month: 'Mes',
-  week: 'Semana', day: 'Día', agenda: 'Agenda',
-  noEventsInRange: 'No hay citas en este periodo'
-};
-
-// Relaciona cada estado con su color
-const colorByStatus = {
-  por_confirmar: 'var(--color-status-pending)',
-  confirmada: 'var(--color-status-confirmed)',
-  en_cabina: 'var(--color-status-incabin)',
-  completada: 'var(--color-status-completed)',
-  finalizada: 'var(--color-status-completed)',
-  cancelada: 'var(--color-error)'
-};
-
-// Define los estados que necesitan texto claro
-const lightTextStatuses = new Set(['cancelada', 'completada', 'finalizada']);
-
-// Define la apariencia de cada estado
-const eventStyleGetter = (appointment) => {
-  // Detecta el estado histórico cancelado
-  const isCancelled = appointment.estado === 'cancelada';
-
-  // Devuelve estilos requeridos por la librería
-  return {
-    style: {
-      backgroundColor: colorByStatus[appointment.estado] ?? 'var(--color-muted)',
-      border: isCancelled ? '1px dashed var(--color-error)' : '0',
-      borderRadius: '8px',
-      color: lightTextStatuses.has(appointment.estado) ? '#ffffff' : '#181313',
-      display: 'block',
-      opacity: isCancelled ? 0.58 : 0.92,
-      textDecoration: isCancelled ? 'line-through' : 'none'
-    }
-  };
-};
-
-// Bloquea visualmente el horario de comida
-const slotPropGetter = (date) => {
-  // Detecta el horario no disponible
-  if (date.getHours() === 13) {
-    // Devuelve estilos requeridos por la librería
-    return {
-      style: {
-        backgroundColor: 'var(--color-surface-hover)',
-        cursor: 'not-allowed',
-        opacity: 0.55
-      }
-    };
-  }
-
-  // Devuelve una celda disponible
-  return {};
-};
+// Define los únicos inicios operativos
+const appointmentHours = new Set(['10:00', '14:00', '17:00']);
 
 // Controla la agenda de recepción
 export default function ReceptionCalendar() {
@@ -75,6 +21,7 @@ export default function ReceptionCalendar() {
   const [currentView, setCurrentView] = useState('week');
   const [showCancelled, setShowCancelled] = useState(false);
   const [showNewAppointment, setShowNewAppointment] = useState(false);
+  const [newAppointmentSlot, setNewAppointmentSlot] = useState(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
 
   // Obtiene las citas del rango visible
@@ -108,8 +55,25 @@ export default function ReceptionCalendar() {
     if (slotInfo.start.getHours() === 13) {
       return;
     }
+    const selectedHour = format(slotInfo.start, 'HH:mm');
+    setNewAppointmentSlot({
+      dateKey: format(slotInfo.start, 'yyyy-MM-dd'),
+      hour: appointmentHours.has(selectedHour) ? selectedHour : ''
+    });
     setShowNewAppointment(true);
   };
+
+  // Abre una cita sin selección previa
+  const openNewAppointment = () => {
+    setNewAppointmentSlot(null);
+    setShowNewAppointment(true);
+  };
+
+  // Cierra y limpia la selección previa
+  const closeNewAppointment = useCallback(() => {
+    setShowNewAppointment(false);
+    setNewAppointmentSlot(null);
+  }, []);
 
   // Abre el detalle de una cita
   const handleSelectAppointment = (appointment) => {
@@ -160,7 +124,7 @@ export default function ReceptionCalendar() {
             <span className="ml-2 rounded-full bg-background px-2 py-0.5 text-xs">{cancelledCount}</span>
           </button>
           <button className="rounded-xl bg-primary px-6 py-3 font-semibold text-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]"
-            onClick={() => setShowNewAppointment(true)} type="button">Nueva cita</button>
+            onClick={openNewAppointment} type="button">Nueva cita</button>
         </div>
       </div>
 
@@ -180,16 +144,16 @@ export default function ReceptionCalendar() {
           </div>
         )}
         <Calendar culture="es" date={visibleDate} endAccessor="end"
-          eventPropGetter={eventStyleGetter} events={visibleAppointments}
-          localizer={localizer} max={calendarEnd} messages={calendarMessages}
+          eventPropGetter={getAppointmentEventStyle} events={visibleAppointments}
+          localizer={calendarLocalizer} max={calendarEnd} messages={calendarMessages}
           min={calendarStart} onNavigate={setVisibleDate}
           onSelectEvent={handleSelectAppointment} onSelectSlot={handleSelectSlot}
-          onView={setCurrentView} popup selectable slotPropGetter={slotPropGetter}
+          onView={setCurrentView} popup selectable slotPropGetter={getCalendarSlotStyle}
           startAccessor="start" style={{ height: '100%' }} view={currentView} />
       </div>
 
-      <NewAppointmentModal isOpen={showNewAppointment}
-        onClose={() => setShowNewAppointment(false)} />
+      <NewAppointmentModal initialSlot={newAppointmentSlot}
+        isOpen={showNewAppointment} onClose={closeNewAppointment} />
       <CancelAppointmentModal appointment={selectedAppointment}
         canCancel={Boolean(selectedAppointment?.canCancel)} error={error}
         isSubmitting={cancelling} key={selectedAppointment?.id ?? 'closed'}
