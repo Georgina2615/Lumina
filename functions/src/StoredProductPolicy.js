@@ -95,6 +95,10 @@ export const mapExistingSaleResponse = (snapshot, request) => {
       totalPaidCents: breakdown.totalPagadoCentavos
     },
     inventoryWarnings: data.alertasInventario ?? [],
+    recipientEmail: typeof data.clienteEmail === 'string'
+      ? data.clienteEmail
+      : '',
+    ticketStatus: data.ticket?.estado ?? 'omitido',
     alreadyProcessed: true
   };
 };

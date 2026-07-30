@@ -39,6 +39,25 @@ const buildItems = (appointment, products) => {
   return items;
 };
 
+// Resuelve el correo canónico del comprobante
+const resolveRecipientEmail = (client, request) => (
+  client ? client.email : request.receiptEmail || ''
+);
+
+// Reúne los métodos reales sin duplicados
+const buildPaymentMethods = (appointment, payments) => {
+  // Obtiene los métodos del anticipo
+  const depositMethods = Array.isArray(appointment?.anticipoPagos)
+    ? appointment.anticipoPagos.map(({ metodo }) => metodo)
+    : [];
+
+  // Obtiene los métodos de liquidación
+  const checkoutMethods = payments.map(({ method }) => method);
+
+  // Devuelve etiquetas financieras únicas
+  return [...new Set([...depositMethods, ...checkoutMethods])];
+};
+
 // Construye el comprobante financiero canónico
 export const buildSaleDocument = ({
   actorUid,
@@ -53,34 +72,48 @@ export const buildSaleDocument = ({
   products,
   timestamp,
   totals
-}) => ({
-  folio,
-  tipo: appointment ? 'cita' : 'mostrador',
-  citaId: request.appointmentId,
-  clienteId: client?.id ?? null,
-  clienteNombre: client?.name ?? 'Mostrador',
-  clienteEmail: client?.email ?? '',
-  items: buildItems(appointment, products),
-  desglose: mapStoredTotals(totals),
-  metodosPago: request.payments.map(({ method }) => method),
-  pagoAnticipoId: depositPaymentId,
-  pagosLiquidacionIds: checkoutPaymentIds,
-  alertasInventario: inventoryWarnings,
-  estado: 'pagada',
-  ticket: {
-    estado: 'pendiente',
-    intentos: 0,
-    enviadoEn: null,
-    ultimoError: ''
-  },
-  sucursalId: BRANCH_ID,
-  idempotencia: {
-    clave: request.idempotencyKey,
-    hashSolicitud: requestHash
-  },
-  creadaEn: timestamp,
-  cobradaPor: actorUid,
-  schemaVersion: 1
+}) => {
+  // Obtiene el destinatario permitido
+  const recipientEmail = resolveRecipientEmail(client, request);
+
+  // Devuelve la venta canónica
+  return {
+    folio,
+    tipo: appointment ? 'cita' : 'mostrador',
+    citaId: request.appointmentId,
+    clienteId: client?.id ?? null,
+    clienteNombre: client?.name ?? 'Mostrador',
+    clienteEmail: recipientEmail,
+    items: buildItems(appointment, products),
+    desglose: mapStoredTotals(totals),
+    metodosPago: buildPaymentMethods(appointment, request.payments),
+    pagoAnticipoId: depositPaymentId,
+    pagosLiquidacionIds: checkoutPaymentIds,
+    alertasInventario: inventoryWarnings,
+    estado: 'pagada',
+    ticket: {
+      estado: recipientEmail ? 'pendiente' : 'omitido',
+      intentos: 0,
+      intentoId: null,
+      ultimoIntentoEn: null,
+      enviadoEn: null,
+      ultimoError: ''
+    },
+    sucursalId: BRANCH_ID,
+    idempotencia: {
+      clave: request.idempotencyKey,
+      hashSolicitud: requestHash
+    },
+    creadaEn: timestamp,
+    cobradaPor: actorUid,
+    schemaVersion: 1
+  };
+};
+
+// Construye el estado inicial del ticket
+export const buildInitialTicketResponse = (recipientEmail) => ({
+  recipientEmail,
+  ticketStatus: recipientEmail ? 'pendiente' : 'omitido'
 });
 
 // Convierte los totales internos a la respuesta pública

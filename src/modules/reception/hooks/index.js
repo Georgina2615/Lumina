@@ -4,3 +4,4 @@ export { useReceptionKanban } from './useReceptionKanban';
 export * from './useClients';
 export * from './useSignature';
 export * from './UsePos';
+export * from './UseSaleTicketQueue';

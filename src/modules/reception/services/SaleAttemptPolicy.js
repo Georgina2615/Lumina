@@ -33,12 +33,14 @@ export const freezeSaleRequest = (request) => Object.freeze({
 export const freezeSaleView = ({
   cartItems,
   paymentForm,
+  receiptEmail,
   totals
 }) => Object.freeze({
   cartItems: Object.freeze(cartItems.map(
     (item) => Object.freeze({ ...item })
   )),
   paymentForm: Object.freeze({ ...paymentForm }),
+  receiptEmail: receiptEmail ?? '',
   totals: Object.freeze({ ...totals })
 });
 

@@ -1,6 +1,16 @@
 import { httpsCallable } from 'firebase/functions';
 import { functionsInstance } from '../../../config/firebase';
 
+// Define estados reconocidos del ticket
+const ticketStatuses = new Set([
+  'pendiente',
+  'enviando',
+  'enviado',
+  'fallido',
+  'omitido',
+  'no_confirmado'
+]);
+
 // Prepara la frontera de la función remota
 const finalizeReceptionSaleCallable = httpsCallable(
   functionsInstance,
@@ -47,6 +57,8 @@ export const finalizeReceptionSale = async (request) => {
       !result
       || typeof result.saleId !== 'string'
       || typeof result.folio !== 'string'
+      || typeof result.recipientEmail !== 'string'
+      || !ticketStatuses.has(result.ticketStatus)
     ) {
       throw new Error('La función devolvió una respuesta incompleta');
     }

@@ -13,6 +13,9 @@ const IDENTIFIER_PATTERN = /^[A-Za-z0-9_-]+$/;
 // Define el formato permitido para operaciones
 const IDEMPOTENCY_PATTERN = /^[A-Za-z0-9_-]{16,100}$/;
 
+// Define el máximo permitido para correos
+const MAX_EMAIL_LENGTH = 254;
+
 // Lanza un error conocido del dominio
 const fail = (code, message) => {
   throw new SaleError(code, message);
@@ -57,6 +60,39 @@ const normalizeDocumentId = (value, label, optional = false) => {
 
   // Devuelve el identificador validado
   return value;
+};
+
+// Normaliza el correo opcional del comprobante
+const normalizeReceiptEmail = (value) => {
+  // Permite la ausencia del correo
+  if (value === null || value === undefined || value === '') {
+    // Devuelve una ausencia canónica
+    return '';
+  }
+
+  // Detiene valores que no son texto
+  if (typeof value !== 'string') {
+    fail('invalid-argument', 'El correo del comprobante no es válido');
+  }
+
+  // Limpia y normaliza el correo recibido
+  const normalized = value.trim().toLowerCase();
+
+  // Separa el correo para validar sus límites
+  const separatorIndex = normalized.lastIndexOf('@');
+
+  // Detiene correos inseguros o incompletos
+  if (
+    normalized.length > MAX_EMAIL_LENGTH
+    || separatorIndex < 1
+    || separatorIndex > 64
+    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)
+  ) {
+    fail('invalid-argument', 'El correo del comprobante no es válido');
+  }
+
+  // Devuelve el correo canónico
+  return normalized;
 };
 
 // Normaliza los productos solicitados
@@ -118,7 +154,8 @@ export const validateSaleRequest = (data) => {
     'clientId',
     'idempotencyKey',
     'payments',
-    'productItems'
+    'productItems',
+    'receiptEmail'
   ], 'La solicitud');
 
   // Normaliza la cita opcional
@@ -131,9 +168,22 @@ export const validateSaleRequest = (data) => {
   // Normaliza el cliente opcional
   const clientId = normalizeDocumentId(data.clientId, 'El cliente', true);
 
+  // Normaliza el correo opcional del mostrador
+  const receiptEmail = normalizeReceiptEmail(data.receiptEmail);
+
   // Impide reemplazar el cliente de una cita
   if (appointmentId && clientId) {
     fail('invalid-argument', 'La cita define el cliente de la venta');
+  }
+
+  // Impide reemplazar el correo canónico de una cita
+  if (appointmentId && receiptEmail) {
+    fail('invalid-argument', 'La cita define el correo del comprobante');
+  }
+
+  // Impide reemplazar el correo de un cliente conocido
+  if (clientId && receiptEmail) {
+    fail('invalid-argument', 'El cliente define el correo del comprobante');
   }
 
   // Detiene claves idempotentes inseguras
@@ -161,6 +211,7 @@ export const validateSaleRequest = (data) => {
     clientId,
     idempotencyKey: data.idempotencyKey,
     payments,
-    productItems
+    productItems,
+    receiptEmail
   };
 };

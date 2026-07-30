@@ -1,6 +1,9 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { calculateSaleTotals } from './SaleCalculation.js';
-import { buildResponseTotals } from './SaleDocuments.js';
+import {
+  buildInitialTicketResponse,
+  buildResponseTotals
+} from './SaleDocuments.js';
 import {
   buildCheckoutPaymentId,
   buildDepositPaymentId
@@ -122,6 +125,9 @@ export const runSaleTransaction = async ({
     ? requireClient(remainingSnapshots[snapshotIndex++])
     : null;
 
+  // Resuelve el correo canónico del comprobante
+  const recipientEmail = client ? client.email : request.receiptEmail || '';
+
   // Valida cada producto vigente
   const products = productReferences.map((reference, index) => (
     requireRetailProduct(
@@ -200,6 +206,7 @@ export const runSaleTransaction = async ({
     appointmentId: request.appointmentId,
     totals: buildResponseTotals(totals),
     inventoryWarnings,
+    ...buildInitialTicketResponse(recipientEmail),
     alreadyProcessed: false
   };
 });

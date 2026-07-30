@@ -15,6 +15,31 @@ const isPositiveInteger = (value) => (
   Number.isSafeInteger(value) && value > 0
 );
 
+// Normaliza únicamente correos heredados seguros
+const normalizeStoredEmail = (value) => {
+  // Limpia el correo persistido
+  const normalized = typeof value === 'string'
+    ? value.trim().toLowerCase()
+    : '';
+
+  // Separa el dominio del correo
+  const separatorIndex = normalized.lastIndexOf('@');
+
+  // Omite correos incompletos sin bloquear la venta
+  if (
+    normalized.length > 254
+    || separatorIndex < 1
+    || separatorIndex > 64
+    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)
+  ) {
+    // Devuelve ausencia segura
+    return '';
+  }
+
+  // Devuelve el correo canónico
+  return normalized;
+};
+
 // Verifica que el actor conserve permisos operativos
 export const requireAuthorizedActor = (snapshot) => {
   // Detiene usuarios sin documento operativo
@@ -127,9 +152,7 @@ export const requireClient = (snapshot) => {
   return {
     id: snapshot.id,
     name: data.nombreCompleto.trim(),
-    email: typeof data.emailNormalizado === 'string'
-      ? data.emailNormalizado
-      : ''
+    email: normalizeStoredEmail(data.emailNormalizado)
   };
 };
 

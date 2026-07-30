@@ -14,6 +14,7 @@ import {
 import { usePOSCart } from './UsePosCart';
 import { usePOSData } from './UsePosData';
 import { usePOSPayment } from './UsePosPayment';
+import { usePOSReceipt } from './UsePosReceipt';
 
 // Orquesta el flujo visual del punto de venta
 export const usePOS = (appointmentId) => {
@@ -72,6 +73,13 @@ export const usePOS = (appointmentId) => {
     checkoutAmountDueCents,
     frozenSaleView?.paymentForm
   );
+  // Conecta el correo opcional del ticket
+  const receipt = usePOSReceipt({
+    isWalkIn: !appointmentId,
+    restoredReceiptEmail: frozenSaleView?.receiptEmail
+      ?? restoredSaleAttempt?.request?.receiptEmail
+      ?? ''
+  });
 
   // Filtra catálogo sin alterar datos
   const filteredProducts = useMemo(() => {
@@ -126,6 +134,7 @@ export const usePOS = (appointmentId) => {
       payment.resetPayment();
     }
     setCheckoutError(null);
+    receipt.clearReceiptEmailError();
     setSaleResult(null);
     setCheckoutOpen(true);
   };
@@ -139,6 +148,7 @@ export const usePOS = (appointmentId) => {
     }
     setCheckoutOpen(false);
     setCheckoutError(null);
+    receipt.clearReceiptEmailError();
     // Conserva los pagos de una respuesta incierta
     if (!hasFrozenSaleRequest) {
       payment.resetPayment();
@@ -166,6 +176,8 @@ export const usePOS = (appointmentId) => {
       let saleRequest = saleRequestRef.current;
       // Construye la solicitud únicamente una vez
       if (!saleRequest) {
+        // Valida el correo antes de inmovilizar la venta
+        const receiptEmail = receipt.buildReceiptEmail();
         // Inmoviliza identificadores cantidades y pagos
         saleRequest = freezeSaleRequest({
           appointmentId: data.appointment?.id ?? null,
@@ -174,13 +186,15 @@ export const usePOS = (appointmentId) => {
           productItems: cart.productItems.map((item) => ({
             productId: item.id,
             quantity: item.quantity
-          }))
+          })),
+          ...(receiptEmail ? { receiptEmail } : {})
         });
         saleRequestRef.current = saleRequest;
         // Inmoviliza la presentación del intento
         const saleView = freezeSaleView({
           cartItems: cart.cartItems,
           paymentForm: payment.paymentForm,
+          receiptEmail: receiptEmail ?? '',
           totals: cart.totals
         });
         setFrozenSaleView(saleView);
@@ -197,6 +211,7 @@ export const usePOS = (appointmentId) => {
       // Libera datos solo ante un rechazo definitivo
       if (canReleaseSaleRequest(error)) {
         saleRequestRef.current = null;
+        idempotencyKeyRef.current = crypto.randomUUID();
         setFrozenSaleView(null);
         clearSaleAttempt(appointmentId);
       }
@@ -229,6 +244,7 @@ export const usePOS = (appointmentId) => {
     openCheckout,
     payment,
     processing,
+    receipt,
     saleResult,
     searchQuery,
     setSearchQuery,

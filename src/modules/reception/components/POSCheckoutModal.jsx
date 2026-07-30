@@ -6,6 +6,7 @@ import { useAccessibleDialog } from '../hooks/UseAccessibleDialog';
 import { formatCurrency } from '../services/SaleCalculationService';
 import POSPaymentFields from './POSPaymentFields';
 import POSPaymentMethodSelector from './POSPaymentMethodSelector';
+import POSReceiptEmailField from './POSReceiptEmailField';
 import POSSaleSuccess from './POSSaleSuccess';
 
 // Presenta la captura accesible del cobro
@@ -16,8 +17,10 @@ export default function POSCheckoutModal({
   form,
   paymentPreview,
   processing,
+  receipt,
   retryMode = false,
   saleResult,
+  showReceiptEmail = false,
   submitDisabled = false,
   onChange,
   onClose,
@@ -111,7 +114,7 @@ export default function POSCheckoutModal({
                 </p>
               )}
 
-              <fieldset disabled={retryMode}>
+              <fieldset disabled={retryMode || processing}>
                 <POSPaymentMethodSelector
                   value={form.method}
                   onChange={onSelectMethod}
@@ -125,6 +128,18 @@ export default function POSCheckoutModal({
                     onChange={onChange}
                   />
                 </div>
+
+                {showReceiptEmail && !retryMode && (
+                  <div className="mt-5">
+                    <POSReceiptEmailField
+                      disabled={processing}
+                      error={receipt.receiptEmailError}
+                      value={receipt.receiptEmail}
+                      onBlur={receipt.validateReceiptEmail}
+                      onChange={receipt.updateReceiptEmail}
+                    />
+                  </div>
+                )}
               </fieldset>
 
               {error && (

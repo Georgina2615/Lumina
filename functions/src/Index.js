@@ -1,9 +1,21 @@
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { logger } from 'firebase-functions';
+import { defineJsonSecret } from 'firebase-functions/params';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { onCall } from 'firebase-functions/v2/https';
+import { sendEmailJsTemplate } from './EmailJsTransport.js';
 import { finalizeReceptionSaleHandler } from './FinalizeReceptionSale.js';
+import {
+  resolveUnconfirmedSaleTicketHandler
+} from './ResolveUnconfirmedSaleTicket.js';
+import { retrySaleTicketHandler } from './RetrySaleTicket.js';
+import { sendSaleTicketHandler } from './SendSaleTicket.js';
 
 initializeApp();
+
+// Declara la configuración protegida de EmailJS
+const emailJsConfig = defineJsonSecret('EMAILJS_CONFIG');
 
 // Obtiene la configuración del proceso
 const environment = globalThis.process?.env ?? {};
@@ -19,16 +31,117 @@ const enforceEmulatorAppCheck = (
 // Protege producción y permite pruebas locales controladas
 const enforceAppCheck = !isEmulator || enforceEmulatorAppCheck;
 
-// Finaliza una venta presencial de manera atómica
-export const finalizeReceptionSale = onCall({
+// Detecta la autorización explícita para correo local
+const enableEmulatorEmail = (
+  environment.ENABLE_EMAIL_DELIVERY_IN_EMULATOR === 'true'
+);
+
+// Define los recursos limitados de cada función
+const runtimeOptions = {
   region: 'us-central1',
   memory: '256MiB',
   timeoutSeconds: 30,
   minInstances: 0,
   maxInstances: 1,
+  concurrency: 1
+};
+
+// Crea el transporte con el secreto disponible
+const createEmailSender = () => {
+  // Devuelve el adaptador esperado por el dominio
+  return ({ templateParameters }) => {
+    // Obtiene el secreto únicamente al enviar
+    const config = emailJsConfig.value();
+
+    // Ejecuta el transporte protegido
+    return sendEmailJsTemplate({
+      config,
+      templateParameters
+    });
+  };
+};
+
+// Finaliza una venta presencial de manera atómica
+export const finalizeReceptionSale = onCall({
+  ...runtimeOptions,
   enforceAppCheck
 }, (request) => finalizeReceptionSaleHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()
 }));
+
+// Envía tickets pendientes con un único trabajador
+export const sendSaleTicket = onDocumentWritten({
+  ...runtimeOptions,
+  document: 'ventas/{saleId}',
+  secrets: [emailJsConfig],
+  retry: true
+}, async (event) => {
+  // Obtiene la versión posterior del documento
+  const saleSnapshot = event.data?.after;
+
+  // Ignora eliminaciones y estados que no solicitan envío
+  if (
+    !saleSnapshot?.exists
+    || saleSnapshot.data().ticket?.estado !== 'pendiente'
+  ) {
+    // Devuelve una salida sin trabajo
+    return null;
+  }
+
+  // Evita conexiones externas durante pruebas locales
+  if (isEmulator && !enableEmulatorEmail) {
+    // Devuelve una omisión exclusiva del emulador
+    return {
+      saleId: event.params.saleId,
+      ticketStatus: 'pendiente',
+      sent: false
+    };
+  }
+
+  // Ejecuta un único intento automático
+  const result = await sendSaleTicketHandler({
+    attemptId: event.id,
+    firestore: getFirestore(),
+    saleId: event.params.saleId,
+    sendEmail: createEmailSender()
+  });
+
+  // Registra solo información técnica segura
+  if (['fallido', 'no_confirmado'].includes(result.ticketStatus)) {
+    logger.error('No se pudo enviar el ticket digital', {
+      saleId: event.params.saleId,
+      errorCode: result.errorCode
+    });
+  }
+
+  // Devuelve el resultado operativo
+  return result;
+});
+
+// Reintenta manualmente un ticket fallido
+export const retrySaleTicket = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => {
+  // Agenda el reintento sin contactar al proveedor
+  return retrySaleTicketHandler({
+    auth: request.auth,
+    data: request.data,
+    firestore: getFirestore()
+  });
+});
+
+// Resuelve manualmente una entrega ambigua
+export const resolveUnconfirmedSaleTicket = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => {
+  // Ejecuta la resolución auditada
+  return resolveUnconfirmedSaleTicketHandler({
+    auth: request.auth,
+    data: request.data,
+    firestore: getFirestore()
+  });
+});

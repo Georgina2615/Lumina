@@ -25,7 +25,8 @@ export const buildRequestHash = (request) => hashValue(JSON.stringify({
   clientId: request.clientId,
   idempotencyKey: request.idempotencyKey,
   payments: request.payments,
-  productItems: request.productItems
+  productItems: request.productItems,
+  receiptEmail: request.receiptEmail
 }));
 
 // Construye identificadores de pagos deterministas

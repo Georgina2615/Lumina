@@ -13,10 +13,24 @@ const isValidStoredAttempt = (attempt, appointmentId) => (
   && typeof attempt.request?.idempotencyKey === 'string'
   && Array.isArray(attempt.request?.payments)
   && Array.isArray(attempt.request?.productItems)
+  && (
+    attempt.request?.receiptEmail === undefined
+    || (
+      typeof attempt.request.receiptEmail === 'string'
+      && attempt.request.receiptEmail.length <= 254
+    )
+  )
   && Array.isArray(attempt.view?.cartItems)
   && Number.isSafeInteger(attempt.view?.totals?.amountDueCents)
   && attempt.view?.paymentForm
   && typeof attempt.view.paymentForm === 'object'
+  && (
+    attempt.view?.receiptEmail === undefined
+    || (
+      typeof attempt.view.receiptEmail === 'string'
+      && attempt.view.receiptEmail.length <= 254
+    )
+  )
 );
 
 // Lee un intento pendiente de la pestaña

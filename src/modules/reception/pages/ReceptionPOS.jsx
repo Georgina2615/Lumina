@@ -1,18 +1,24 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiAlertCircle, FiCalendar, FiRefreshCw } from 'react-icons/fi';
-import { usePOS } from '../hooks';
-import { POSCatalog, POSCart, POSCheckoutModal } from '../components';
+import {
+  usePOS,
+  useSaleTicketQueue
+} from '../hooks';
+import {
+  POSCatalog,
+  POSCart,
+  POSCheckoutModal,
+  POSTicketQueue
+} from '../components';
 
-// Presenta el cobro real de citas y mostrador
-export default function ReceptionPOS() {
-  // Lee navegación y cita solicitada
+// Presenta una operación aislada del punto de venta
+function ReceptionPOSContent({ appointmentId }) {
+  // Lee la navegación vigente
   const navigate = useNavigate();
-  // Lee parámetros de navegación
-  const [searchParams] = useSearchParams();
-  // Obtiene la cita opcional
-  const appointmentId = searchParams.get('appointmentId')?.trim() || null;
   // Conecta el cerebro del punto de venta
   const pos = usePOS(appointmentId);
+  // Conecta la recuperación persistente
+  const ticketQueue = useSaleTicketQueue();
   // Resume cantidades visibles
   const cartQuantities = new Map(
     pos.cartItems
@@ -70,6 +76,14 @@ export default function ReceptionPOS() {
         </div>
       )}
 
+      <POSTicketQueue
+        error={ticketQueue.error}
+        loading={ticketQueue.loading}
+        tickets={ticketQueue.tickets}
+        onConfirm={ticketQueue.confirmDelivery}
+        onRetry={ticketQueue.retry}
+      />
+
       <div className="grid min-h-[620px] flex-1 gap-5 pb-4 lg:grid-cols-[minmax(0,3fr)_minmax(360px,2fr)]">
         <POSCatalog
           products={pos.filteredProducts}
@@ -104,8 +118,10 @@ export default function ReceptionPOS() {
         form={pos.payment.paymentForm}
         paymentPreview={pos.payment.paymentPreview}
         processing={pos.processing}
+        receipt={pos.receipt}
         retryMode={pos.hasFrozenSaleRequest}
         saleResult={pos.saleResult}
+        showReceiptEmail={!hasAppointment}
         submitDisabled={
           !pos.hasFrozenSaleRequest && Boolean(pos.checkoutIssue)
         }
@@ -116,5 +132,21 @@ export default function ReceptionPOS() {
         onSelectMethod={pos.payment.selectPaymentMethod}
       />
     </div>
+  );
+}
+
+// Reinicia el flujo cuando cambia la cita solicitada
+export default function ReceptionPOS() {
+  // Lee los parámetros de navegación
+  const [searchParams] = useSearchParams();
+  // Obtiene la cita opcional
+  const appointmentId = searchParams.get('appointmentId')?.trim() || null;
+
+  // Aísla carrito pago e idempotencia por operación
+  return (
+    <ReceptionPOSContent
+      key={appointmentId || 'walkin'}
+      appointmentId={appointmentId}
+    />
   );
 }

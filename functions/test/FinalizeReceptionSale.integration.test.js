@@ -37,6 +37,8 @@ test('finaliza una venta atómica y conserva la idempotencia', {
 
   assert.equal(firstResult.alreadyProcessed, false);
   assert.equal(firstResult.saleId, scenario.saleId);
+  assert.equal(firstResult.recipientEmail, 'cliente.integracion@example.com');
+  assert.equal(firstResult.ticketStatus, 'pendiente');
   assert.deepEqual(firstResult.totals, {
     subtotalCents: 73_276,
     taxCents: 11_724,
@@ -71,6 +73,11 @@ test('finaliza una venta atómica y conserva la idempotencia', {
   assert.equal(saleSnapshot.data().estado, 'pagada');
   assert.equal(saleSnapshot.data().desglose.totalCentavos, 85_000);
   assert.equal(saleSnapshot.data().items.length, 2);
+  assert.deepEqual(
+    saleSnapshot.data().metodosPago,
+    ['efectivo', 'transferencia']
+  );
+  assert.equal(saleSnapshot.data().ticket.estado, 'pendiente');
   assert.equal(
     saleSnapshot.data().pagoAnticipoId,
     scenario.references.deposit.id
@@ -106,6 +113,11 @@ test('finaliza una venta atómica y conserva la idempotencia', {
 
   assert.equal(repeatedResult.alreadyProcessed, true);
   assert.equal(repeatedResult.saleId, scenario.saleId);
+  assert.equal(
+    repeatedResult.recipientEmail,
+    'cliente.integracion@example.com'
+  );
+  assert.equal(repeatedResult.ticketStatus, 'pendiente');
 
   // Comprueba que el reintento no descuente inventario otra vez
   const stockAfterRetry = await scenario.references.product.get();
