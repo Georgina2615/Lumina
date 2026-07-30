@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-
-// Define los controles que reciben foco
-const focusableSelector = 'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [href]';
+import { useState } from 'react';
+import { useAccessibleDialog } from '../hooks/UseAccessibleDialog';
 
 // Presenta el detalle y la cancelación protegida
 export default function CancelAppointmentModal({
@@ -9,80 +7,6 @@ export default function CancelAppointmentModal({
 }) {
   // Conserva el motivo escrito
   const [reason, setReason] = useState('');
-
-  // Conserva el diálogo y el foco de origen
-  const dialogRef = useRef(null);
-  const returnFocusElementRef = useRef(
-    typeof document === 'undefined' ? null : document.activeElement
-  );
-
-  useEffect(() => {
-    // Conserva el control que abrió el diálogo
-    const returnFocusElement = returnFocusElementRef.current;
-
-    // Devuelve el foco cuando termina el diálogo
-    return () => {
-      // Restaura el foco cuando el control sigue disponible
-      if (returnFocusElement instanceof HTMLElement) {
-        returnFocusElement.focus();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    // Detiene el listener cuando el modal está cerrado
-    if (!appointment) {
-      return undefined;
-    }
-
-    // Controla el teclado dentro del diálogo
-    const handleKeyDown = (event) => {
-      // Mantiene el foco dentro del diálogo
-      if (event.key === 'Tab') {
-        // Obtiene los controles disponibles
-        const elements = dialogRef.current?.querySelectorAll(focusableSelector);
-
-        // Detiene el recorrido cuando no existen controles
-        if (!elements?.length) {
-          event.preventDefault();
-          return;
-        }
-
-        // Obtiene los extremos y el siguiente destino
-        const firstElement = elements[0];
-        const lastElement = elements[elements.length - 1];
-        const targetElement = event.shiftKey && document.activeElement === firstElement
-          ? lastElement
-          : !event.shiftKey && document.activeElement === lastElement
-            ? firstElement
-            : null;
-
-        // Mueve el foco cuando alcanza un extremo
-        if (targetElement) {
-          event.preventDefault();
-          targetElement.focus();
-        }
-        return;
-      }
-
-      // Ignora otras teclas y operaciones en curso
-      if (event.key !== 'Escape' || isSubmitting) {
-        return;
-      }
-      setReason('');
-      onClose();
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    // Retira el listener del teclado
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [appointment, isSubmitting, onClose]);
-
-  // Evita renderizar un modal vacío
-  if (!appointment) {
-    return null;
-  }
 
   // Cierra y limpia el formulario
   const handleClose = () => {
@@ -93,6 +17,19 @@ export default function CancelAppointmentModal({
     setReason('');
     onClose();
   };
+
+  // Conecta el control compartido del diálogo
+  const dialogRef = useAccessibleDialog({
+    isOpen: Boolean(appointment),
+    onRequestClose: handleClose,
+    canClose: !isSubmitting,
+    focusKey: appointment?.id ?? 'closed'
+  });
+
+  // Evita renderizar un modal vacío
+  if (!appointment) {
+    return null;
+  }
 
   // Confirma la cancelación
   const handleSubmit = async (event) => {
@@ -163,7 +100,7 @@ export default function CancelAppointmentModal({
               <label className="mb-2 block text-sm font-semibold text-primary" htmlFor="cancellation-reason">
                 Motivo de cancelación
               </label>
-              <textarea autoFocus
+              <textarea data-dialog-initial-focus
                 className="min-h-28 w-full resize-none rounded-2xl border border-surface-hover bg-surface p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
                 id="cancellation-reason" maxLength={500} minLength={5}
                 onChange={(event) => setReason(event.target.value)}

@@ -1,14 +1,16 @@
 import {
-  collection,
   doc,
-  onSnapshot,
-  query,
+  collection,
   runTransaction,
   serverTimestamp,
-  Timestamp,
-  where
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
+import {
+  buildBookingIdentityValues,
+  normalizeNewBookingClient,
+  normalizeStoredBookingClient
+} from './AppointmentClientPolicy';
 import {
   BOOKING_BLOCK_MINUTES,
   DEPOSIT_PERCENTAGE,
@@ -20,10 +22,9 @@ import {
 } from './AppointmentBookingPolicy';
 import {
   buildClientIdentityData,
-  getClientIdentityReference,
-  normalizeEmail,
-  normalizePhone
+  getClientIdentityReference
 } from './ClientService';
+import { buildDepositPaymentData } from './PaymentPolicy';
 
 // Comparte la política usada por la interfaz
 export {
@@ -33,56 +34,28 @@ export {
   getBusinessDateKey,
   validateBookingSchedule
 } from './AppointmentBookingPolicy';
+export {
+  subscribeActiveServices,
+  subscribeSlotsByDate
+} from './AppointmentCatalogService';
 
-const normalizeFullName = (fullName) => {
-  const value = String(fullName ?? '').trim().replace(/\s+/g, ' ');
-  if (value.length < 2 || value.length > 150) {
-    throw new Error('Escribe el nombre completo del cliente');
-  }
-  return value;
-};
-
+// Exige la identidad operativa
 const requireActorUid = (actorUid) => {
+  // Detiene operaciones anónimas
   if (!actorUid) {
     throw new Error('No se pudo identificar a la persona responsable');
   }
 };
 
-// Convierte el servicio al contrato de interfaz
-const mapService = (snapshot) => {
-  const data = snapshot.data();
-  return {
-    id: snapshot.id,
-    name: data.nombre,
-    priceCents: data.precioCentavos,
-    serviceDurationMinutes: data.duracionServicioMinutos,
-    preparationMinutes: data.tiempoPreparacionMinutos,
-    blockDurationMinutes: data.duracionBloqueMinutos,
-    depositPercentage: data.porcentajeAnticipo,
-    order: data.orden
-  };
-};
-
-const mapSlot = (snapshot) => {
-  const data = snapshot.data();
-  return {
-    id: snapshot.id,
-    appointmentId: data.citaId,
-    clientId: data.clienteId,
-    dateKey: data.fecha,
-    time: data.hora,
-    start: data.inicio?.toDate?.() ?? null,
-    blockEnd: data.finBloque?.toDate?.() ?? null,
-    blockDurationMinutes: data.duracionBloqueMinutos
-  };
-};
-
 // Valida el servicio como fuente canónica
 const requireService = (snapshot) => {
+  // Detiene servicios ausentes o inactivos
   if (!snapshot.exists() || snapshot.data().activo !== true) {
     throw new Error('El servicio ya no está disponible');
   }
+  // Obtiene la configuración vigente
   const data = snapshot.data();
+  // Detiene configuraciones incompatibles
   if (
     typeof data.nombre !== 'string'
     || !data.nombre.trim()
@@ -95,6 +68,7 @@ const requireService = (snapshot) => {
   ) {
     throw new Error('El servicio no tiene una configuración válida');
   }
+  // Devuelve la configuración canónica
   return {
     name: data.nombre.trim(),
     priceCents: data.precioCentavos,
@@ -103,32 +77,6 @@ const requireService = (snapshot) => {
     blockDurationMinutes: data.duracionBloqueMinutos,
     depositPercentage: data.porcentajeAnticipo
   };
-};
-
-// Escucha el catálogo operativo
-export const subscribeActiveServices = ({ onData, onError }) => (
-  onSnapshot(
-    query(collection(db, 'servicios'), where('activo', '==', true)),
-    (snapshot) => onData(snapshot.docs.map(mapService).sort(
-      (first, second) => (
-        first.order - second.order
-        || first.name.localeCompare(second.name, 'es')
-      )
-    )),
-    onError
-  )
-);
-
-// Escucha los cupos ocupados de una fecha
-export const subscribeSlotsByDate = ({ dateKey, onData, onError }) => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateKey ?? ''))) {
-    throw new Error('La fecha no es válida');
-  }
-  return onSnapshot(
-    query(collection(db, 'cupos'), where('fecha', '==', dateKey)),
-    (snapshot) => onData(snapshot.docs.map(mapSlot)),
-    onError
-  );
 };
 
 // Crea cliente cita cupo e identidades en una transacción
@@ -141,68 +89,72 @@ export const createAppointmentBooking = async ({
   deposit
 }) => {
   requireActorUid(actorUid);
+  // Valida el intervalo solicitado
   const interval = validateBookingSchedule({ dateKey, time });
+  // Detiene reservas sin servicio
   if (!serviceId) {
     throw new Error('Selecciona un servicio');
   }
+  // Construye la referencia de la cita
   const appointmentReference = doc(collection(db, 'citas'));
+  // Construye la referencia del cliente
   const clientReference = client?.id
     ? doc(db, 'clientes', client.id)
     : doc(collection(db, 'clientes'));
+  // Construye la referencia del servicio
   const serviceReference = doc(db, 'servicios', serviceId);
+  // Construye la identidad del cupo
   const slotId = buildAppointmentSlotId({ dateKey, time });
+  // Construye la referencia del cupo
   const slotReference = doc(db, 'cupos', slotId);
-  const newClient = client?.id ? null : {
-    fullName: normalizeFullName(client?.fullName),
-    phone: normalizePhone(client?.phone),
-    email: normalizeEmail(client?.email)
-  };
+  // Normaliza únicamente clientes nuevos
+  const newClient = client?.id
+    ? null
+    : normalizeNewBookingClient(client);
 
+  // Ejecuta toda la reserva de forma atómica
   return runTransaction(db, async (transaction) => {
     validateBookingSchedule({ dateKey, time });
+    // Lee el servicio vigente
     const serviceSnapshot = await transaction.get(serviceReference);
+    // Lee la disponibilidad vigente
     const slotSnapshot = await transaction.get(slotReference);
+    // Lee el cliente existente cuando corresponde
     const clientSnapshot = client?.id
       ? await transaction.get(clientReference)
       : null;
+    // Obtiene el servicio validado
     const service = requireService(serviceSnapshot);
+    // Detiene cupos ocupados
     if (slotSnapshot.exists()) {
       throw new Error('El horario acaba de ser ocupado');
     }
+    // Detiene clientes ausentes o fusionados
     if (
       clientSnapshot
       && (!clientSnapshot.exists() || clientSnapshot.data().fusionado === true)
     ) {
       throw new Error('El cliente ya no está disponible');
     }
-    const storedClient = clientSnapshot?.data();
-    const clientData = newClient ?? {
-      fullName: normalizeFullName(storedClient.nombreCompleto),
-      phone: normalizePhone(
-        storedClient.telefonoNormalizado || storedClient.telefono
-      ),
-      email: normalizeEmail(
-        Object.hasOwn(storedClient, 'emailNormalizado')
-          ? storedClient.emailNormalizado
-          : storedClient.email
-      )
-    };
-    const identities = [{
-      type: 'telefono',
-      value: clientData.phone,
-      reference: getClientIdentityReference('telefono', clientData.phone)
-    }];
-    if (clientData.email) {
-      identities.push({
-        type: 'correo',
-        value: clientData.email,
-        reference: getClientIdentityReference('correo', clientData.email)
-      });
-    }
+    // Construye el cliente canónico
+    const clientData = newClient
+      ?? normalizeStoredBookingClient(clientSnapshot.data());
+    // Construye las identidades requeridas
+    const identities = buildBookingIdentityValues(clientData).map(
+      (identity) => ({
+        ...identity,
+        reference: getClientIdentityReference(
+          identity.type,
+          identity.value
+        )
+      })
+    );
+    // Lee las identidades dentro de la transacción
     const identitySnapshots = await Promise.all(
       identities.map(({ reference }) => transaction.get(reference))
     );
     identitySnapshots.forEach((snapshot, index) => {
+      // Detiene identidades pertenecientes a otro cliente
       if (
         snapshot.exists()
         && snapshot.data().clienteId !== clientReference.id
@@ -212,16 +164,25 @@ export const createAppointmentBooking = async ({
           : 'teléfono';
         throw new Error(`El ${label} ya pertenece a otro cliente`);
       }
+      // Detiene clientes heredados sin identidad reparada
       if (clientSnapshot && !snapshot.exists()) {
         throw new Error('La identidad del cliente requiere migración');
       }
     });
+    // Normaliza el anticipo requerido
     const depositData = normalizeDeposit({
       deposit,
       priceCents: service.priceCents,
       percentage: service.depositPercentage
     });
+    // Construye la referencia financiera determinista
+    const depositPaymentReference = doc(
+      db,
+      'pagos',
+      `${appointmentReference.id}_anticipo`
+    );
 
+    // Crea el cliente únicamente cuando es nuevo
     if (!clientSnapshot) {
       transaction.set(clientReference, {
         nombreCompleto: clientData.fullName,
@@ -235,7 +196,9 @@ export const createAppointmentBooking = async ({
         creadoPor: actorUid
       });
     }
+    // Crea las identidades faltantes del cliente nuevo
     identities.forEach((identity, index) => {
+      // Evita sobrescribir identidades existentes
       if (!clientSnapshot && !identitySnapshots[index].exists()) {
         transaction.set(identity.reference, buildClientIdentityData({
           clientId: clientReference.id,
@@ -245,6 +208,7 @@ export const createAppointmentBooking = async ({
         }));
       }
     });
+    // Crea la cita con importes congelados
     transaction.set(appointmentReference, {
       clienteId: clientReference.id,
       nombreCompleto: clientData.fullName,
@@ -271,8 +235,9 @@ export const createAppointmentBooking = async ({
       recordatorioEnviado: false,
       creadaEn: serverTimestamp(),
       creadaPor: actorUid,
-      schemaVersion: 2
+      schemaVersion: 3
     });
+    // Ocupa el horario de forma exclusiva
     transaction.set(slotReference, {
       citaId: appointmentReference.id,
       clienteId: clientReference.id,
@@ -283,8 +248,21 @@ export const createAppointmentBooking = async ({
       duracionBloqueMinutos: service.blockDurationMinutes,
       creadoEn: serverTimestamp(),
       creadoPor: actorUid,
-      schemaVersion: 2
+      schemaVersion: 3
     });
+    // Registra el anticipo con todas sus partes
+    transaction.set(
+      depositPaymentReference,
+      buildDepositPaymentData({
+        actorUid,
+        appointmentId: appointmentReference.id,
+        clientId: clientReference.id,
+        deposit: depositData,
+        timestamp: serverTimestamp()
+      })
+    );
+
+    // Devuelve las identidades creadas
     return {
       appointmentId: appointmentReference.id,
       clientId: clientReference.id,

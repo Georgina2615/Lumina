@@ -1,11 +1,8 @@
 import {
   collection,
   doc,
-  onSnapshot,
-  query,
   runTransaction,
-  serverTimestamp,
-  where
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 
@@ -14,16 +11,15 @@ export const appointmentStatus = Object.freeze({
   pending: 'por_confirmar',
   confirmed: 'confirmada',
   inCabin: 'en_cabina',
-  completedLegacy: 'completada',
+  checkout: 'por_cobrar',
   finalized: 'finalizada',
   cancelled: 'cancelada'
 });
-
 // Define las transiciones operativas actuales
 const allowedTransitions = {
   [appointmentStatus.pending]: new Set([appointmentStatus.confirmed]),
   [appointmentStatus.confirmed]: new Set([appointmentStatus.inCabin]),
-  [appointmentStatus.inCabin]: new Set([appointmentStatus.completedLegacy])
+  [appointmentStatus.inCabin]: new Set([appointmentStatus.checkout])
 };
 
 // Define los estados que permiten cancelación
@@ -31,38 +27,6 @@ const cancellableStatuses = new Set([
   appointmentStatus.pending,
   appointmentStatus.confirmed
 ]);
-
-// Ordena las citas por fecha y hora
-const sortAppointments = (appointments) => {
-  // Devuelve las citas ordenadas
-  return [...appointments].sort((first, second) => {
-    // Crea la clave de la primera cita
-    const firstKey = `${first.fecha ?? ''} ${first.hora ?? ''}`;
-    const secondKey = `${second.fecha ?? ''} ${second.hora ?? ''}`;
-
-    // Devuelve la comparación de las claves
-    return firstKey.localeCompare(secondKey);
-  });
-};
-
-// Convierte documentos en citas
-const mapSnapshot = (snapshot) => {
-  // Crea la lista de citas
-  const appointments = snapshot.docs.map((documentSnapshot) => {
-    // Obtiene los datos vigentes
-    const appointment = documentSnapshot.data();
-
-    // Devuelve la cita con sus capacidades
-    return {
-      id: documentSnapshot.id,
-      ...appointment,
-      canCancel: cancellableStatuses.has(appointment.estado)
-    };
-  });
-
-  // Devuelve la lista ordenada
-  return sortAppointments(appointments);
-};
 
 // Valida la identidad del operador
 const requireActor = (actorUid) => {
@@ -113,69 +77,10 @@ const createHistoryEvent = (
   });
 };
 
-// Formatea una fecha local para Firestore
-export const formatDateKey = (date) => {
-  // Obtiene las partes de la fecha
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  // Devuelve la fecha normalizada
-  return `${year}-${month}-${day}`;
-};
-
 // Comprueba si una cita puede cancelarse
 export const canCancelAppointment = (appointment) => {
   // Devuelve la disponibilidad de cancelación
   return cancellableStatuses.has(appointment?.estado);
-};
-
-// Escucha una columna del tablero
-export const subscribeAppointmentsByStatus = ({
-  status,
-  dateKey,
-  onData,
-  onError
-}) => {
-  // Define los filtros de la consulta
-  const constraints = [where('estado', '==', status)];
-
-  // Agrega el filtro diario cuando corresponde
-  if (dateKey) {
-    constraints.push(where('fecha', '==', dateKey));
-  }
-
-  // Construye la consulta de citas
-  const appointmentsQuery = query(collection(db, 'citas'), ...constraints);
-
-  // Devuelve la cancelación del listener
-  return onSnapshot(
-    appointmentsQuery,
-    (snapshot) => onData(mapSnapshot(snapshot)),
-    onError
-  );
-};
-
-// Escucha las citas del rango visible
-export const subscribeCalendarAppointments = ({
-  startDateKey,
-  endDateKey,
-  onData,
-  onError
-}) => {
-  // Construye la consulta por rango
-  const appointmentsQuery = query(
-    collection(db, 'citas'),
-    where('fecha', '>=', startDateKey),
-    where('fecha', '<=', endDateKey)
-  );
-
-  // Devuelve la cancelación del listener
-  return onSnapshot(
-    appointmentsQuery,
-    (snapshot) => onData(mapSnapshot(snapshot)),
-    onError
-  );
 };
 
 // Cambia el estado de una cita de forma atómica
@@ -249,7 +154,7 @@ export const cancelAppointment = async ({
       ? doc(db, 'cupos', appointment.cupoId)
       : null;
     const slotSnapshot = slotReference ? await transaction.get(slotReference) : null;
-    const usesManagedSlot = [1, 2].includes(appointment.schemaVersion);
+    const usesManagedSlot = [1, 2, 3].includes(appointment.schemaVersion);
 
     // Detiene cancelaciones fuera del flujo
     if (!canCancelAppointment(appointment)) {

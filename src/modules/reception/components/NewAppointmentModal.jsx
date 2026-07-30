@@ -65,7 +65,7 @@ export default function NewAppointmentModal({
 
     document.addEventListener('keydown', handleKeyDown);
 
-    // Restaura el foco y elimina el listener
+    // Restaura el foco y elimina la escucha
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       if (returnFocusRef.current instanceof HTMLElement) {

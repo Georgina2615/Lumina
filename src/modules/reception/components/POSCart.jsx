@@ -1,114 +1,99 @@
-import { FiTrash2, FiShoppingCart } from 'react-icons/fi';
+import { FiLock, FiShoppingBag } from 'react-icons/fi';
+import POSCartItem from './POSCartItem';
+import POSTotals from './POSTotals';
 
+// Presenta la orden actual y abre el cobro
 export default function POSCart({
-  carrito, 
-  subtotal, 
-  descuentoAnticipo, 
-  iva, 
-  total,
-  removerDelCarrito, 
-  onAbrirCobro, 
-  clienteNombre
+  items,
+  totals,
+  clientName,
+  cartError,
+  checkoutIssue,
+  hasFrozenSaleRequest,
+  loading,
+  onChangeQuantity,
+  onOpenCheckout,
+  onRemove
 }) {
+  // Cuenta unidades visibles
+  const itemCount = items.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+  // Bloquea cobros incompletos
+  const disabled = !hasFrozenSaleRequest
+    && (loading || Boolean(checkoutIssue));
+  // Oculta cambios posteriores al primer envío
+  const visibleCheckoutIssue = hasFrozenSaleRequest
+    ? null
+    : checkoutIssue;
+
+  // Devuelve la orden completa
   return (
-    <div className="flex flex-col h-full bg-surface rounded-2xl border border-surface-hover shadow-sm overflow-hidden relative">
-      
-      {/* Cabecera del Ticket */}
-      <div className="p-5 border-b border-surface-hover bg-primary text-surface flex justify-between items-center">
-        <div>
-          <h2 className="font-title font-bold text-lg flex items-center gap-2">
-            <FiShoppingCart /> Orden Actual
+    <section
+      aria-labelledby="current-sale-title"
+      className="flex h-full flex-col overflow-hidden rounded-2xl border border-surface-hover bg-surface shadow-sm"
+    >
+      <div className="flex items-center justify-between gap-4 bg-primary p-5 text-surface">
+        <div className="min-w-0">
+          <h2 id="current-sale-title" className="flex items-center gap-2 text-lg">
+            <FiShoppingBag aria-hidden="true" />
+            Venta actual
           </h2>
-          <p className="text-xs text-surface/80 mt-1 uppercase tracking-wider">
-            Cliente: <span className="font-bold">{clienteNombre}</span>
+          <p className="mt-1 truncate text-xs uppercase tracking-wider text-surface/75">
+            Cliente <span className="font-bold">{clientName}</span>
           </p>
         </div>
-        <span className="bg-surface text-primary text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-          {carrito.length} Items
+        <span className="shrink-0 rounded-full bg-surface px-3 py-1.5 text-xs font-bold text-primary shadow-sm">
+          {itemCount} {itemCount === 1 ? 'artículo' : 'artículos'}
         </span>
       </div>
 
-      {/* Lista de Items en el Carrito */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-        {carrito.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-muted italic text-sm">
-            <FiShoppingCart className="text-4xl mb-2 opacity-20" />
-            <p>El carrito está vacío.</p>
-            <p className="text-xs mt-1 font-body">Selecciona productos del catálogo.</p>
+      <div className="flex-1 overflow-y-auto p-4">
+        {items.length === 0 ? (
+          <div className="flex h-full min-h-56 flex-col items-center justify-center px-5 text-center text-muted">
+            <FiShoppingBag aria-hidden="true" className="text-4xl opacity-30" />
+            <h3 className="mt-3 text-base text-primary">La venta está vacía</h3>
+            <p className="mt-1 text-xs">Selecciona productos reales del catálogo</p>
           </div>
         ) : (
-          carrito.map((item, index) => (
-            <div key={`${item.id}-${index}`} className="flex justify-between items-center p-3 border border-surface-hover rounded-xl bg-background hover:border-primary/30 transition-colors">
-              <div className="flex-1 pr-3">
-                <h4 className="font-semibold text-primary text-sm leading-tight mb-1">{item.nombre}</h4>
-                <p className="text-xs text-muted font-medium">
-                  {item.cantidad} x ${item.precio.toFixed(2)}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-primary">${(item.precio * item.cantidad).toFixed(2)}</span>
-                
-                {/* LÓGICA SENIOR: Si es un servicio de cita, no dejamos borrarlo. Si es producto, sí. */}
-                {!item.esServicio ? (
-                  <button
-                    onClick={() => removerDelCarrito(item.id)}
-                    className="text-muted hover:text-error transition-colors p-1.5 hover:bg-error/10 rounded-lg"
-                    title="Remover"
-                  >
-                    <FiTrash2 />
-                  </button>
-                ) : (
-                  <span className="text-[10px] uppercase bg-status-confirmed/10 text-status-confirmed px-2 py-1 rounded-md font-bold tracking-wider border border-status-confirmed/20">
-                    Cita
-                  </span>
-                )}
-              </div>
-            </div>
-          ))
+          <ul className="space-y-3">
+            {items.map((item) => (
+              <POSCartItem
+                key={`${item.type}-${item.id}`}
+                item={item}
+                interactionLocked={hasFrozenSaleRequest}
+                onChangeQuantity={onChangeQuantity}
+                onRemove={onRemove}
+              />
+            ))}
+          </ul>
         )}
       </div>
 
-      {/* Desglose Matemático Financiero */}
-      <div className="p-5 bg-background border-t border-surface-hover flex flex-col gap-3 text-sm">
-        <div className="flex justify-between text-muted font-medium">
-          <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
-        </div>
-        
-        {/* Solo aparece si realmente hay un descuento por anticipo */}
-        {descuentoAnticipo > 0 && (
-          <div className="flex justify-between text-status-confirmed font-bold bg-status-confirmed/10 p-2 rounded-lg -mx-2 px-2 border border-status-confirmed/20">
-            <span>Anticipo Pagado (30%)</span>
-            <span>-${descuentoAnticipo.toFixed(2)}</span>
-          </div>
+      <div className="border-t border-surface-hover bg-background p-5">
+        <POSTotals totals={totals} />
+        {(cartError || visibleCheckoutIssue) && (
+          <p
+            role="alert"
+            className="mt-3 rounded-lg bg-error/10 px-3 py-2 text-xs font-medium text-error"
+          >
+            {cartError || visibleCheckoutIssue}
+          </p>
         )}
-        
-        <div className="flex justify-between text-muted font-medium">
-          <span>IVA (16%)</span>
-          <span>${iva.toFixed(2)}</span>
-        </div>
-        
-        <div className="flex justify-between items-end mt-2 pt-3 border-t border-surface-hover">
-          <span className="font-title font-bold text-primary tracking-widest uppercase">TOTAL</span>
-          <span className="font-title font-bold text-3xl text-primary">${total.toFixed(2)}</span>
-        </div>
       </div>
 
-      {/* Botón Gigante de Cobro */}
-      <div className="p-4 bg-background border-t border-surface-hover">
+      <div className="border-t border-surface-hover bg-background p-4">
         <button
-          onClick={onAbrirCobro}
-          disabled={carrito.length === 0}
-          className={`w-full py-4 rounded-xl font-bold text-lg uppercase tracking-widest transition-all shadow-sm flex justify-center items-center gap-2 ${
-            carrito.length === 0
-              ? 'bg-surface-hover text-muted cursor-not-allowed'
-              : 'bg-primary text-surface hover:opacity-90 hover:-translate-y-1 hover:shadow-lg'
-          }`}
+          type="button"
+          onClick={onOpenCheckout}
+          disabled={disabled}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-bold text-surface shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:bg-surface-hover disabled:text-muted disabled:shadow-none"
         >
-          Ir a Pagar
+          <FiLock aria-hidden="true" />
+          {hasFrozenSaleRequest ? 'Reanudar cobro' : 'Continuar al cobro'}
         </button>
       </div>
-      
-    </div>
+    </section>
   );
 }

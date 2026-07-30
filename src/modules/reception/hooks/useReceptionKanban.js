@@ -3,10 +3,12 @@ import { useAuth } from '../../auth/context';
 import {
   appointmentStatus,
   cancelAppointment,
-  formatDateKey,
-  subscribeAppointmentsByStatus,
   transitionAppointmentStatus
 } from '../services/AppointmentService';
+import {
+  formatDateKey,
+  subscribeAppointmentsByStatus
+} from '../services/AppointmentQueryService';
 
 // Controla el tablero operativo de recepción
 export const useReceptionKanban = () => {
@@ -15,10 +17,12 @@ export const useReceptionKanban = () => {
   const [pendingAppointments, setPendingAppointments] = useState([]);
   const [confirmedAppointments, setConfirmedAppointments] = useState([]);
   const [inCabinAppointments, setInCabinAppointments] = useState([]);
+  const [checkoutAppointments, setCheckoutAppointments] = useState([]);
   const [loadingColumns, setLoadingColumns] = useState({
     pending: true,
     confirmed: true,
-    inCabin: true
+    inCabin: true,
+    checkout: true
   });
   const [error, setError] = useState(null);
   const [processingAppointmentIds, setProcessingAppointmentIds] = useState(
@@ -92,11 +96,24 @@ export const useReceptionKanban = () => {
       }
     });
 
-    // Detiene todos los listeners
+    // Escucha todas las citas pendientes de cobro
+    const unsubscribeCheckout = subscribeAppointmentsByStatus({
+      status: appointmentStatus.checkout,
+      onData: (appointments) => {
+        setCheckoutAppointments(appointments);
+        completeColumn('checkout');
+      },
+      onError: (subscriptionError) => {
+        handleSubscriptionError('checkout', subscriptionError);
+      }
+    });
+
+    // Detiene todas las suscripciones
     return () => {
       unsubscribePending();
       unsubscribeConfirmed();
       unsubscribeInCabin();
+      unsubscribeCheckout();
     };
   }, [todayKey]);
 
@@ -157,10 +174,10 @@ export const useReceptionKanban = () => {
 
   // Envía una cita atendida al cobro
   const moveAppointmentToCheckout = (appointmentId) => {
-    // Conserva el estado compatible con el flujo actual
+    // Envía la cita a la bandeja de cobro
     return updateAppointmentStatus(
       appointmentId,
-      appointmentStatus.completedLegacy
+      appointmentStatus.checkout
     );
   };
 
@@ -184,9 +201,6 @@ export const useReceptionKanban = () => {
   // Calcula la carga general
   const loading = Object.values(loadingColumns).some(Boolean);
 
-  // Calcula si existe una operación activa
-  const isProcessing = processingAppointmentIds.size > 0;
-
   // Comprueba el proceso de una cita
   const isProcessingAppointment = (appointmentId) => {
     // Devuelve el estado de procesamiento
@@ -198,9 +212,9 @@ export const useReceptionKanban = () => {
     pendingAppointments,
     confirmedAppointments,
     inCabinAppointments,
+    checkoutAppointments,
     loading,
     error,
-    isProcessing,
     isProcessingAppointment,
     confirmAppointment,
     moveAppointmentToCabin,

@@ -4,17 +4,19 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Acceso por identidad y rol
     function isSignedIn() { return request.auth != null; }
-    function hasRole(role) {
+    function hasAnyRole(roles) {
       return isSignedIn()
-        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
         && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.activo == true
-        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == role;
+        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol in roles;
     }
+    function hasRole(role) { return hasAnyRole([role]); }
     function isAdmin() { return hasRole('admin'); }
     function isReception() { return hasRole('recepcion'); }
     function isClinical() { return hasRole('cosmetologa'); }
-    function isReceptionOrAdmin() { return isReception() || isAdmin(); }
-    function canReadOperations() { return isReceptionOrAdmin() || isClinical(); }
+    function isReceptionOrAdmin() { return hasAnyRole(['recepcion', 'admin']); }
+    function canReadOperations() {
+      return hasAnyRole(['recepcion', 'admin', 'cosmetologa']);
+    }
     function isOwnUser(userId) {
       return isSignedIn()
         && (
@@ -180,8 +182,7 @@ service cloud.firestore {
     function hasIdentityAfter(clientId, type, value) {
       let identityId = type + ':' + value;
       let identity = identityAfter(identityId);
-      return existsAfter(/databases/$(database)/documents/identidadesClientes/$(identityId))
-        && identity.tipo == type
+      return identity.tipo == type
         && identity.valorNormalizado == value
         && identity.clienteId == clientId;
     }
@@ -325,7 +326,7 @@ service cloud.firestore {
         && existsAfter(/databases/$(database)/documents/clientes/$(data.clienteId))
         && afterData.diff(beforeData).affectedKeys().hasOnly([
           'telefono', 'telefonoNormalizado', 'email', 'emailNormalizado',
-          'actualizadaEn', 'actualizadaPor'
+          'emailPendienteCorreccion', 'actualizadaEn', 'actualizadaPor'
         ])
         && (
           (data.tipo == 'telefono'
@@ -385,9 +386,36 @@ service cloud.firestore {
     }
     function hasValidDepositEntry(entry) {
       return entry is map
-        && hasExactFields(entry, ['metodo', 'montoCentavos'])
+        && entry.keys().hasOnly([
+          'metodo', 'montoCentavos', 'efectivoRecibidoCentavos',
+          'cambioCentavos', 'referencia', 'ultimosCuatro'
+        ])
         && entry.metodo in ['efectivo', 'tarjeta', 'transferencia']
-        && entry.montoCentavos is int && entry.montoCentavos > 0;
+        && entry.montoCentavos is int && entry.montoCentavos > 0
+        && entry.efectivoRecibidoCentavos is int
+        && entry.efectivoRecibidoCentavos >= 0
+        && entry.cambioCentavos is int && entry.cambioCentavos >= 0
+        && entry.referencia is string && entry.referencia.size() <= 120
+        && entry.ultimosCuatro is string
+        && (
+          (entry.metodo == 'efectivo'
+            && entry.efectivoRecibidoCentavos >= entry.montoCentavos
+            && entry.cambioCentavos
+              == entry.efectivoRecibidoCentavos - entry.montoCentavos
+            && entry.referencia == '' && entry.ultimosCuatro == '')
+          || (entry.metodo == 'transferencia'
+            && entry.efectivoRecibidoCentavos == 0
+            && entry.cambioCentavos == 0
+            && entry.referencia.size() >= 3
+            && entry.ultimosCuatro == '')
+          || (entry.metodo == 'tarjeta'
+            && entry.efectivoRecibidoCentavos == 0
+            && entry.cambioCentavos == 0
+            && (
+              entry.ultimosCuatro == ''
+              || entry.ultimosCuatro.matches('[0-9]{4}')
+            ))
+        );
     }
     function hasValidSingleDeposit(data) {
       return data.anticipoMetodo in ['efectivo', 'tarjeta', 'transferencia']
@@ -406,7 +434,7 @@ service cloud.firestore {
           + data.anticipoPagos[1].montoCentavos == data.anticipoMontoCentavos;
     }
     function hasValidNewAppointmentKeys(data) {
-      return hasExactFields(data, [
+      return data.keys().hasOnly([
           'clienteId', 'nombreCompleto', 'servicioId', 'servicio',
           'precioServicio', 'precioServicioCentavos', 'duracionMinutos',
           'duracionServicioMinutos', 'tiempoPreparacionMinutos',
@@ -420,17 +448,15 @@ service cloud.firestore {
     function hasValidAppointmentClient(data) {
       let client = clientAfter(data.clienteId);
       return data.clienteId is string
-        && existsAfter(/databases/$(database)/documents/clientes/$(data.clienteId))
-        && hasValidClientCore(client)
         && client.fusionado != true
-        && data.nombreCompleto == client.nombreCompleto
-        && hasRequiredIdentitiesAfter(data.clienteId, client);
+        && client.nombreCompleto is string
+        && client.telefonoNormalizado is string
+        && client.emailNormalizado is string
+        && data.nombreCompleto == client.nombreCompleto;
     }
     function hasValidAppointmentService(data) {
       let serviceData = serviceAfter(data.servicioId);
       return data.servicioId is string
-        && existsAfter(/databases/$(database)/documents/servicios/$(data.servicioId))
-        && hasValidServiceData(serviceData)
         && serviceData.activo == true
         && data.servicio == serviceData.nombre
         && data.precioServicioCentavos == serviceData.precioCentavos
@@ -475,33 +501,71 @@ service cloud.firestore {
         && data.duracionBloqueMinutos is int && data.duracionBloqueMinutos == 180
         && data.finBloque == data.inicio + duration.value(180, 'm')
         && data.creadoEn is timestamp && data.creadoPor is string
-        && data.schemaVersion is int && data.schemaVersion in [1, 2];
+        && data.schemaVersion is int && data.schemaVersion in [1, 2, 3];
     }
     function slotAfter(slotId) { return getAfter(/databases/$(database)/documents/cupos/$(slotId)).data; }
     function appointmentBefore(appointmentId) { return get(/databases/$(database)/documents/citas/$(appointmentId)).data; }
     function appointmentAfter(appointmentId) { return getAfter(/databases/$(database)/documents/citas/$(appointmentId)).data; }
-    function hasMatchingSlotAfter(appointmentId, data) {
-      let slot = slotAfter(data.cupoId);
-      return existsAfter(/databases/$(database)/documents/cupos/$(data.cupoId))
-        && slot.citaId == appointmentId
-        && slot.clienteId == data.clienteId
-        && slot.fecha == data.fecha && slot.hora == data.hora
-        && slot.inicio == data.inicio && slot.finBloque == data.finBloque
-        && slot.duracionBloqueMinutos == data.duracionBloqueMinutos
-        && slot.creadoEn == data.creadaEn && slot.creadoPor == data.creadaPor
-        && slot.schemaVersion == data.schemaVersion;
+    function hasCreatedSlotAfter(slotId) {
+      return !exists(/databases/$(database)/documents/cupos/$(slotId))
+        && existsAfter(/databases/$(database)/documents/cupos/$(slotId));
     }
     function hasMatchingAppointmentAfter(slotId, data) {
       let appointment = appointmentAfter(data.citaId);
       return !exists(/databases/$(database)/documents/citas/$(data.citaId))
-        && existsAfter(/databases/$(database)/documents/citas/$(data.citaId))
-        && appointment.schemaVersion == 2
         && appointment.cupoId == slotId
         && appointment.clienteId == data.clienteId
         && appointment.fecha == data.fecha && appointment.hora == data.hora
         && appointment.inicio == data.inicio && appointment.finBloque == data.finBloque
         && appointment.duracionBloqueMinutos == data.duracionBloqueMinutos
         && appointment.creadaEn == data.creadoEn && appointment.creadaPor == data.creadoPor;
+    }
+    function hasValidPaymentDocument(data) {
+      return data.keys().hasOnly([
+          'citaId', 'ventaId', 'clienteId', 'tipo', 'metodo',
+          'montoCentavos', 'partes', 'estado', 'fecha',
+          'actorUid', 'sucursalId', 'schemaVersion'
+        ])
+        && data.ventaId == null
+        && data.tipo == 'anticipo'
+        && data.estado == 'confirmado'
+        && data.sucursalId == 'principal'
+        && data.schemaVersion == 1;
+    }
+    function paymentMatchesAppointment(
+      payment,
+      appointmentId,
+      appointment
+    ) {
+      return payment.citaId == appointmentId
+        && payment.clienteId == appointment.clienteId
+        && payment.metodo == appointment.anticipoMetodo
+        && payment.montoCentavos == appointment.anticipoMontoCentavos
+        && payment.partes == appointment.anticipoPagos
+        && payment.fecha == appointment.creadaEn
+        && payment.actorUid == appointment.creadaPor;
+    }
+    function hasMatchingDepositPaymentAfter(appointmentId, appointment) {
+      let paymentId = appointmentId + '_anticipo';
+      let payment = getAfter(
+        /databases/$(database)/documents/pagos/$(paymentId)
+      ).data;
+      return !exists(
+          /databases/$(database)/documents/pagos/$(paymentId)
+        )
+        && hasValidPaymentDocument(payment)
+        && paymentMatchesAppointment(
+          payment,
+          appointmentId,
+          appointment
+        );
+    }
+    function isValidDepositPaymentCreate(paymentId) {
+      let data = request.resource.data;
+      let appointment = appointmentAfter(data.citaId);
+      return paymentId == data.citaId + '_anticipo'
+        && !exists(/databases/$(database)/documents/citas/$(data.citaId))
+        && appointment.creadaPor == request.auth.uid;
     }
     function isValidNewAppointment(appointmentId) {
       let data = request.resource.data;
@@ -515,8 +579,9 @@ service cloud.firestore {
         && data.recordatorioEnviado == false
         && data.cupoId == data.fecha + '_' + data.hora
         && data.creadaEn == request.time && data.creadaPor == request.auth.uid
-        && data.schemaVersion is int && data.schemaVersion == 2
-        && hasMatchingSlotAfter(appointmentId, data);
+        && data.schemaVersion is int && data.schemaVersion == 3
+        && hasCreatedSlotAfter(data.cupoId)
+        && hasMatchingDepositPaymentAfter(appointmentId, data);
     }
     // Historial y transiciones
     function isAllowedTrackedAppointmentTransition(previousStatus, nextStatus) {
@@ -526,12 +591,12 @@ service cloud.firestore {
         || (previousStatus == 'confirmada'
           && nextStatus in ['en_cabina', 'cancelada']
         )
-        || (previousStatus == 'en_cabina' && nextStatus == 'completada');
+        || (previousStatus == 'en_cabina' && nextStatus == 'por_cobrar');
     }
     function hasValidSlotLifecycle(appointmentId, nextStatus) {
       let slotId = resource.data.get('cupoId', '');
       let schemaVersion = resource.data.get('schemaVersion', 0);
-      return !(schemaVersion in [1, 2])
+      return !(schemaVersion in [1, 2, 3])
         || (nextStatus == 'cancelada'
           && exists(/databases/$(database)/documents/cupos/$(slotId))
           && get(/databases/$(database)/documents/cupos/$(slotId)).data.citaId
@@ -563,12 +628,6 @@ service cloud.firestore {
           /databases/$(database)/documents/citas/$(appointmentId)/eventos/$(nextStatus)
         )
         && hasValidSlotLifecycle(appointmentId, nextStatus);
-    }
-    function isValidLegacyCheckoutUpdate() {
-      let changed = request.resource.data.diff(resource.data).affectedKeys();
-      return resource.data.estado == 'completada'
-        && request.resource.data.estado == 'finalizada'
-        && changed.hasOnly(['estado']);
     }
     function hasValidAppointmentEvent(appointmentId, eventId) {
       let eventData = request.resource.data;
@@ -615,7 +674,7 @@ service cloud.firestore {
       return hasValidSlotData(slotId, data)
         && exists(/databases/$(database)/documents/citas/$(data.citaId))
         && existsAfter(/databases/$(database)/documents/citas/$(data.citaId))
-        && beforeData.schemaVersion in [1, 2]
+        && beforeData.schemaVersion in [1, 2, 3]
         && beforeData.cupoId == slotId
         && afterData.cupoId == slotId
         && isAllowedTrackedAppointmentTransition(
@@ -629,9 +688,11 @@ service cloud.firestore {
     }
     match /cupos/{slotId} {
       allow read: if canReadOperations();
-      allow create: if isReceptionOrAdmin()
-        && hasValidSlotData(slotId, request.resource.data)
-        && request.resource.data.schemaVersion == 2
+      allow create: if request.resource.data.keys().hasOnly([
+          'citaId', 'clienteId', 'fecha', 'hora', 'inicio', 'finBloque',
+          'duracionBloqueMinutos', 'creadoEn', 'creadoPor', 'schemaVersion'
+        ])
+        && request.resource.data.schemaVersion == 3
         && request.resource.data.creadoEn == request.time
         && request.resource.data.creadoPor == request.auth.uid
         && hasMatchingAppointmentAfter(slotId, request.resource.data);
@@ -643,10 +704,7 @@ service cloud.firestore {
       allow create: if isReceptionOrAdmin()
         && isValidNewAppointment(appointmentId);
       allow update: if isReceptionOrAdmin()
-        && (
-          isValidTrackedAppointmentUpdate(appointmentId)
-          || isValidLegacyCheckoutUpdate()
-        );
+        && isValidTrackedAppointmentUpdate(appointmentId);
       allow delete: if false;
       match /eventos/{eventId} {
         allow read: if canReadOperations();
@@ -655,11 +713,28 @@ service cloud.firestore {
         allow update, delete: if false;
       }
     }
-    // Colecciones heredadas
-    match /ventas/{saleId} {
-      allow read, create: if isReceptionOrAdmin();
+    // Pagos registrados
+    match /pagos/{paymentId} {
+      allow read: if isReceptionOrAdmin();
+      allow create: if isValidDepositPaymentCreate(paymentId);
       allow update, delete: if false;
     }
+    // Catalogo de productos de venta
+    match /productos/{productId} {
+      allow read: if isReceptionOrAdmin();
+      allow create, update, delete: if false;
+    }
+    // Ventas cerradas por servidor
+    match /ventas/{saleId} {
+      allow read: if isReceptionOrAdmin();
+      allow create, update, delete: if false;
+    }
+    // Movimientos protegidos de inventario
+    match /movimientosInventario/{movementId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+    // Colecciones heredadas
     match /pacientes/{patientId} {
       allow read, create, update: if isAdmin() || isClinical();
       allow delete: if false;

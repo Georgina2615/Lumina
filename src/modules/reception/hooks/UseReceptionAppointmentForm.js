@@ -4,12 +4,13 @@ import {
   getBusinessDateKey,
   validateBookingSchedule
 } from '../services/AppointmentBookingService';
+import {
+  buildDepositInput,
+  createPaymentDraft
+} from '../services/PaymentPolicy';
 import { useReceptionAppointments } from './useReceptionAppointments';
 
 const emptyClient = { fullName: '', phone: '', email: '' };
-const emptyPayment = {
-  method: '', primaryMethod: 'efectivo', secondaryMethod: 'tarjeta', primaryAmount: ''
-};
 
 // Convierte el cliente persistido al formulario
 const mapFoundClient = (client) => ({
@@ -18,33 +19,6 @@ const mapFoundClient = (client) => ({
   phone: client.telefono || '',
   email: client.email || ''
 });
-
-// Construye pagos que suman el anticipo exacto
-const buildDeposit = (payment, depositCents) => {
-  if (!payment.method) {
-    throw new Error('Selecciona una forma de pago');
-  }
-  if (payment.method !== 'mixto') {
-    return {
-      method: payment.method,
-      payments: [{ method: payment.method, amountCents: depositCents }]
-    };
-  }
-
-  const primaryAmountCents = Math.round(Number(payment.primaryAmount) * 100);
-  const remainingCents = depositCents - primaryAmountCents;
-  if (!Number.isSafeInteger(primaryAmountCents) || primaryAmountCents <= 0
-    || remainingCents <= 0 || payment.primaryMethod === payment.secondaryMethod) {
-    throw new Error('Distribuye el anticipo entre dos métodos diferentes');
-  }
-  return {
-    method: 'mixto',
-    payments: [
-      { method: payment.primaryMethod, amountCents: primaryAmountCents },
-      { method: payment.secondaryMethod, amountCents: remainingCents }
-    ]
-  };
-};
 
 // Orquesta los estados del formulario presencial
 export const useReceptionAppointmentForm = ({
@@ -64,7 +38,7 @@ export const useReceptionAppointmentForm = ({
   const [appointment, setAppointment] = useState({
     serviceId: '', dateKey: initialSlot?.dateKey || '', time: initialSlot?.hour || ''
   });
-  const [payment, setPayment] = useState(emptyPayment);
+  const [payment, setPayment] = useState(createPaymentDraft);
   const [localError, setLocalError] = useState(null);
   const searchRef = useRef({ phone: '', result: null });
   const submitLockRef = useRef(false);
@@ -179,7 +153,7 @@ export const useReceptionAppointmentForm = ({
       ...current, [field]: value, ...(field === 'dateKey' ? { time: '' } : {})
     }));
     if (field === 'serviceId') {
-      setPayment(emptyPayment);
+      setPayment(createPaymentDraft());
     }
     setLocalError(null);
     resetBooking();
@@ -216,7 +190,7 @@ export const useReceptionAppointmentForm = ({
         serviceId: appointment.serviceId,
         dateKey: appointment.dateKey,
         time: appointment.time,
-        deposit: buildDeposit(payment, depositCents)
+        deposit: buildDepositInput(payment, depositCents)
       });
     } catch (error) {
       setLocalError(error.message || 'Revisa los datos de la cita');

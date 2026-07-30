@@ -9,10 +9,12 @@ import {
 import { useAuth } from '../../auth/context';
 import {
   canCancelAppointment,
-  cancelAppointment,
+  cancelAppointment
+} from '../services/AppointmentService';
+import {
   formatDateKey,
   subscribeCalendarAppointments
-} from '../services/AppointmentService';
+} from '../services/AppointmentQueryService';
 
 // Define el rango real de la vista
 const getCalendarRange = (visibleDate, view) => {
@@ -54,7 +56,7 @@ const mapCalendarAppointment = (appointment) => {
     return null;
   }
 
-  // Mantiene la duración histórica hasta definir servicios reales
+  // Conserva la duración registrada o aplica el bloque operativo
   const storedDuration = Number(appointment.duracionMinutos);
   const durationMinutes = Number.isFinite(storedDuration) && storedDuration > 0
     ? storedDuration
@@ -112,7 +114,7 @@ export const useReceptionCalendar = ({ visibleDate, view }) => {
       }
     });
 
-    // Detiene el listener vigente
+    // Detiene la suscripción vigente
     return () => unsubscribe();
   }, [startDateKey, endDateKey, rangeKey]);
 

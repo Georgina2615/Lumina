@@ -1,94 +1,120 @@
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FiAlertCircle, FiCalendar, FiRefreshCw } from 'react-icons/fi';
 import { usePOS } from '../hooks';
 import { POSCatalog, POSCart, POSCheckoutModal } from '../components';
 
+// Presenta el cobro real de citas y mostrador
 export default function ReceptionPOS() {
-  // 1. EL ENRUTAMIENTO INTELIGENTE
-  const location = useLocation();
+  // Lee navegación y cita solicitada
   const navigate = useNavigate();
-  
-  // Si venimos del Kanban, el botón nos mandó un estado con la cita. Si es mostrador, es null.
-  const citaInicial = location.state?.cita || null;
+  // Lee parámetros de navegación
+  const [searchParams] = useSearchParams();
+  // Obtiene la cita opcional
+  const appointmentId = searchParams.get('appointmentId')?.trim() || null;
+  // Conecta el cerebro del punto de venta
+  const pos = usePOS(appointmentId);
+  // Resume cantidades visibles
+  const cartQuantities = new Map(
+    pos.cartItems
+      .filter((item) => item.type === 'product')
+      .map((item) => [item.id, item.quantity])
+  );
+  // Determina el contexto de cobro
+  const hasAppointment = Boolean(appointmentId);
+  // Resuelve el nombre visible
+  const clientName = pos.appointment?.clientName
+    || (hasAppointment ? 'Cita en revisión' : 'Mostrador');
 
-  // 2. CONECTAMOS EL CEREBRO MATEMÁTICO
-  const {
-    carrito, subtotal, descuentoAnticipo, iva, total,
-    agregarAlCarrito, removerDelCarrito, procesarVenta,
-    procesando, errorVenta
-  } = usePOS(citaInicial);
-
-  const [modalAbierto, setModalAbierto] = useState(false);
-
-  // 3. LA ACCIÓN DE COBRO FINAL
-  const handleConfirmarPago = async (metodoPago) => {
-    const ventaId = await procesarVenta(metodoPago);
-    
-    if (ventaId) {
-      // Por ahora solo lanzamos una alerta de éxito. 
-      // ¡AQUÍ ES DONDE METEREMOS EMAILJS EN EL SIGUIENTE PASO!
-      alert(`¡Cobro exitoso registrado en base de datos!\nTicket ID: ${ventaId}`);
-      
-      setModalAbierto(false);
-      // Regresamos al Kanban después de cobrar con éxito
-      navigate('/dashboard/reception');
-    }
-  };
-
+  // Devuelve la composición principal
   return (
-    <div className="flex flex-col h-full gap-4">
-      
-      {/* Encabezado de la página */}
-      <div className="flex justify-between items-end">
+    <div className="flex h-full flex-col gap-4">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-title font-bold text-primary">Punto de Venta</h1>
-          <p className="text-muted font-body mt-1">
-            {citaInicial 
-              ? `Cobro de cita: ${citaInicial.nombreCompleto}` 
-              : 'Venta de Mostrador (Walk-in)'}
+          <p className="mb-1 text-xs font-bold uppercase tracking-[0.24em] text-secondary">
+            Recepción
+          </p>
+          <h1 className="text-3xl text-primary">Punto de venta</h1>
+          <p className="mt-1 text-sm text-muted">
+            {hasAppointment
+              ? 'Liquidación de cita y productos adicionales'
+              : 'Venta de mostrador con inventario real'}
           </p>
         </div>
-      </div>
+        {pos.appointment && (
+          <div className="flex items-center gap-2 rounded-xl border border-surface-hover bg-surface px-3 py-2 text-xs text-secondary shadow-sm">
+            <FiCalendar aria-hidden="true" />
+            <span className="font-semibold">
+              {pos.appointment.dateKey} a las {pos.appointment.time}
+            </span>
+          </div>
+        )}
+      </header>
 
-      {errorVenta && (
-        <div className="bg-error/10 text-error p-3 rounded-lg font-medium text-sm border border-error/20">
-          {errorVenta}
+      {pos.appointmentIssue && !pos.hasFrozenSaleRequest && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error"
+        >
+          <div className="flex items-center gap-2">
+            <FiAlertCircle aria-hidden="true" className="shrink-0" />
+            <span>{pos.appointmentIssue}</span>
+          </div>
+          <button
+            type="button"
+            onClick={pos.retry}
+            className="inline-flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2 text-xs font-semibold transition hover:bg-error/15"
+          >
+            <FiRefreshCw aria-hidden="true" />
+            Reintentar
+          </button>
         </div>
       )}
 
-      {/* LAYOUT DIVIDIDO (Split Screen) */}
-      <div className="flex-1 min-h-[600px] flex flex-col lg:flex-row gap-6 overflow-hidden pb-4">
-        
-        {/* Columna Izquierda: 60% Catálogo */}
-        <div className="lg:w-[60%] h-[500px] lg:h-full">
-          <POSCatalog agregarAlCarrito={agregarAlCarrito} />
-        </div>
-
-        {/* Columna Derecha: 40% Carrito */}
-        <div className="lg:w-[40%] h-[500px] lg:h-full">
-          <POSCart 
-            carrito={carrito}
-            subtotal={subtotal}
-            descuentoAnticipo={descuentoAnticipo}
-            iva={iva}
-            total={total}
-            removerDelCarrito={removerDelCarrito}
-            onAbrirCobro={() => setModalAbierto(true)}
-            clienteNombre={citaInicial ? citaInicial.nombreCompleto : 'Mostrador'}
-          />
-        </div>
-
+      <div className="grid min-h-[620px] flex-1 gap-5 pb-4 lg:grid-cols-[minmax(0,3fr)_minmax(360px,2fr)]">
+        <POSCatalog
+          products={pos.filteredProducts}
+          productsLoading={pos.productsLoading}
+          productsError={pos.productsError}
+          searchQuery={pos.searchQuery}
+          cartQuantities={cartQuantities}
+          hasAppointment={hasAppointment}
+          interactionLocked={pos.hasFrozenSaleRequest}
+          onAdd={pos.addProduct}
+          onRetry={pos.retry}
+          onSearchChange={pos.setSearchQuery}
+        />
+        <POSCart
+          items={pos.cartItems}
+          totals={pos.totals}
+          clientName={clientName}
+          cartError={pos.cartError}
+          checkoutIssue={pos.checkoutIssue}
+          hasFrozenSaleRequest={pos.hasFrozenSaleRequest}
+          loading={pos.productsLoading || pos.appointmentLoading}
+          onChangeQuantity={pos.changeProductQuantity}
+          onOpenCheckout={pos.openCheckout}
+          onRemove={pos.removeProduct}
+        />
       </div>
 
-      {/* El Modal Oculto que espera a ser llamado */}
-      <POSCheckoutModal 
-        isOpen={modalAbierto} 
-        onClose={() => setModalAbierto(false)} 
-        onConfirm={handleConfirmarPago}
-        total={total}
-        procesando={procesando}
+      <POSCheckoutModal
+        isOpen={pos.checkoutOpen}
+        amountDueCents={pos.checkoutAmountDueCents}
+        error={pos.checkoutModalError}
+        form={pos.payment.paymentForm}
+        paymentPreview={pos.payment.paymentPreview}
+        processing={pos.processing}
+        retryMode={pos.hasFrozenSaleRequest}
+        saleResult={pos.saleResult}
+        submitDisabled={
+          !pos.hasFrozenSaleRequest && Boolean(pos.checkoutIssue)
+        }
+        onChange={pos.payment.updatePaymentField}
+        onClose={pos.closeCheckout}
+        onConfirm={pos.confirmSale}
+        onFinish={() => navigate('/dashboard/reception')}
+        onSelectMethod={pos.payment.selectPaymentMethod}
       />
-
     </div>
   );
 }

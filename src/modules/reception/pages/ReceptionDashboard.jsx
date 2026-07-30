@@ -1,14 +1,17 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppointmentCard } from '../../common/components';
 import { CancelAppointmentModal, KanbanColumn } from '../components';
 import { useReceptionKanban } from '../hooks';
 
 // Controla el panel operativo de recepción
 export default function ReceptionDashboard() {
+  const navigate = useNavigate();
+
   // Obtiene el estado y las acciones del tablero
   const {
-    pendingAppointments, confirmedAppointments, inCabinAppointments,
-    loading, error, isProcessing, isProcessingAppointment,
+    pendingAppointments, confirmedAppointments, inCabinAppointments, checkoutAppointments,
+    loading, error, isProcessingAppointment,
     confirmAppointment, moveAppointmentToCabin, moveAppointmentToCheckout,
     cancelReceptionAppointment, clearError
   } = useReceptionKanban();
@@ -21,12 +24,31 @@ export default function ReceptionDashboard() {
     ...pendingAppointments, ...confirmedAppointments, ...inCabinAppointments
   ].find((appointment) => appointment.id === selectedAppointmentId) ?? null;
 
-  // Ejecuta acciones y conserva el error del hook
+  // Ejecuta acciones y conserva el error de la lógica
   const handleAppointmentAction = async (action) => {
     try {
       await action();
+      return true;
     } catch {
       // Mantiene el mensaje visible para la persona usuaria
+      return false;
+    }
+  };
+
+  // Abre el cobro usando la identidad persistente de la cita
+  const openCheckout = (appointmentId) => {
+    navigate(`/dashboard/pos?appointmentId=${encodeURIComponent(appointmentId)}`);
+  };
+
+  // Envía la cita al cobro antes de abrir el punto de venta
+  const handleMoveToCheckout = async (appointmentId) => {
+    const wasMoved = await handleAppointmentAction(
+      () => moveAppointmentToCheckout(appointmentId)
+    );
+
+    // Navega solo después de confirmar la transición
+    if (wasMoved) {
+      openCheckout(appointmentId);
     }
   };
 
@@ -80,15 +102,15 @@ export default function ReceptionDashboard() {
         <KanbanColumn cantidad={pendingAppointments.length} colorTitulo="text-status-pending"
           mensajeVacio="Sin citas pendientes de confirmación" titulo="Por Confirmar">
           {pendingAppointments.map((appointment) => (
-            <AppointmentCard cita={appointment} key={appointment.id}>
+            <AppointmentCard appointment={appointment} key={appointment.id}>
               <button className="flex-1 rounded-xl bg-status-confirmed px-4 py-2 text-sm font-semibold text-[#181313] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
-                disabled={isProcessing} onClick={() => handleAppointmentAction(
+                disabled={isProcessingAppointment(appointment.id)} onClick={() => handleAppointmentAction(
                   () => confirmAppointment(appointment.id)
                 )} type="button">
                 Confirmar cita
               </button>
               <button className="flex-1 rounded-xl border border-error/40 px-4 py-2 text-sm font-semibold text-error transition hover:bg-error hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
-                disabled={isProcessing} onClick={() => openCancellation(appointment)} type="button">
+                disabled={isProcessingAppointment(appointment.id)} onClick={() => openCancellation(appointment)} type="button">
                 Cancelar
               </button>
             </AppointmentCard>
@@ -98,15 +120,15 @@ export default function ReceptionDashboard() {
         <KanbanColumn cantidad={confirmedAppointments.length} colorTitulo="text-status-confirmed"
           mensajeVacio="No hay citas listas para pasar a cabina hoy" titulo="Confirmadas Hoy">
           {confirmedAppointments.map((appointment) => (
-            <AppointmentCard cita={appointment} key={appointment.id}>
+            <AppointmentCard appointment={appointment} key={appointment.id}>
               <button className="w-full rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                disabled={isProcessing} onClick={() => handleAppointmentAction(
+                disabled={isProcessingAppointment(appointment.id)} onClick={() => handleAppointmentAction(
                   () => moveAppointmentToCabin(appointment.id)
                 )} type="button">
                 Pasar a cabina
               </button>
               <button className="w-full rounded-xl px-4 py-2 text-sm font-semibold text-muted transition hover:bg-error/10 hover:text-error disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                disabled={isProcessing} onClick={() => openCancellation(appointment)} type="button">
+                disabled={isProcessingAppointment(appointment.id)} onClick={() => openCancellation(appointment)} type="button">
                 Cancelar
               </button>
             </AppointmentCard>
@@ -116,12 +138,24 @@ export default function ReceptionDashboard() {
         <KanbanColumn cantidad={inCabinAppointments.length} colorTitulo="text-status-incabin"
           mensajeVacio="Ninguna clienta atendiéndose en este momento" titulo="En Cabina">
           {inCabinAppointments.map((appointment) => (
-            <AppointmentCard cita={appointment} key={appointment.id}>
+            <AppointmentCard appointment={appointment} key={appointment.id}>
               <button className="w-full rounded-xl bg-status-completed px-4 py-2 text-sm font-semibold text-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={isProcessing} onClick={() => handleAppointmentAction(
-                  () => moveAppointmentToCheckout(appointment.id)
-                )} type="button">
+                disabled={isProcessingAppointment(appointment.id)}
+                onClick={() => handleMoveToCheckout(appointment.id)} type="button">
                 Ir a cobrar
+              </button>
+            </AppointmentCard>
+          ))}
+        </KanbanColumn>
+
+        <KanbanColumn cantidad={checkoutAppointments.length} colorTitulo="text-secondary"
+          mensajeVacio="No hay citas pendientes de cobro" titulo="Por Cobrar">
+          {checkoutAppointments.map((appointment) => (
+            <AppointmentCard appointment={appointment} key={appointment.id}>
+              <button className="w-full rounded-xl bg-secondary px-4 py-2 text-sm font-semibold text-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={isProcessingAppointment(appointment.id)}
+                onClick={() => openCheckout(appointment.id)} type="button">
+                Abrir cobro
               </button>
             </AppointmentCard>
           ))}

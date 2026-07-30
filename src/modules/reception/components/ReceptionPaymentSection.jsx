@@ -1,3 +1,10 @@
+import PaymentEvidenceFields from './PaymentEvidenceFields';
+import MixedDepositFields from './MixedDepositFields';
+import {
+  createPaymentDraft,
+  createPaymentPart
+} from '../services/PaymentPolicy';
+
 // Define los métodos simples permitidos
 const paymentMethods = [
   { value: 'efectivo', label: 'Efectivo' },
@@ -19,21 +26,34 @@ export default function ReceptionPaymentSection({
 }) {
   // Detecta el desglose combinado
   const isMixed = payment.method === 'mixto';
-  const primaryAmountCents = Math.round(Number(payment.primaryAmount || 0) * 100);
-  const remainingCents = Math.max(depositCents - primaryAmountCents, 0);
 
   // Actualiza una parte del pago
-  const updatePayment = (changes) => {
-    onChange({ ...payment, ...changes });
+  const updatePart = (partName, changes) => {
+    onChange({
+      ...payment,
+      [partName]: { ...payment[partName], ...changes }
+    });
   };
 
   // Cambia el método general
   const handleMethodChange = (method) => {
-    updatePayment({
-      method,
-      primaryMethod: method === 'mixto' ? 'efectivo' : method,
-      secondaryMethod: method === 'mixto' ? 'tarjeta' : '',
-      primaryAmount: ''
+    // Crea un pago limpio
+    const nextPayment = createPaymentDraft();
+    nextPayment.method = method;
+    nextPayment.primary = createPaymentPart(
+      method === 'mixto' ? 'efectivo' : method
+    );
+
+    // Entrega el nuevo pago
+    onChange(nextPayment);
+  };
+
+  // Cambia el método de una parte
+  const handlePartMethodChange = (partName, method) => {
+    // Reemplaza evidencia de un método anterior
+    onChange({
+      ...payment,
+      [partName]: createPaymentPart(method)
     });
   };
 
@@ -72,65 +92,25 @@ export default function ReceptionPaymentSection({
         ))}
       </div>
 
-      {isMixed && (
-        <div className="mt-4 grid gap-3 rounded-2xl border border-surface-hover bg-background p-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-muted" htmlFor="primary-payment-method">
-              Primer método
-            </label>
-            <select
-              className="w-full rounded-xl border border-surface-hover bg-surface p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-              id="primary-payment-method"
-              onChange={(event) => updatePayment({ primaryMethod: event.target.value })}
-              value={payment.primaryMethod}
-            >
-              {paymentMethods.map((method) => (
-                <option disabled={method.value === payment.secondaryMethod}
-                  key={method.value} value={method.value}>{method.label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-muted" htmlFor="secondary-payment-method">
-              Segundo método
-            </label>
-            <select
-              className="w-full rounded-xl border border-surface-hover bg-surface p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-              id="secondary-payment-method"
-              onChange={(event) => updatePayment({ secondaryMethod: event.target.value })}
-              value={payment.secondaryMethod}
-            >
-              {paymentMethods.map((method) => (
-                <option disabled={method.value === payment.primaryMethod}
-                  key={method.value} value={method.value}>{method.label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-muted" htmlFor="primary-payment-amount">
-              Importe del primer método
-            </label>
-            <input
-              className="w-full rounded-xl border border-surface-hover bg-surface p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
-              id="primary-payment-amount"
-              inputMode="decimal"
-              max={Math.max((depositCents - 1) / 100, 0)}
-              min="0.01"
-              onChange={(event) => updatePayment({ primaryAmount: event.target.value })}
-              placeholder="0.00"
-              required
-              step="0.01"
-              type="number"
-              value={payment.primaryAmount}
-            />
-          </div>
-          <div className="rounded-xl bg-surface p-3">
-            <p className="text-xs font-semibold text-muted">Importe restante</p>
-            <p className="mt-2 font-title text-xl font-bold text-primary">
-              {formatCurrency(remainingCents)}
-            </p>
-          </div>
+      {payment.method && !isMixed && (
+        <div className="mt-4 rounded-2xl border border-surface-hover bg-background p-4">
+          <PaymentEvidenceFields
+            amountCents={depositCents}
+            idPrefix="deposit-primary"
+            onChange={(changes) => updatePart('primary', changes)}
+            part={payment.primary}
+          />
         </div>
+      )}
+
+      {isMixed && (
+        <MixedDepositFields
+          depositCents={depositCents}
+          methods={paymentMethods}
+          onMethodChange={handlePartMethodChange}
+          onPartChange={updatePart}
+          payment={payment}
+        />
       )}
 
       <p className="mt-3 text-xs leading-5 text-muted">

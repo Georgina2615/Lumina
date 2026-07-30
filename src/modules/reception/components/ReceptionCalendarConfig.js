@@ -28,13 +28,19 @@ const colorByStatus = {
   por_confirmar: 'var(--color-status-pending)',
   confirmada: 'var(--color-status-confirmed)',
   en_cabina: 'var(--color-status-incabin)',
+  por_cobrar: 'var(--color-secondary)',
   completada: 'var(--color-status-completed)',
   finalizada: 'var(--color-status-completed)',
   cancelada: 'var(--color-error)'
 };
 
 // Define los estados que necesitan texto claro
-const lightTextStatuses = new Set(['cancelada', 'completada', 'finalizada']);
+const lightTextStatuses = new Set([
+  'cancelada',
+  'completada',
+  'finalizada',
+  'por_cobrar'
+]);
 
 // Define la apariencia de cada cita
 export const getAppointmentEventStyle = (appointment) => {
