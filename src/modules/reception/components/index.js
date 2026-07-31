@@ -1,4 +1,5 @@
 export { default as ReceptionAppointmentForm } from './ReceptionAppointmentForm';
+export { default as AppointmentCard } from './AppointmentCard';
 export { default as ReceptionClientSection } from './ReceptionClientSection';
 export { default as ReceptionDetailsSection } from './ReceptionDetailsSection';
 export { default as ReceptionPaymentSection } from './ReceptionPaymentSection';

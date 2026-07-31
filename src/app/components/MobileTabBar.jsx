@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
 
-export default function MobileTabBar({ menuPermitido, onLogout }) {
+// Presenta la navegación principal en dispositivos móviles
+export default function MobileTabBar({ allowedMenu, onLogout }) {
+  // Devuelve los accesos permitidos para el rol
   return (
     <nav className="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-surface-hover flex justify-around items-center p-2 shadow-lg shadow-surface-hover/40 z-50 rounded-t-2xl">
-      {menuPermitido.map((item) => (
+      {allowedMenu.map((item) => (
         <NavLink 
           key={item.id} 
           to={item.path}

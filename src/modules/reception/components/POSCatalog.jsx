@@ -1,5 +1,5 @@
 import { FiAlertCircle, FiLoader, FiPackage, FiRefreshCw } from 'react-icons/fi';
-import { SearchBar } from '../../common/components';
+import { SearchBar } from '../../../shared/components';
 import POSProductCard from './POSProductCard';
 
 // Presenta el estado real del catálogo comercial

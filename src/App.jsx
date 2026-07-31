@@ -4,8 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './modules/auth/context';
 import { ProtectedRoute } from './modules/auth/components'; // <-- Importación limpia
 
-// Layouts 
-import { PublicLayout, DashboardLayout } from './modules/common/layouts';
+// Layouts
+import { PublicLayout, DashboardLayout } from './app/layouts';
 
 // Vistas Públicas
 import LandingPage from './modules/public/pages/LandingPage';

@@ -1,4 +1,4 @@
-import { AppointmentCard } from '../../common/components';
+import AppointmentCard from './AppointmentCard';
 import KanbanAppointmentActions from './KanbanAppointmentActions';
 import KanbanColumn from './KanbanColumn';
 
