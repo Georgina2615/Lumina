@@ -1,4 +1,4 @@
-import { useAccessibleDialog } from '../hooks/UseAccessibleDialog';
+import { useAccessibleDialog } from '../../../shared/hooks';
 
 // Presenta la estructura accesible de acciones sobre citas
 export default function AppointmentModalShell({

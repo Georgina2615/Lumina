@@ -10,8 +10,27 @@ const isPositiveInteger = (value) => (
   Number.isSafeInteger(value) && value > 0
 );
 
+// Lee el costo privado sin bloquear productos heredados
+export const readRetailProductUnitCost = (snapshot, productId) => {
+  if (!snapshot?.exists) {
+    return null;
+  }
+  const data = snapshot.data();
+  return (
+    data.schemaVersion === 1
+    && data.productoId === productId
+    && isPositiveInteger(data.costoPromedioCentavos)
+  )
+    ? data.costoPromedioCentavos
+    : null;
+};
+
 // Verifica precio y existencias del catálogo canónico
-export const requireRetailProduct = (snapshot, requestedItem) => {
+export const requireRetailProduct = (
+  snapshot,
+  requestedItem,
+  costSnapshot = null
+) => {
   // Detiene productos inexistentes
   if (!snapshot.exists) {
     fail('not-found', 'Uno de los productos ya no existe');
@@ -53,6 +72,7 @@ export const requireRetailProduct = (snapshot, requestedItem) => {
     name: data.nombre.trim(),
     category: data.categoria.trim(),
     unitPriceCents: data.precioCentavos,
+    unitCostCents: readRetailProductUnitCost(costSnapshot, snapshot.id),
     quantity: requestedItem.quantity,
     previousStock: data.existencias,
     remainingStock,

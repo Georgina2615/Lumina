@@ -2,7 +2,7 @@ import {
   FiLoader,
   FiX
 } from 'react-icons/fi';
-import { useAccessibleDialog } from '../hooks/UseAccessibleDialog';
+import { useAccessibleDialog } from '../../../shared/hooks';
 import { formatCurrency } from '../services/SaleCalculationService';
 import POSPaymentFields from './POSPaymentFields';
 import POSPaymentMethodSelector from './POSPaymentMethodSelector';

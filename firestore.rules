@@ -376,6 +376,11 @@ service cloud.firestore {
       allow read: if isReceptionOrAdmin();
       allow create, update, delete: if false;
     }
+    // Costos privados de productos
+    match /costosProductos/{productId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
     // Ventas cerradas por servidor
     match /ventas/{saleId} {
       allow read: if isReceptionOrAdmin();

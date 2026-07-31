@@ -1,9 +1,11 @@
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import { logger } from 'firebase-functions';
 import { defineJsonSecret } from 'firebase-functions/params';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { onCall } from 'firebase-functions/v2/https';
+import { adjustRetailStockHandler } from './AdjustRetailStock.js';
 import {
   createReceptionAppointmentHandler
 } from './CreateReceptionAppointment.js';
@@ -12,6 +14,7 @@ import { finalizeReceptionSaleHandler } from './FinalizeReceptionSale.js';
 import {
   manageReceptionAppointmentHandler
 } from './ManageReceptionAppointment.js';
+import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import {
   reprogramReceptionAppointmentHandler
 } from './ReprogramReceptionAppointment.js';
@@ -105,6 +108,27 @@ export const finalizeReceptionSale = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => finalizeReceptionSaleHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Administra el catálogo retail de manera atómica
+export const manageRetailProduct = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageRetailProductHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore(),
+  storage: getStorage()
+}));
+
+// Ajusta existencias retail de manera atómica
+export const adjustRetailStock = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => adjustRetailStockHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

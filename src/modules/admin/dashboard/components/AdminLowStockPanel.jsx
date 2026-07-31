@@ -1,4 +1,5 @@
 import { FiAlertTriangle, FiPackage } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import AdminPanelState from './AdminPanelState';
 
 // Presenta productos activos que requieren abastecimiento
@@ -82,6 +83,13 @@ export default function AdminLowStockPanel({
             {data.warningCount} productos tienen datos incompatibles
           </p>
         )}
+
+        <Link
+          className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-surface-hover bg-background px-4 text-sm font-semibold text-primary transition hover:border-secondary/40 hover:shadow-sm active:scale-[0.98]"
+          to="/dashboard/admin/inventario-retail"
+        >
+          Gestionar inventario
+        </Link>
       </AdminPanelState>
     </section>
   );

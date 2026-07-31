@@ -170,6 +170,10 @@ export const buildInventoryMovementDocument = ({
   cambioExistencias: -product.quantity,
   existenciasAnteriores: product.previousStock,
   existenciasPosteriores: product.remainingStock,
+  costoUnitarioCentavos: product.unitCostCents,
+  costoTotalCentavos: product.unitCostCents === null
+    ? null
+    : product.unitCostCents * product.quantity,
   sucursalId: BRANCH_ID,
   fecha: timestamp,
   actorUid,

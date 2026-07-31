@@ -14,7 +14,11 @@ import { LandingPage } from './modules/public/pages';
 import { ReceptionDashboard, ReceptionCalendar, ReceptionClientDirectory, ReceptionPOS } from './modules/reception/pages';
 
 // Expone las capacidades administrativas
-import { AdminDashboard, AdminLayout } from './modules/admin';
+import {
+  AdminDashboard,
+  AdminLayout,
+  AdminRetailInventory
+} from './modules/admin';
 
 // Dirige cada rol hacia su área principal
 const DashboardIndex = () => {
@@ -66,6 +70,10 @@ export default function App() {
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
               <Route path="admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
+                <Route
+                  path="inventario-retail"
+                  element={<AdminRetailInventory />}
+                />
               </Route>
             </Route>
           </Route>

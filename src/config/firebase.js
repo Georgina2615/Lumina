@@ -19,6 +19,7 @@ import {
   connectFunctionsEmulator,
   getFunctions
 } from 'firebase/functions';
+import { getStorage } from 'firebase/storage';
 
 // Define la configuración segura del proyecto
 const firebaseConfig = {
@@ -89,6 +90,7 @@ export const appCheck = initializeLuminaAppCheck();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functionsInstance = getFunctions(app, 'us-central1');
+export const storage = getStorage(app);
 
 // Conecta una sola vez los servicios locales
 if (useEmulators && !globalThis.luminaEmulatorsConnected) {

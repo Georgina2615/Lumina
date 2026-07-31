@@ -106,6 +106,11 @@ export const runSaleTransaction = async ({
     ({ productId }) => firestore.collection('productos').doc(productId)
   );
 
+  // Identifica los costos privados opcionales
+  const productCostReferences = request.productItems.map(
+    ({ productId }) => firestore.collection('costosProductos').doc(productId)
+  );
+
   // Resuelve los movimientos reales del anticipo
   const depositPaymentIds = resolveDepositPaymentIds(
     request.appointmentId,
@@ -121,6 +126,7 @@ export const runSaleTransaction = async ({
   const remainingReferences = [
     ...(clientReference ? [clientReference] : []),
     ...productReferences,
+    ...productCostReferences,
     ...depositPaymentReferences
   ];
 
@@ -145,10 +151,11 @@ export const runSaleTransaction = async ({
   const products = productReferences.map((reference, index) => (
     requireRetailProduct(
       remainingSnapshots[snapshotIndex + index],
-      request.productItems[index]
+      request.productItems[index],
+      remainingSnapshots[snapshotIndex + productReferences.length + index]
     )
   ));
-  snapshotIndex += productReferences.length;
+  snapshotIndex += productReferences.length + productCostReferences.length;
 
   // Construye el contexto de la cita
   const appointment = appointmentData ? {

@@ -1,0 +1,1 @@
+export { useAccessibleDialog } from './UseAccessibleDialog';
