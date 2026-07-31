@@ -132,14 +132,14 @@ const createBookingBatch = (database, {
   return batch;
 };
 
-// Acepta una reserva con anticipo auditable
-test('acepta cita cupo y anticipo en una sola escritura', async () => {
+// Rechaza reservas directas desde el navegador
+test('rechaza crear cita cupo y anticipo sin la función segura', async () => {
   // Obtiene una sesión de recepción
   const context = testEnvironment.authenticatedContext(testIds.userId);
   const batch = createBookingBatch(context.firestore());
 
-  // Comprueba el contrato completo
-  await assertSucceeds(batch.commit());
+  // Comprueba el cierre de la escritura directa
+  await assertFails(batch.commit());
 });
 
 // Rechaza reservas sin movimiento financiero
@@ -166,8 +166,8 @@ test('rechaza un anticipo consolidado con importe alterado', async () => {
   await assertFails(batch.commit());
 });
 
-// Acepta una reserva con dos partes del anticipo
-test('acepta un anticipo mixto en un registro financiero', async () => {
+// Rechaza anticipos mixtos creados fuera del servidor
+test('rechaza un anticipo mixto creado directamente', async () => {
   // Construye las dos partes persistentes
   const depositPayments = buildMixedEmbeddedDeposit();
   // Obtiene una sesión de recepción
@@ -177,12 +177,12 @@ test('acepta un anticipo mixto en un registro financiero', async () => {
     { depositPayments }
   );
 
-  // Comprueba el contrato mixto completo
-  await assertSucceeds(batch.commit());
+  // Comprueba el cierre del contrato financiero
+  await assertFails(batch.commit());
 });
 
-// Acepta el flujo completo para un cliente nuevo
-test('acepta cliente identidades cita cupo y anticipo juntos', async () => {
+// Acepta el alta independiente de un cliente nuevo
+test('acepta cliente e identidades desde recepción', async () => {
   // Retira únicamente la preparación del cliente
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     // Obtiene la base aislada
@@ -198,14 +198,66 @@ test('acepta cliente identidades cita cupo y anticipo juntos', async () => {
     ]);
   });
 
-  // Construye el flujo atómico real
+  // Construye el alta del directorio
   const context = testEnvironment.authenticatedContext(testIds.userId);
-  const batch = createBookingBatch(context.firestore(), {
-    includeClient: true
+  const database = context.firestore();
+  const batch = writeBatch(database);
+  const timestamp = serverTimestamp();
+
+  batch.set(
+    doc(database, 'clientes', testIds.clientId),
+    buildTestClient({ actorUid: testIds.userId, timestamp })
+  );
+  batch.set(
+    doc(database, 'identidadesClientes', 'telefono:9991112233'),
+    buildTestIdentity('telefono', '9991112233', {
+      actorUid: testIds.userId,
+      timestamp
+    })
+  );
+  batch.set(
+    doc(database, 'identidadesClientes', 'correo:reglas@example.com'),
+    buildTestIdentity('correo', 'reglas@example.com', {
+      actorUid: testIds.userId,
+      timestamp
+    })
+  );
+
+  // Comprueba el alta canónica del cliente
+  await assertSucceeds(batch.commit());
+});
+
+// Rechaza identidades con nombres numéricos
+test('rechaza un cliente nuevo con nombre numérico', async () => {
+  // Define una identidad aislada
+  const clientId = 'cliente_nombre_numerico';
+  const phone = '9991112244';
+  // Obtiene una sesión de recepción
+  const database = testEnvironment
+    .authenticatedContext(testIds.userId)
+    .firestore();
+  // Construye la escritura relacionada
+  const batch = writeBatch(database);
+  const timestamp = serverTimestamp();
+
+  batch.set(doc(database, 'clientes', clientId), {
+    ...buildTestClient({ actorUid: testIds.userId, timestamp }),
+    nombreCompleto: '211',
+    telefono: phone,
+    telefonoNormalizado: phone,
+    email: '',
+    emailNormalizado: ''
+  });
+  batch.set(doc(database, 'identidadesClientes', `telefono:${phone}`), {
+    ...buildTestIdentity('telefono', phone, {
+      actorUid: testIds.userId,
+      timestamp
+    }),
+    clienteId: clientId
   });
 
-  // Comprueba todos los documentos relacionados
-  await assertSucceeds(batch.commit());
+  // Comprueba el rechazo atómico
+  await assertFails(batch.commit());
 });
 
 // Impide escrituras financieras directas

@@ -4,6 +4,9 @@ import { logger } from 'firebase-functions';
 import { defineJsonSecret } from 'firebase-functions/params';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { onCall } from 'firebase-functions/v2/https';
+import {
+  createReceptionAppointmentHandler
+} from './CreateReceptionAppointment.js';
 import { sendEmailJsTemplate } from './EmailJsTransport.js';
 import { finalizeReceptionSaleHandler } from './FinalizeReceptionSale.js';
 import {
@@ -60,6 +63,16 @@ const createEmailSender = () => {
     });
   };
 };
+
+// Registra una cita presencial de manera atómica
+export const createReceptionAppointment = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => createReceptionAppointmentHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
 
 // Finaliza una venta presencial de manera atómica
 export const finalizeReceptionSale = onCall({

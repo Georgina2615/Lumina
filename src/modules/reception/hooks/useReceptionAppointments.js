@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useAuth } from '../../auth/context';
 import {
   createAppointmentBooking,
   subscribeActiveServices,
@@ -9,7 +8,6 @@ import { findClientByPhone } from '../services/ClientService';
 
 // Coordina catálogo disponibilidad cliente y reserva
 export const useReceptionAppointments = () => {
-  const { usuario: user } = useAuth();
   const [services, setServices] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
   const [servicesError, setServicesError] = useState(null);
@@ -119,10 +117,7 @@ export const useReceptionAppointments = () => {
     setBookedAppointment(null);
 
     try {
-      const booking = await createAppointmentBooking({
-        ...input,
-        actorUid: user?.uid
-      });
+      const booking = await createAppointmentBooking(input);
       setBookedAppointment(booking);
       setBookingSuccess(true);
       return booking;
@@ -133,7 +128,7 @@ export const useReceptionAppointments = () => {
     } finally {
       setBookingLoading(false);
     }
-  }, [user]);
+  }, []);
 
   const resetBooking = useCallback(() => {
     setBookingError(null);

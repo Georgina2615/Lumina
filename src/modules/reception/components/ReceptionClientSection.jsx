@@ -1,3 +1,8 @@
+import {
+  clientNameErrorMessage,
+  clientNamePatternSource
+} from '../services/AppointmentClientPolicy';
+
 // Presenta la identidad del cliente
 export default function ReceptionClientSection({
   client,
@@ -41,17 +46,28 @@ export default function ReceptionClientSection({
             Nombre completo
           </label>
           <input
+            aria-describedby="appointment-client-name-help"
             autoComplete="name"
             className="w-full rounded-xl border border-surface-hover bg-background p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-surface-hover/60 disabled:text-muted"
             disabled={isExistingClient}
             id="appointment-client-name"
             maxLength={120}
+            minLength={2}
             name="fullName"
             onChange={handleChange}
+            onInput={(event) => event.currentTarget.setCustomValidity('')}
+            onInvalid={(event) => {
+              event.currentTarget.setCustomValidity(clientNameErrorMessage);
+            }}
+            pattern={clientNamePatternSource}
             required
+            title={clientNameErrorMessage}
             type="text"
             value={client.fullName}
           />
+          <p className="mt-2 text-xs leading-5 text-muted" id="appointment-client-name-help">
+            Usa letras espacios apóstrofes o guiones
+          </p>
         </div>
         <div>
           <label className="mb-1 block text-xs font-semibold text-muted" htmlFor="appointment-client-phone">

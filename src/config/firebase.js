@@ -4,6 +4,10 @@ import {
   initializeApp
 } from 'firebase/app';
 import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider
+} from 'firebase/app-check';
+import {
   connectAuthEmulator,
   getAuth
 } from 'firebase/auth';
@@ -29,6 +33,11 @@ const firebaseConfig = {
 // Detecta el entorno local aislado
 const useEmulators = import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true';
 
+// Obtiene la clave publica del proveedor de certificacion
+const appCheckSiteKey = import.meta.env
+  .VITE_FIREBASE_APPCHECK_SITE_KEY
+  ?.trim();
+
 // Evita compartir la identidad productiva con el emulador
 const activeConfig = useEmulators
   ? { ...firebaseConfig, projectId: 'demo-lumina' }
@@ -38,6 +47,43 @@ const activeConfig = useEmulators
 export const app = getApps().length > 0
   ? getApp()
   : initializeApp(activeConfig);
+
+// Prepara la certificacion antes de consumir Firebase
+const initializeLuminaAppCheck = () => {
+  // Omite la certificacion dentro de los emuladores
+  if (useEmulators) {
+    return null;
+  }
+
+  // Exige la clave publica fuera de los emuladores
+  if (!appCheckSiteKey) {
+    throw new Error('Falta configurar la clave publica de App Check');
+  }
+
+  // Activa el proveedor de depuracion solo en desarrollo
+  if (import.meta.env.DEV) {
+    globalThis.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+  }
+
+  // Reutiliza la instancia durante recargas de Vite
+  if (globalThis.luminaAppCheck) {
+    return globalThis.luminaAppCheck;
+  }
+
+  // Inicializa la certificacion con renovacion automatica
+  const appCheckInstance = initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
+    isTokenAutoRefreshEnabled: true
+  });
+
+  globalThis.luminaAppCheck = appCheckInstance;
+
+  // Devuelve la instancia compartida
+  return appCheckInstance;
+};
+
+// Expone la certificacion antes de los servicios
+export const appCheck = initializeLuminaAppCheck();
 
 // Expone las fronteras oficiales de Firebase
 export const auth = getAuth(app);

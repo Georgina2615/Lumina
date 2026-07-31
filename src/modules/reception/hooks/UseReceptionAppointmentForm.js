@@ -80,13 +80,19 @@ export const useReceptionAppointmentForm = ({
     : appointment;
 
   // Sincroniza fecha modal y estado de escritura
-  useEffect(() => setAvailabilityDate(appointment.dateKey), [
+  useEffect(() => {
+    setAvailabilityDate(appointment.dateKey);
+  }, [
     appointment.dateKey, setAvailabilityDate
   ]);
-  useEffect(() => onSubmittingChange?.(bookingLoading), [
+  useEffect(() => {
+    onSubmittingChange?.(bookingLoading);
+  }, [
     bookingLoading, onSubmittingChange
   ]);
-  useEffect(() => () => onSubmittingChange?.(false), [onSubmittingChange]);
+  useEffect(() => () => {
+    onSubmittingChange?.(false);
+  }, [onSubmittingChange]);
 
   // Verifica el teléfono sin duplicar solicitudes
   const verifyPhone = async () => {

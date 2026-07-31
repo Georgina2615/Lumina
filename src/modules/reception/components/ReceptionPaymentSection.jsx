@@ -2,7 +2,8 @@ import PaymentEvidenceFields from './PaymentEvidenceFields';
 import MixedDepositFields from './MixedDepositFields';
 import {
   createPaymentDraft,
-  createPaymentPart
+  createPaymentPart,
+  syncCashReceived
 } from '../services/PaymentPolicy';
 
 // Define los métodos simples permitidos
@@ -18,6 +19,15 @@ const formatCurrency = (cents) => new Intl.NumberFormat('es-MX', {
   currency: 'MXN'
 }).format(cents / 100);
 
+// Convierte una entrada visible a centavos seguros
+const getInputCents = (value) => {
+  // Calcula el importe capturado
+  const cents = Math.round(Number(value) * 100);
+
+  // Devuelve únicamente importes utilizables
+  return Number.isSafeInteger(cents) && cents >= 0 ? cents : 0;
+};
+
 // Presenta el registro real del anticipo
 export default function ReceptionPaymentSection({
   depositCents,
@@ -29,9 +39,27 @@ export default function ReceptionPaymentSection({
 
   // Actualiza una parte del pago
   const updatePart = (partName, changes) => {
+    // Construye la parte modificada
+    const nextPart = { ...payment[partName], ...changes };
+
+    // Actualiza evidencia sin modificar el desglose
+    if (!isMixed || partName !== 'primary' || !('amount' in changes)) {
+      onChange({ ...payment, [partName]: nextPart });
+      return;
+    }
+
+    // Sincroniza el efectivo con ambos importes aplicados
+    const primaryAmountCents = getInputCents(nextPart.amount);
+    const remainingCents = Math.max(
+      depositCents - primaryAmountCents,
+      0
+    );
+
+    // Entrega ambas partes actualizadas
     onChange({
       ...payment,
-      [partName]: { ...payment[partName], ...changes }
+      primary: syncCashReceived(nextPart, primaryAmountCents),
+      secondary: syncCashReceived(payment.secondary, remainingCents)
     });
   };
 
@@ -41,7 +69,8 @@ export default function ReceptionPaymentSection({
     const nextPayment = createPaymentDraft();
     nextPayment.method = method;
     nextPayment.primary = createPaymentPart(
-      method === 'mixto' ? 'efectivo' : method
+      method === 'mixto' ? 'efectivo' : method,
+      method === 'mixto' ? 0 : depositCents
     );
 
     // Entrega el nuevo pago
@@ -50,10 +79,16 @@ export default function ReceptionPaymentSection({
 
   // Cambia el método de una parte
   const handlePartMethodChange = (partName, method) => {
+    // Calcula el importe correspondiente a la parte
+    const primaryAmountCents = getInputCents(payment.primary.amount);
+    const appliedAmountCents = partName === 'primary'
+      ? primaryAmountCents
+      : Math.max(depositCents - primaryAmountCents, 0);
+
     // Reemplaza evidencia de un método anterior
     onChange({
       ...payment,
-      [partName]: createPaymentPart(method)
+      [partName]: createPaymentPart(method, appliedAmountCents)
     });
   };
 

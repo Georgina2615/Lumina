@@ -28,7 +28,15 @@ export default function PaymentEvidenceFields({
 
     // Devuelve campos de efectivo
     return (
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl bg-surface p-3">
+          <p className="text-xs font-semibold text-muted">
+            Importe aplicado
+          </p>
+          <p className="mt-2 font-title text-xl font-bold text-primary">
+            {formatCurrency(amountCents)}
+          </p>
+        </div>
         <div>
           <label className="mb-1 block text-xs font-semibold text-muted"
             htmlFor={`${idPrefix}-cash`}>
@@ -40,7 +48,8 @@ export default function PaymentEvidenceFields({
             inputMode="decimal"
             min={amountCents / 100}
             onChange={(event) => onChange({
-              cashReceived: event.target.value
+              cashReceived: event.target.value,
+              cashReceivedEdited: true
             })}
             placeholder="0.00"
             required
@@ -49,7 +58,7 @@ export default function PaymentEvidenceFields({
             value={part.cashReceived}
           />
         </div>
-        <div className="rounded-xl bg-surface p-3">
+        <div aria-live="polite" className="rounded-xl bg-surface p-3">
           <p className="text-xs font-semibold text-muted">Cambio</p>
           <p className="mt-2 font-title text-xl font-bold text-primary">
             {formatCurrency(changeCents)}
@@ -66,7 +75,7 @@ export default function PaymentEvidenceFields({
       <div>
         <label className="mb-1 block text-xs font-semibold text-muted"
           htmlFor={`${idPrefix}-reference`}>
-          Referencia de transferencia
+          Clave de rastreo o referencia SPEI
         </label>
         <input
           autoComplete="off"
@@ -74,6 +83,7 @@ export default function PaymentEvidenceFields({
           id={`${idPrefix}-reference`}
           maxLength={120}
           onChange={(event) => onChange({ reference: event.target.value })}
+          placeholder="Captura la clave del comprobante"
           required
           type="text"
           value={part.reference}
@@ -90,7 +100,7 @@ export default function PaymentEvidenceFields({
         <div>
           <label className="mb-1 block text-xs font-semibold text-muted"
             htmlFor={`${idPrefix}-reference`}>
-            Referencia opcional
+            Folio o autorización de terminal
           </label>
           <input
             autoComplete="off"
@@ -98,6 +108,8 @@ export default function PaymentEvidenceFields({
             id={`${idPrefix}-reference`}
             maxLength={120}
             onChange={(event) => onChange({ reference: event.target.value })}
+            placeholder="Captura el folio aprobado"
+            required
             type="text"
             value={part.reference}
           />

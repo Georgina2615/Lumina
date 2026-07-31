@@ -19,6 +19,12 @@ export default function MixedDepositFields({
     Number(payment.primary.amount || 0) * 100
   );
   const remainingCents = Math.max(depositCents - primaryAmountCents, 0);
+  const primaryLabel = methods.find(
+    ({ value }) => value === payment.primary.method
+  )?.label;
+  const secondaryLabel = methods.find(
+    ({ value }) => value === payment.secondary.method
+  )?.label;
 
   // Devuelve los campos combinados
   return (
@@ -59,7 +65,7 @@ export default function MixedDepositFields({
         <div>
           <label className="mb-1 block text-xs font-semibold text-muted"
             htmlFor="primary-payment-amount">
-            Importe del primer método
+            Importe aplicado al primer método
           </label>
           <input
             className="w-full rounded-xl border border-surface-hover bg-surface p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
@@ -77,23 +83,51 @@ export default function MixedDepositFields({
           />
         </div>
         <div className="rounded-xl bg-surface p-3">
-          <p className="text-xs font-semibold text-muted">Importe restante</p>
+          <p className="text-xs font-semibold text-muted">
+            Importe aplicado al segundo método
+          </p>
           <p className="mt-2 font-title text-xl font-bold text-primary">
             {formatCurrency(remainingCents)}
           </p>
         </div>
       </div>
 
-      <PaymentEvidenceFields amountCents={primaryAmountCents}
-        idPrefix="deposit-primary" onChange={(changes) => onPartChange(
-          'primary',
-          changes
-        )} part={payment.primary} />
-      <PaymentEvidenceFields amountCents={remainingCents}
-        idPrefix="deposit-secondary" onChange={(changes) => onPartChange(
-          'secondary',
-          changes
-        )} part={payment.secondary} />
+      <div aria-live="polite"
+        className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-surface px-4 py-3">
+        <p className="text-sm text-muted">
+          {primaryLabel} {formatCurrency(primaryAmountCents)}
+          {' + '}
+          {secondaryLabel} {formatCurrency(remainingCents)}
+        </p>
+        <p className="font-semibold text-primary">
+          Total {formatCurrency(depositCents)}
+        </p>
+      </div>
+
+      {[
+        {
+          amountCents: primaryAmountCents,
+          label: `Primer método · ${primaryLabel}`,
+          name: 'primary'
+        },
+        {
+          amountCents: remainingCents,
+          label: `Segundo método · ${secondaryLabel}`,
+          name: 'secondary'
+        }
+      ].map((part) => (
+        <div className="grid gap-3" key={part.name}>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+            {part.label}
+          </p>
+          <PaymentEvidenceFields
+            amountCents={part.amountCents}
+            idPrefix={`deposit-${part.name}`}
+            onChange={(changes) => onPartChange(part.name, changes)}
+            part={payment[part.name]}
+          />
+        </div>
+      ))}
     </div>
   );
 }

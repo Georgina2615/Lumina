@@ -27,6 +27,17 @@ const parseMoneyToCents = (value) => {
   return amountCents;
 };
 
+// Convierte centavos a una entrada monetaria editable
+const formatCentsForInput = (amountCents) => {
+  // Devuelve una entrada vacía cuando aún no existe importe
+  if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
+    return '';
+  }
+
+  // Conserva hasta dos decimales sin ceros innecesarios
+  return String(amountCents / 100);
+};
+
 // Normaliza la evidencia de una parte del pago
 const normalizePaymentPart = (part, amountCents) => {
   // Obtiene el método solicitado
@@ -41,9 +52,14 @@ const normalizePaymentPart = (part, amountCents) => {
   const reference = String(part.reference ?? '').trim();
   const cardLastFour = String(part.cardLastFour ?? '').replace(/\D/g, '');
 
-  // Detiene transferencias sin referencia
+  // Detiene tarjetas sin autorización
+  if (method === 'tarjeta' && reference.length < 3) {
+    throw new Error('Escribe el folio o autorización de la terminal');
+  }
+
+  // Detiene transferencias sin clave de rastreo
   if (method === 'transferencia' && reference.length < 3) {
-    throw new Error('Escribe la referencia de transferencia');
+    throw new Error('Escribe la clave de rastreo o referencia SPEI');
   }
 
   // Detiene referencias demasiado largas
@@ -83,13 +99,35 @@ const normalizePaymentPart = (part, amountCents) => {
 };
 
 // Crea una parte editable del pago
-export const createPaymentPart = (method) => ({
+export const createPaymentPart = (method, appliedAmountCents = 0) => ({
   method,
   amount: '',
-  cashReceived: '',
+  cashReceived: method === 'efectivo'
+    ? formatCentsForInput(appliedAmountCents)
+    : '',
+  cashReceivedEdited: false,
   reference: '',
   cardLastFour: ''
 });
+
+// Sincroniza el efectivo mientras no exista edición manual
+export const syncCashReceived = (part, appliedAmountCents) => {
+  // Conserva métodos distintos al efectivo
+  if (part?.method !== 'efectivo') {
+    return part;
+  }
+
+  // Conserva el importe capturado por la recepcionista
+  if (part.cashReceivedEdited) {
+    return part;
+  }
+
+  // Devuelve el efectivo igual al importe aplicado
+  return {
+    ...part,
+    cashReceived: formatCentsForInput(appliedAmountCents)
+  };
+};
 
 // Crea el estado inicial del pago
 export const createPaymentDraft = () => ({
@@ -145,29 +183,4 @@ export const buildDepositInput = (payment, depositCents) => {
 
   // Devuelve el pago mixto
   return { method: 'mixto', payments };
-};
-
-// Construye el documento consolidado del anticipo
-export const buildDepositPaymentData = ({
-  actorUid,
-  appointmentId,
-  clientId,
-  deposit,
-  timestamp
-}) => {
-  // Devuelve el movimiento financiero
-  return {
-    citaId: appointmentId,
-    ventaId: null,
-    clienteId: clientId,
-    tipo: 'anticipo',
-    metodo: deposit.method,
-    montoCentavos: deposit.amountCents,
-    partes: deposit.payments,
-    estado: 'confirmado',
-    fecha: timestamp,
-    actorUid,
-    sucursalId: 'principal',
-    schemaVersion: 1
-  };
 };
