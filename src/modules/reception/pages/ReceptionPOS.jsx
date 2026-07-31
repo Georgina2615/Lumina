@@ -33,7 +33,7 @@ function ReceptionPOSContent({ appointmentId }) {
 
   // Devuelve la composición principal
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex min-h-full flex-col gap-4 lg:h-full lg:min-h-0">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="mb-1 text-xs font-bold uppercase tracking-[0.24em] text-secondary">
@@ -84,7 +84,7 @@ function ReceptionPOSContent({ appointmentId }) {
         onRetry={ticketQueue.retry}
       />
 
-      <div className="grid min-h-[620px] flex-1 gap-5 pb-4 lg:grid-cols-[minmax(0,3fr)_minmax(360px,2fr)]">
+      <div className="grid gap-5 pb-4 lg:min-h-[620px] lg:flex-1 lg:grid-cols-[minmax(0,3fr)_minmax(360px,2fr)]">
         <POSCatalog
           products={pos.filteredProducts}
           productsLoading={pos.productsLoading}

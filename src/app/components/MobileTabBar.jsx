@@ -5,7 +5,7 @@ import { FaSignOutAlt } from 'react-icons/fa';
 export default function MobileTabBar({ allowedMenu, onLogout }) {
   // Devuelve los accesos permitidos para el rol
   return (
-    <nav className="fixed bottom-0 left-0 z-50 flex w-full items-stretch rounded-t-2xl border-t border-surface-hover bg-surface p-2 shadow-lg shadow-surface-hover/40 md:hidden">
+    <nav className="fixed bottom-0 left-0 z-50 flex w-full items-stretch rounded-t-2xl border-t border-surface-hover bg-surface px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-lg shadow-surface-hover/40 md:hidden">
       {allowedMenu.map((item) => (
         <NavLink
           aria-label={item.label}

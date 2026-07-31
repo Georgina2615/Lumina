@@ -17,14 +17,14 @@ export default function DashboardLayout() {
 
   // Presenta la navegación y el contenido protegido
   return (
-    <div className="h-screen w-full flex bg-background text-primary font-body overflow-hidden relative">
+    <div className="relative flex h-screen h-dvh w-full overflow-hidden bg-background font-body text-primary">
       <Sidebar
         usuario={user}
         menuPermitido={allowedMenu}
         onLogout={handleLogout}
       />
 
-      <main className="flex-1 h-full overflow-y-auto p-4 md:p-8 pb-24 w-full">
+      <main className="h-full w-full flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-4 md:p-8">
         <Outlet />
       </main>
 

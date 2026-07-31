@@ -2,81 +2,86 @@ import { useState } from 'react';
 import { useClients } from '../hooks';
 import { ClientTable, ClientProfileModal, SignatureModal } from '../components';
 
+// Presenta el directorio de clientes de recepción
 export default function ReceptionClientDirectory() {
-  // Lógica principal
+  // Conecta los datos reales del directorio
   const {
-    clientes,
-    cargando,
-    errorLocal,
+    clientes: clients,
+    cargando: loading,
+    errorLocal: error,
     actualizarContacto: updateContact
   } = useClients();
 
-  // Estados para controlar los modales
-  const [clienteActivo, setClienteActivo] = useState(null);
-  const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
-  const [modalFirmaAbierto, setModalFirmaAbierto] = useState(false);
+  // Controla el cliente y los diálogos activos
+  const [activeClient, setActiveClient] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSignatureOpen, setIsSignatureOpen] = useState(false);
 
-  // Manejadores de apertura
-  const abrirPerfil = (cliente) => {
-    setClienteActivo(cliente);
-    setModalPerfilAbierto(true);
+  // Abre el perfil del cliente seleccionado
+  const openProfile = (client) => {
+    setActiveClient(client);
+    setIsProfileOpen(true);
   };
 
-  const abrirFirma = (cliente) => {
-    setClienteActivo(cliente);
-    setModalFirmaAbierto(true);
+  // Abre la firma del cliente seleccionado
+  const openSignature = (client) => {
+    setActiveClient(client);
+    setIsSignatureOpen(true);
   };
 
-  if (cargando) {
+  // Presenta la carga inicial
+  if (loading) {
     return (
-      <div className="h-full flex items-center justify-center text-muted font-body">
-        Cargando directorio de clientes...
+      <div className="flex h-full items-center justify-center font-body text-muted">
+        Cargando directorio de clientes
       </div>
     );
   }
 
-  if (errorLocal) {
+  // Presenta el error de lectura
+  if (error) {
     return (
-      <div className="h-full flex items-center justify-center text-error font-body">
-        {errorLocal}
+      <div className="flex h-full items-center justify-center font-body text-error" role="alert">
+        {error}
       </div>
     );
   }
 
+  // Compone la experiencia adaptable del directorio
   return (
-    <div className="flex flex-col h-full gap-6 relative">
-      
-      {/* Encabezado */}
-      <div>
-        <h1 className="text-3xl font-title font-bold text-primary">Directorio de Clientes</h1>
-        <p className="text-muted font-body mt-1">
+    <div className="relative flex min-h-full flex-col gap-6 md:h-full md:min-h-0">
+      <header>
+        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
+          Recepción
+        </p>
+        <h1 className="font-title text-3xl font-bold text-primary">
+          Directorio de Clientes
+        </h1>
+        <p className="mt-1 font-body text-muted">
           Gestión de expedientes y firmas de consentimiento
         </p>
-      </div>
+      </header>
 
-      {/* Contenido principal de la tabla */}
-      <div className="flex-1 min-h-[500px]">
-        <ClientTable 
-          clientes={clientes} 
-          onOpenProfile={abrirPerfil}
-          onOpenSignature={abrirFirma}
+      <div className="md:min-h-0 md:flex-1">
+        <ClientTable
+          clients={clients}
+          onOpenProfile={openProfile}
+          onOpenSignature={openSignature}
         />
       </div>
 
-      {/* MODALES ORQUESTADOS AQUÍ */}
-      <ClientProfileModal 
-        isOpen={modalPerfilAbierto} 
-        onClose={() => setModalPerfilAbierto(false)} 
-        cliente={clienteActivo}
+      <ClientProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        cliente={activeClient}
         onUpdateContact={updateContact}
       />
 
-      <SignatureModal 
-        isOpen={modalFirmaAbierto} 
-        onClose={() => setModalFirmaAbierto(false)} 
-        clienteId={clienteActivo?.id} 
+      <SignatureModal
+        isOpen={isSignatureOpen}
+        onClose={() => setIsSignatureOpen(false)}
+        clienteId={activeClient?.id}
       />
-
     </div>
   );
 }

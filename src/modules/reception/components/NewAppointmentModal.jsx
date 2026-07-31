@@ -95,11 +95,11 @@ export default function NewAppointmentModal({
 
   // Devuelve el diálogo de nueva cita
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/45 p-3 backdrop-blur-sm sm:p-5">
+    <div className="fixed inset-0 z-[60] flex items-stretch justify-center bg-primary/45 p-0 backdrop-blur-sm sm:items-center sm:p-5">
       <div
         aria-labelledby="new-appointment-title"
         aria-modal="true"
-        className="max-h-[calc(100vh-1.5rem)] w-full max-w-2xl overflow-y-auto rounded-3xl border border-surface-hover bg-background shadow-2xl motion-safe:transition-all motion-safe:duration-200"
+        className="h-dvh max-h-dvh w-full max-w-2xl overflow-y-auto border-0 bg-background shadow-2xl motion-safe:transition-all motion-safe:duration-200 sm:h-auto sm:max-h-[calc(100dvh-2.5rem)] sm:rounded-3xl sm:border sm:border-surface-hover"
         ref={dialogRef}
         role="dialog"
       >

@@ -30,7 +30,7 @@ export default function POSCatalog({
   return (
     <section
       aria-labelledby="product-catalog-title"
-      className="flex h-full flex-col overflow-hidden rounded-2xl border border-surface-hover bg-surface shadow-sm"
+      className="flex flex-col overflow-hidden rounded-2xl border border-surface-hover bg-surface shadow-sm lg:h-full lg:min-h-0"
     >
       <div className="border-b border-surface-hover bg-background/70 p-4">
         <div className="mb-3 flex items-center justify-between">
@@ -54,7 +54,7 @@ export default function POSCatalog({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="p-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
         {productsLoading && (
           <div
             role="status"

@@ -32,7 +32,7 @@ export default function POSCart({
   return (
     <section
       aria-labelledby="current-sale-title"
-      className="flex h-full flex-col overflow-hidden rounded-2xl border border-surface-hover bg-surface shadow-sm"
+      className="flex flex-col overflow-hidden rounded-2xl border border-surface-hover bg-surface shadow-sm lg:h-full lg:min-h-0"
     >
       <div className="flex items-center justify-between gap-4 bg-primary p-5 text-surface">
         <div className="min-w-0">
@@ -49,7 +49,7 @@ export default function POSCart({
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="p-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
         {items.length === 0 ? (
           <div className="flex h-full min-h-56 flex-col items-center justify-center px-5 text-center text-muted">
             <FiShoppingBag aria-hidden="true" className="text-4xl opacity-30" />
