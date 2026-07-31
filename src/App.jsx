@@ -1,41 +1,61 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// Módulo Auth
+// Conecta autenticación y autorización
 import { AuthProvider, useAuth } from './modules/auth/context';
-import { ProtectedRoute } from './modules/auth/components'; // <-- Importación limpia
+import { ProtectedRoute } from './modules/auth/components';
 
-// Layouts
+// Compone las estructuras globales
 import { PublicLayout, DashboardLayout } from './app/layouts';
 
-// Vistas Públicas
-import LandingPage from './modules/public/pages/LandingPage';
+// Expone las capacidades públicas
+import { LandingPage } from './modules/public/pages';
 
-// Vistas Privadas Recepción
+// Expone las capacidades de recepción
 import { ReceptionDashboard, ReceptionCalendar, ReceptionClientDirectory, ReceptionPOS } from './modules/reception/pages';
 
+// Expone las capacidades administrativas
+import { AdminDashboard, AdminLayout } from './modules/admin';
+
+// Dirige cada rol hacia su área principal
 const DashboardIndex = () => {
-  const { rol } = useAuth(); 
-  if (rol === 'recepcion' || rol === 'admin') return <Navigate to="reception" replace />;
-  if (rol === 'cosmetologa') return <Navigate to="clinical" replace />;
+  const { rol: role } = useAuth();
+
+  if (role === 'admin') {
+    return <Navigate to="admin" replace />;
+  }
+
+  if (role === 'recepcion') {
+    return <Navigate to="reception" replace />;
+  }
+
+  if (role === 'cosmetologa') {
+    return <Navigate to="clinical" replace />;
+  }
+
   return <div className="p-8 text-center text-error">Rol no autorizado</div>;
 };
 
+// Compone las rutas y proveedores de la aplicación
 export default function App() {
+  // Devuelve el árbol principal de navegación
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          
-          {/* MÓDULO PÚBLICO */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
           </Route>
-          
-          {/* MÓDULO PRIVADO (Dashboard) */}
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+
+          <Route
+            element={(
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            )}
+            path="/dashboard"
+          >
             <Route index element={<DashboardIndex />} />
-            
-            {/* GRUPO DE RECEPCIÓN (Se valida el rol 1 sola vez para todas estas rutas) */}
+
             <Route element={<ProtectedRoute allowedRoles={['admin', 'recepcion']} />}>
               <Route path="reception" element={<ReceptionDashboard />} />
               <Route path="calendar" element={<ReceptionCalendar />} />
@@ -43,11 +63,11 @@ export default function App() {
               <Route path="pos" element={<ReceptionPOS />} />
             </Route>
 
-            {/* GRUPO DE CLÍNICA (Futuro) */}
-            {/* <Route element={<ProtectedRoute allowedRoles={['admin', 'cosmetologa']} />}>
-                  <Route path="clinical" element={<ClinicalDashboard />} />
-                </Route> */}
-            
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+              <Route path="admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+              </Route>
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

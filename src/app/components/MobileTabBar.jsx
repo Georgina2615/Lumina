@@ -5,32 +5,36 @@ import { FaSignOutAlt } from 'react-icons/fa';
 export default function MobileTabBar({ allowedMenu, onLogout }) {
   // Devuelve los accesos permitidos para el rol
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-surface-hover flex justify-around items-center p-2 shadow-lg shadow-surface-hover/40 z-50 rounded-t-2xl">
+    <nav className="fixed bottom-0 left-0 z-50 flex w-full items-stretch rounded-t-2xl border-t border-surface-hover bg-surface p-2 shadow-lg shadow-surface-hover/40 md:hidden">
       {allowedMenu.map((item) => (
-        <NavLink 
-          key={item.id} 
+        <NavLink
+          aria-label={item.label}
+          key={item.id}
           to={item.path}
-          className={({ isActive }) => 
-            `flex flex-col items-center p-2 min-w-[64px] transition-colors duration-300 ${
-              isActive 
-                ? "text-primary" 
-                : "text-muted hover:text-primary"
+          className={({ isActive }) =>
+            `flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-1 py-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+              isActive
+                ? 'bg-surface-hover/70 text-primary'
+                : 'text-muted hover:text-primary'
             }`
           }
         >
           <item.icon className="text-2xl mb-1" />
-          <span className="text-[10px] font-semibold tracking-wide">
-            {item.label}
+          <span className="w-full truncate text-center text-[10px] font-semibold tracking-wide">
+            {item.mobileLabel || item.label}
           </span>
         </NavLink>
       ))}
-      
-      <button 
+
+      <button
         onClick={onLogout}
-        className="flex flex-col items-center p-2 min-w-[64px] text-error hover:text-error/80 transition-colors duration-300"
+        className="flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-1 py-2 text-error transition-colors duration-200 hover:bg-error/5 hover:text-error/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
+        type="button"
       >
         <FaSignOutAlt className="text-2xl mb-1" />
-        <span className="text-[10px] font-semibold tracking-wide">Salir</span>
+        <span className="w-full truncate text-center text-[10px] font-semibold tracking-wide">
+          Salir
+        </span>
       </button>
     </nav>
   );

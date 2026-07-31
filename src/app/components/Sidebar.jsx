@@ -129,7 +129,7 @@ export default function Sidebar({
           {isExpanded && (
             <div className="flex min-w-0 flex-col">
               <span className="truncate text-sm font-bold text-primary">
-                {user?.displayName || 'Recepcionista'}
+                {user?.displayName || 'Personal de Lumina'}
               </span>
               <span className="truncate text-xs text-muted">{user?.email}</span>
             </div>

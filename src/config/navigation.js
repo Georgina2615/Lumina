@@ -1,58 +1,61 @@
 import { FaHome, FaCalendarAlt, FaUsers, FaCashRegister, FaNotesMedical, FaChartPie } from 'react-icons/fa';
 
+// Define únicamente rutas visibles para cada rol
 export const menuItems = [
-  // VISTAS DE RECEPCIÓN 
-  { 
-    id: 'reception-home', 
-    label: 'Inicio', 
-    path: '/dashboard/reception', 
-    icon: FaHome, 
-    roles: ['admin', 'recepcion'] 
+  {
+    id: 'admin-home',
+    label: 'Administración',
+    mobileLabel: 'Admin',
+    path: '/dashboard/admin',
+    icon: FaChartPie,
+    roles: ['admin']
   },
-  { 
-    id: 'reception-calendar', 
-    label: 'Agenda', 
-    path: '/dashboard/calendar', 
-    icon: FaCalendarAlt, 
-    roles: ['admin', 'recepcion'] 
+  {
+    id: 'reception-home',
+    label: 'Inicio',
+    mobileLabel: 'Inicio',
+    path: '/dashboard/reception',
+    icon: FaHome,
+    roles: ['admin', 'recepcion']
   },
-  { 
-    id: 'reception-clients', 
-    label: 'Clientes', 
-    path: '/dashboard/clientes', 
-    icon: FaUsers, 
-    roles: ['admin', 'recepcion'] 
+  {
+    id: 'reception-calendar',
+    label: 'Agenda',
+    mobileLabel: 'Agenda',
+    path: '/dashboard/calendar',
+    icon: FaCalendarAlt,
+    roles: ['admin', 'recepcion']
   },
-  { 
-    id: 'reception-pos', 
-    label: 'Punto de Venta', 
-    path: '/dashboard/pos', 
-    icon: FaCashRegister, 
-    roles: ['admin', 'recepcion'] 
+  {
+    id: 'reception-clients',
+    label: 'Clientes',
+    mobileLabel: 'Clientes',
+    path: '/dashboard/clientes',
+    icon: FaUsers,
+    roles: ['admin', 'recepcion']
   },
-
-  // VISTAS CLÍNICAS (Cabina / Cosmetóloga)
-  { 
-    id: 'clinical-home', 
-    label: 'Mi Agenda', 
-    path: '/dashboard/clinical', 
-    icon: FaNotesMedical, 
-    roles: ['admin', 'cosmetologa'] 
+  {
+    id: 'reception-pos',
+    label: 'Punto de Venta',
+    mobileLabel: 'Venta',
+    path: '/dashboard/pos',
+    icon: FaCashRegister,
+    roles: ['admin', 'recepcion']
   },
-  { 
-    id: 'clinical-patients', 
-    label: 'Pacientes', 
-    path: '/dashboard/pacientes-clinicos', 
-    icon: FaUsers, 
-    roles: ['admin', 'cosmetologa'] 
+  {
+    id: 'clinical-home',
+    label: 'Mi Agenda',
+    mobileLabel: 'Agenda',
+    path: '/dashboard/clinical',
+    icon: FaNotesMedical,
+    roles: ['cosmetologa']
   },
-
-  // VISTAS DE ADMINISTRACIÓN
-  { 
-    id: 'admin-home', 
-    label: 'Métricas', 
-    path: '/dashboard/admin', 
-    icon: FaChartPie, 
-    roles: ['admin'] 
+  {
+    id: 'clinical-patients',
+    label: 'Pacientes',
+    mobileLabel: 'Pacientes',
+    path: '/dashboard/pacientes-clinicos',
+    icon: FaUsers,
+    roles: ['cosmetologa']
   }
 ];
