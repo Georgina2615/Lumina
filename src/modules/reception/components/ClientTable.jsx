@@ -28,7 +28,7 @@ function LegalStatus({ client, onOpenSignature }) {
       type="button"
       aria-label={`Solicitar firma de ${client.nombreCompleto}`}
       onClick={() => onOpenSignature(client)}
-      className="inline-flex min-h-9 items-center justify-center rounded-full bg-error px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-error/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 active:scale-[0.98]"
+      className="inline-flex min-h-9 items-center justify-center rounded-full border border-status-pending/50 bg-status-pending/15 px-4 py-1.5 text-xs font-bold text-primary shadow-sm transition hover:bg-status-pending/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-pending focus-visible:ring-offset-2 active:scale-[0.98]"
     >
       Solicitar Firma
     </button>

@@ -24,7 +24,7 @@ export default function POSCart({
   const disabled = !hasFrozenSaleRequest
     && (loading || Boolean(checkoutIssue));
   // Oculta cambios posteriores al primer envío
-  const visibleCheckoutIssue = hasFrozenSaleRequest
+  const visibleCheckoutIssue = hasFrozenSaleRequest || items.length === 0
     ? null
     : checkoutIssue;
 

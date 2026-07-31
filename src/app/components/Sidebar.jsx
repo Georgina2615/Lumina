@@ -4,8 +4,8 @@ import { FiLogOut, FiMenu, FiUser } from 'react-icons/fi';
 
 // Presenta la navegación principal en escritorio
 export default function Sidebar({
-  usuario: user,
-  menuPermitido: allowedMenu,
+  allowedMenu,
+  user,
   onLogout
 }) {
   // Conserva el estado visual del menú
@@ -86,26 +86,35 @@ export default function Sidebar({
 
           // Presenta una ruta permitida para el usuario
           return (
-            <NavLink
-              aria-label={isExpanded ? undefined : item.label}
-              className={({ isActive }) =>
-                `flex items-center gap-4 rounded-xl px-3 py-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
-                  isActive
-                    ? 'bg-primary text-surface shadow-md'
-                    : 'text-muted hover:bg-surface-hover hover:text-primary'
-                }`
-              }
+            <div
+              className={item.intent === 'switch'
+                ? 'mt-auto border-t border-surface-hover pt-3'
+                : ''}
               key={item.id}
-              title={isExpanded ? undefined : item.label}
-              to={item.path}
             >
-              <span className="flex-shrink-0 text-xl">
-                <MenuIcon aria-hidden="true" />
-              </span>
-              {isExpanded && (
-                <span className="whitespace-nowrap font-medium">{item.label}</span>
-              )}
-            </NavLink>
+              <NavLink
+                aria-label={isExpanded ? undefined : item.label}
+                className={({ isActive }) =>
+                  `flex w-full items-center gap-4 rounded-xl px-3 py-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+                    isActive
+                      ? 'bg-primary text-surface shadow-md'
+                      : item.intent === 'switch'
+                        ? 'text-secondary hover:bg-surface-hover hover:text-primary'
+                        : 'text-muted hover:bg-surface-hover hover:text-primary'
+                  }`
+                }
+                end={item.end}
+                title={isExpanded ? undefined : item.label}
+                to={item.path}
+              >
+                <span className="flex-shrink-0 text-xl">
+                  <MenuIcon aria-hidden="true" />
+                </span>
+                {isExpanded && (
+                  <span className="whitespace-nowrap font-medium">{item.label}</span>
+                )}
+              </NavLink>
+            </div>
           );
         })}
       </nav>

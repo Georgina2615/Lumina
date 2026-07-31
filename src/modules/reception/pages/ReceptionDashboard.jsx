@@ -73,7 +73,7 @@ export default function ReceptionDashboard() {
 
   // Abre el cobro usando la cita persistida
   const openCheckout = (appointmentId) => {
-    navigate(`/dashboard/pos?appointmentId=${encodeURIComponent(appointmentId)}`);
+    navigate(`/dashboard/reception/venta?appointmentId=${encodeURIComponent(appointmentId)}`);
   };
 
   // Envía la cita al cobro antes de navegar
@@ -129,7 +129,7 @@ export default function ReceptionDashboard() {
         onMoveToCheckout={sendToCheckout}
         onNoShow={(appointmentId) => openDialog('noShow', appointmentId)}
         onOpenCheckout={openCheckout}
-        onOpenClientDirectory={() => navigate('/dashboard/clientes')} />
+        onOpenClientDirectory={() => navigate('/dashboard/reception/clientes')} />
 
       <ConfirmAppointmentModal appointment={
         activeDialog?.type === 'confirm' ? selectedAppointment : null

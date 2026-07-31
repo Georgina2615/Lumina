@@ -1,6 +1,6 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
-import { menuItems } from '../../config/navigation';
+import { getWorkspaceMenu } from '../../config/WorkspaceNavigation';
 
 import { useAuth } from '../../modules/auth/context';
 import { useLogout } from '../../modules/auth/hooks';
@@ -11,17 +11,21 @@ import { Sidebar, MobileTabBar } from '../components';
 export default function DashboardLayout() {
   const { usuario: user, rol: role } = useAuth();
   const { manejarCierreSesion: handleLogout } = useLogout();
+  const location = useLocation();
 
-  // Filtra la navegación según el rol vigente
-  const allowedMenu = menuItems.filter((item) => item.roles.includes(role));
+  // Resuelve la navegación según el rol y el espacio vigente
+  const allowedMenu = getWorkspaceMenu({
+    pathname: location.pathname,
+    role
+  });
 
   // Presenta la navegación y el contenido protegido
   return (
     <div className="relative flex h-screen h-dvh w-full overflow-hidden bg-background font-body text-primary">
       <Sidebar
-        usuario={user}
-        menuPermitido={allowedMenu}
+        allowedMenu={allowedMenu}
         onLogout={handleLogout}
+        user={user}
       />
 
       <main className="h-full w-full flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(6.75rem+env(safe-area-inset-bottom))] pt-4 md:p-8">

@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation
+} from 'react-router-dom';
 
 // Conecta autenticación y autorización
 import { AuthProvider, useAuth } from './modules/auth/context';
@@ -11,7 +17,13 @@ import { PublicLayout, DashboardLayout } from './app/layouts';
 import { LandingPage } from './modules/public/pages';
 
 // Expone las capacidades de recepción
-import { ReceptionDashboard, ReceptionCalendar, ReceptionClientDirectory, ReceptionPOS } from './modules/reception/pages';
+import {
+  ReceptionCalendar,
+  ReceptionClientDirectory,
+  ReceptionDashboard,
+  ReceptionLayout,
+  ReceptionPOS
+} from './modules/reception';
 
 // Expone las capacidades administrativas
 import {
@@ -39,6 +51,13 @@ const DashboardIndex = () => {
   return <div className="p-8 text-center text-error">Rol no autorizado</div>;
 };
 
+// Conserva consultas al redirigir enlaces anteriores
+const LegacyDashboardRedirect = ({ to }) => {
+  const location = useLocation();
+
+  return <Navigate replace to={`${to}${location.search}`} />;
+};
+
 // Compone las rutas y proveedores de la aplicación
 export default function App() {
   // Devuelve el árbol principal de navegación
@@ -61,10 +80,24 @@ export default function App() {
             <Route index element={<DashboardIndex />} />
 
             <Route element={<ProtectedRoute allowedRoles={['admin', 'recepcion']} />}>
-              <Route path="reception" element={<ReceptionDashboard />} />
-              <Route path="calendar" element={<ReceptionCalendar />} />
-              <Route path="clientes" element={<ReceptionClientDirectory />} />
-              <Route path="pos" element={<ReceptionPOS />} />
+              <Route path="reception" element={<ReceptionLayout />}>
+                <Route index element={<ReceptionDashboard />} />
+                <Route path="agenda" element={<ReceptionCalendar />} />
+                <Route path="clientes" element={<ReceptionClientDirectory />} />
+                <Route path="venta" element={<ReceptionPOS />} />
+              </Route>
+              <Route
+                path="calendar"
+                element={<LegacyDashboardRedirect to="/dashboard/reception/agenda" />}
+              />
+              <Route
+                path="clientes"
+                element={<LegacyDashboardRedirect to="/dashboard/reception/clientes" />}
+              />
+              <Route
+                path="pos"
+                element={<LegacyDashboardRedirect to="/dashboard/reception/venta" />}
+              />
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
