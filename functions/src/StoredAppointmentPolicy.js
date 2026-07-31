@@ -1,9 +1,13 @@
 import { SaleError } from './SaleError.js';
 import {
   hasSameDepositPart,
-  hasSameTimestamp,
   isValidDepositPart
 } from './DepositPolicy.js';
+
+// Define los límites del anticipo consolidado
+const MAX_DEPOSIT_DOCUMENTS = 5;
+const MAX_DOCUMENT_PARTS = 2;
+const MAX_APPOINTMENT_PARTS = 10;
 
 // Lanza un error conocido del dominio
 const fail = (code, message) => {
@@ -11,16 +15,41 @@ const fail = (code, message) => {
 };
 
 // Reconoce enteros monetarios positivos
-const isPositiveInteger = (value) => (
-  Number.isSafeInteger(value) && value > 0
-);
+const isPositiveInteger = (value) => Number.isSafeInteger(value) && value > 0;
+
+// Reconoce identificadores documentales seguros
+const isSafeDocumentId = (value) => typeof value === 'string'
+  && value.length > 0
+  && value.length <= 500
+  && !value.includes('/');
+
+// Suma partes financieras sin perder precisión
+const sumDepositParts = (parts) => parts.reduce((total, part) => {
+  // Detiene partes inválidas
+  if (!isValidDepositPart(part)) {
+    return Number.NaN;
+  }
+
+  // Calcula el siguiente acumulado
+  const nextTotal = total + part.montoCentavos;
+
+  // Detiene acumulados inseguros
+  return Number.isSafeInteger(nextTotal) ? nextTotal : Number.NaN;
+}, 0);
+
+// Obtiene el método consolidado de varias partes
+const resolveDepositMethod = (parts) => {
+  // Reúne los métodos financieros únicos
+  const methods = new Set(parts.map(({ metodo }) => metodo));
+
+  // Devuelve el método único o mixto
+  return methods.size === 1 ? parts[0].metodo : 'mixto';
+};
 
 // Normaliza únicamente correos heredados seguros
 const normalizeStoredEmail = (value) => {
   // Limpia el correo persistido
-  const normalized = typeof value === 'string'
-    ? value.trim().toLowerCase()
-    : '';
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
 
   // Separa el dominio del correo
   const separatorIndex = normalized.lastIndexOf('@');
@@ -69,64 +98,60 @@ export const requireCheckoutAppointment = (snapshot) => {
   // Obtiene la cita vigente
   const data = snapshot.data();
 
-  // Detiene citas heredadas
-  if (data.schemaVersion !== 3) {
-    fail('failed-precondition', 'La cita no tiene el formato de cobro actual');
-  }
+  // Calcula el anticipo mínimo vigente
+  const requiredDepositCents = Math.round(data.precioServicioCentavos * 30 / 100);
 
-  // Detiene citas fuera de la columna de cobro
-  if (data.estado !== 'por_cobrar') {
-    fail('failed-precondition', 'La cita no está lista para cobrar');
-  }
+  // Reconoce el contrato financiero extendido
+  const hasExplicitRequiredDeposit = Object.hasOwn(data, 'anticipoRequeridoCentavos');
 
-  // Valida servicio cliente y anticipo
+  // Obtiene el anticipo requerido persistido
+  const storedRequiredDepositCents = hasExplicitRequiredDeposit
+    ? data.anticipoRequeridoCentavos
+    : requiredDepositCents;
+
+  // Valida los identificadores explícitos cuando existen
+  const hasValidPaymentIds = !Object.hasOwn(data, 'pagosAnticipoIds') || (
+    Array.isArray(data.pagosAnticipoIds)
+    && data.pagosAnticipoIds.length >= 1
+    && data.pagosAnticipoIds.length <= MAX_DEPOSIT_DOCUMENTS
+    && data.pagosAnticipoIds.every(isSafeDocumentId)
+    && new Set(data.pagosAnticipoIds).size === data.pagosAnticipoIds.length
+  );
+
+  // Detiene citas con un contrato financiero inválido
   if (
-    !isPositiveInteger(data.precioServicioCentavos)
+    data.schemaVersion !== 3
+    || data.estado !== 'por_cobrar'
+    || !isPositiveInteger(data.precioServicioCentavos)
     || data.anticipoPagado !== true
     || data.anticipoPorcentaje !== 30
+    || storedRequiredDepositCents !== requiredDepositCents
     || !isPositiveInteger(data.anticipoMontoCentavos)
+    || (!hasExplicitRequiredDeposit
+      && data.anticipoMontoCentavos !== requiredDepositCents)
+    || data.anticipoMontoCentavos < storedRequiredDepositCents
     || data.anticipoMontoCentavos > data.precioServicioCentavos
-    || data.anticipoMontoCentavos
-      !== Math.round(data.precioServicioCentavos * 30 / 100)
-    || typeof data.clienteId !== 'string'
-    || !data.clienteId
-    || typeof data.servicioId !== 'string'
-    || !data.servicioId
+    || !isSafeDocumentId(data.clienteId)
+    || !isSafeDocumentId(data.servicioId)
     || typeof data.servicio !== 'string'
     || !data.servicio.trim()
     || !Array.isArray(data.anticipoPagos)
-    || ![1, 2].includes(data.anticipoPagos.length)
+    || data.anticipoPagos.length < 1
+    || data.anticipoPagos.length > MAX_APPOINTMENT_PARTS
+    || !hasValidPaymentIds
   ) {
     fail('failed-precondition', 'La cita tiene información de cobro inválida');
   }
 
   // Suma las partes válidas del anticipo
-  const depositTotalCents = data.anticipoPagos.reduce(
-    (sum, payment) => (
-      isValidDepositPart(payment)
-        ? sum + payment.montoCentavos
-        : Number.NaN
-    ),
-    0
-  );
+  const depositTotalCents = sumDepositParts(data.anticipoPagos);
 
-  // Detiene anticipos que no coinciden
+  // Detiene anticipos o métodos que no coinciden
   if (
-    !Number.isSafeInteger(depositTotalCents)
-    || depositTotalCents !== data.anticipoMontoCentavos
+    depositTotalCents !== data.anticipoMontoCentavos
+    || data.anticipoMetodo !== resolveDepositMethod(data.anticipoPagos)
   ) {
     fail('failed-precondition', 'El anticipo de la cita no coincide');
-  }
-
-  // Verifica el método total del anticipo
-  const hasValidDepositMethod = data.anticipoPagos.length === 1
-    ? data.anticipoMetodo === data.anticipoPagos[0].metodo
-    : data.anticipoMetodo === 'mixto'
-      && data.anticipoPagos[0].metodo !== data.anticipoPagos[1].metodo;
-
-  // Detiene métodos totales incoherentes
-  if (!hasValidDepositMethod) {
-    fail('failed-precondition', 'El método del anticipo no coincide');
   }
 
   // Devuelve la cita validada
@@ -156,60 +181,118 @@ export const requireClient = (snapshot) => {
   };
 };
 
-// Verifica el registro previo de cada anticipo
-export const requireDepositPayment = ({
-  snapshot,
-  appointment
-}) => {
-  // Detiene anticipos inexistentes
-  if (!snapshot.exists) {
+// Verifica un movimiento real del anticipo
+const requireDepositDocument = ({ appointment, paymentId, snapshot }) => {
+  // Detiene anticipos inexistentes o inesperados
+  if (
+    !snapshot?.exists
+    || !isSafeDocumentId(paymentId)
+    || (typeof snapshot.id === 'string' && snapshot.id !== paymentId)
+  ) {
     fail('failed-precondition', 'El anticipo no está registrado en pagos');
   }
 
   // Obtiene el movimiento financiero
   const data = snapshot.data();
 
-  // Obtiene las partes originales de la cita
-  const appointmentParts = appointment.data.anticipoPagos;
-
-  // Comprueba todas las partes consolidadas
-  const hasMatchingParts = (
+  // Valida las partes del documento
+  const hasValidParts = (
     Array.isArray(data.partes)
-    && data.partes.length === appointmentParts.length
-    && data.partes.every(
-      (part, index) => (
-        isValidDepositPart(part)
-        && hasSameDepositPart(part, appointmentParts[index])
-      )
-    )
+    && data.partes.length >= 1
+    && data.partes.length <= MAX_DOCUMENT_PARTS
+    && sumDepositParts(data.partes) === data.montoCentavos
+    && data.metodo === resolveDepositMethod(data.partes)
   );
 
-  // Comprueba la fecha original cuando existe
-  const hasMatchingDate = !Object.hasOwn(appointment.data, 'creadaEn')
-    || hasSameTimestamp(data.fecha, appointment.data.creadaEn);
+  // Prioriza la aplicación vigente cuando está persistida
+  const hasCurrentLink = Object.hasOwn(data, 'aplicadaACitaId')
+    ? data.aplicadaACitaId === appointment.id
+    : data.citaId === appointment.id;
 
-  // Comprueba el actor original cuando existe
-  const hasMatchingActor = !Object.hasOwn(appointment.data, 'creadaPor')
-    || data.actorUid === appointment.data.creadaPor;
-
-  // Comprueba el vínculo con la cita
+  // Detiene movimientos incompatibles con la cita
   if (
     data.schemaVersion !== 1
     || data.tipo !== 'anticipo'
     || data.estado !== 'confirmado'
-    || data.citaId !== appointment.id
     || data.ventaId !== null
     || data.clienteId !== appointment.data.clienteId
-    || data.metodo !== appointment.data.anticipoMetodo
-    || data.montoCentavos !== appointment.data.anticipoMontoCentavos
-    || !hasMatchingParts
+    || !isSafeDocumentId(data.citaId)
+    || !isPositiveInteger(data.montoCentavos)
+    || !hasValidParts
+    || !hasCurrentLink
     || data.sucursalId !== 'principal'
     || typeof data.fecha?.toMillis !== 'function'
     || typeof data.actorUid !== 'string'
     || !data.actorUid
-    || !hasMatchingDate
-    || !hasMatchingActor
   ) {
     fail('failed-precondition', 'El registro del anticipo no coincide');
   }
+
+  // Devuelve el movimiento validado
+  return data;
 };
+
+// Verifica todos los movimientos reales del anticipo
+export const requireDepositPayments = ({ appointment, paymentIds, snapshots }) => {
+  // Detiene listas incompletas o fuera de límite
+  if (
+    !Array.isArray(paymentIds)
+    || !Array.isArray(snapshots)
+    || paymentIds.length < 1
+    || paymentIds.length > MAX_DEPOSIT_DOCUMENTS
+    || snapshots.length !== paymentIds.length
+    || paymentIds.some((id) => !isSafeDocumentId(id))
+    || new Set(paymentIds).size !== paymentIds.length
+  ) {
+    fail('failed-precondition', 'Los pagos del anticipo no son válidos');
+  }
+
+  // Valida cada movimiento en el orden persistido
+  const payments = snapshots.map((snapshot, index) => (
+    requireDepositDocument({
+      appointment,
+      paymentId: paymentIds[index],
+      snapshot
+    })
+  ));
+
+  // Consolida las partes reales de todos los movimientos
+  const actualParts = payments.flatMap(({ partes }) => partes);
+
+  // Suma los importes reales de todos los movimientos
+  const totalCents = payments.reduce((total, payment) => {
+    // Calcula el siguiente acumulado
+    const nextTotal = total + payment.montoCentavos;
+
+    // Detiene acumulados inseguros
+    return Number.isSafeInteger(nextTotal) ? nextTotal : Number.NaN;
+  }, 0);
+
+  // Comprueba el agregado persistido en la cita
+  const hasMatchingParts = (
+    actualParts.length === appointment.data.anticipoPagos.length
+    && actualParts.every(
+      (part, index) => (
+        hasSameDepositPart(part, appointment.data.anticipoPagos[index])
+      )
+    )
+  );
+
+  // Detiene anticipos alterados o incompletos
+  if (
+    totalCents !== appointment.data.anticipoMontoCentavos
+    || !hasMatchingParts
+  ) {
+    fail('failed-precondition', 'El registro del anticipo no coincide');
+  }
+
+  // Devuelve la evidencia financiera validada
+  return { payments, totalCents };
+};
+
+// Conserva compatibilidad con la validación singular
+export const requireDepositPayment = ({ appointment, snapshot }) => requireDepositPayments({
+  appointment,
+  paymentIds: [snapshot?.id ?? `${appointment.id}_anticipo`],
+  snapshots: [snapshot]
+});

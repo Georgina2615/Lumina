@@ -1,4 +1,5 @@
 import { useReceptionAppointmentForm } from '../hooks/UseReceptionAppointmentForm';
+import AppointmentCreditSelector from './AppointmentCreditSelector';
 import ReceptionClientSection from './ReceptionClientSection';
 import ReceptionDetailsSection from './ReceptionDetailsSection';
 import ReceptionPaymentSection from './ReceptionPaymentSection';
@@ -7,15 +8,19 @@ import ReceptionPaymentSection from './ReceptionPaymentSection';
 export default function ReceptionAppointmentForm(props) {
   const {
     clientSectionProps,
+    creditSelectorProps,
     detailsSectionProps,
     error,
     handleSubmit,
     handleSuccessClose,
     isBooking,
+    isRescheduled,
     onClose,
     paymentSectionProps,
     registeredName,
     showPayment,
+    showCreditSelector,
+    submitLabel,
     submitDisabled,
     success
   } = useReceptionAppointmentForm(props);
@@ -28,10 +33,13 @@ export default function ReceptionAppointmentForm(props) {
         role="status"
       >
         <h3 className="font-title text-2xl font-bold text-primary">
-          Cita registrada
+          {isRescheduled ? 'Cita reprogramada' : 'Cita registrada'}
         </h3>
         <p className="mt-2 text-sm text-muted">
-          La cita de <strong className="text-primary">{registeredName}</strong> quedó reservada y pendiente de confirmación
+          La cita de <strong className="text-primary">{registeredName}</strong>
+          {isRescheduled
+            ? ' quedó reprogramada y pendiente de confirmación'
+            : ' quedó reservada y pendiente de confirmación'}
         </p>
         <button
           className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-surface"
@@ -51,6 +59,9 @@ export default function ReceptionAppointmentForm(props) {
       onSubmit={handleSubmit}
     >
       <ReceptionClientSection {...clientSectionProps} />
+      {showCreditSelector && (
+        <AppointmentCreditSelector {...creditSelectorProps} />
+      )}
       <ReceptionDetailsSection {...detailsSectionProps} />
       {showPayment && <ReceptionPaymentSection {...paymentSectionProps} />}
       {error && (
@@ -76,7 +87,7 @@ export default function ReceptionAppointmentForm(props) {
           disabled={submitDisabled}
           type="submit"
         >
-          {isBooking ? 'Registrando cita' : 'Registrar anticipo y reservar'}
+          {isBooking ? 'Registrando cita' : submitLabel}
         </button>
       </div>
     </form>

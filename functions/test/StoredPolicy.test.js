@@ -5,7 +5,8 @@ import { SaleError } from '../src/SaleError.js';
 import {
   requireAuthorizedActor,
   requireCheckoutAppointment,
-  requireDepositPayment
+  requireDepositPayment,
+  requireDepositPayments
 } from '../src/StoredAppointmentPolicy.js';
 import {
   mapExistingSaleResponse,
@@ -19,6 +20,16 @@ const depositPart = {
   efectivoRecibidoCentavos: 14_000,
   cambioCentavos: 500,
   referencia: '',
+  ultimosCuatro: ''
+};
+
+// Define una parte de transferencia válida
+const transferPart = {
+  metodo: 'transferencia',
+  montoCentavos: 4_500,
+  efectivoRecibidoCentavos: 0,
+  cambioCentavos: 0,
+  referencia: 'SPEI-4500',
   ultimosCuatro: ''
 };
 
@@ -100,27 +111,70 @@ test('rechaza una parte consolidada alterada', () => {
   );
 });
 
-test('rechaza fecha o actor diferentes al origen', () => {
-  assert.throws(
-    () => requireDepositPayment({
-      snapshot: {
+test('valida varios pagos reales aplicados a la cita actual', () => {
+  // Construye el anticipo agregado de una reprogramación
+  const appointment = {
+    id: 'appointment_2',
+    data: {
+      clienteId: 'client_1',
+      anticipoMetodo: 'mixto',
+      anticipoMontoCentavos: 18_000,
+      anticipoPagos: [depositPart, transferPart]
+    }
+  };
+
+  // Conserva un pago de la cita original
+  const originalPayment = {
+    ...buildDeposit(),
+    aplicadaACitaId: 'appointment_2'
+  };
+
+  // Registra únicamente la diferencia real
+  const additionalPayment = buildDeposit({
+    citaId: 'appointment_2',
+    metodo: 'transferencia',
+    montoCentavos: 4_500,
+    partes: [transferPart],
+    fecha: Timestamp.fromMillis(2_000),
+    actorUid: 'actor_2'
+  });
+
+  const result = requireDepositPayments({
+    appointment,
+    paymentIds: ['appointment_1_anticipo', 'appointment_2_adicional'],
+    snapshots: [
+      {
+        id: 'appointment_1_anticipo',
         exists: true,
-        data: () => buildDeposit({ actorUid: 'actor_2' })
+        data: () => originalPayment
       },
-      appointment: buildAppointment()
-    }),
-    (error) => error instanceof SaleError
-  );
+      {
+        id: 'appointment_2_adicional',
+        exists: true,
+        data: () => additionalPayment
+      }
+    ]
+  });
+
+  assert.equal(result.totalCents, 18_000);
+  assert.equal(result.payments.length, 2);
+});
+
+test('rechaza un pago aplicado a una cita diferente', () => {
+  // Conserva un vínculo vigente ajeno a la cita
+  const alteredPayment = buildDeposit({
+    aplicadaACitaId: 'appointment_other'
+  });
 
   assert.throws(
-    () => requireDepositPayment({
-      snapshot: {
+    () => requireDepositPayments({
+      appointment: buildAppointment(),
+      paymentIds: ['appointment_1_anticipo'],
+      snapshots: [{
+        id: 'appointment_1_anticipo',
         exists: true,
-        data: () => buildDeposit({
-          fecha: Timestamp.fromMillis(2_000)
-        })
-      },
-      appointment: buildAppointment()
+        data: () => alteredPayment
+      }]
     }),
     (error) => error instanceof SaleError
   );
@@ -189,6 +243,31 @@ test('rechaza citas que todavía no están por cobrar', () => {
   assert.throws(
     () => requireCheckoutAppointment(appointmentSnapshot),
     (error) => error instanceof SaleError
+  );
+});
+
+test('acepta crédito mayor al mínimo y varios identificadores', () => {
+  // Construye partes que superan el mínimo vigente
+  const extraCreditPart = {
+    ...transferPart,
+    montoCentavos: 6_500,
+    referencia: 'SPEI-6500'
+  };
+
+  // Construye una cita reprogramada lista para cobrar
+  const appointmentSnapshot = {
+    exists: true,
+    data: () => buildCheckoutAppointmentData({
+      anticipoRequeridoCentavos: 13_500,
+      anticipoMontoCentavos: 20_000,
+      anticipoMetodo: 'mixto',
+      anticipoPagos: [depositPart, extraCreditPart],
+      pagosAnticipoIds: ['payment_original', 'payment_additional']
+    })
+  };
+
+  assert.doesNotThrow(
+    () => requireCheckoutAppointment(appointmentSnapshot)
   );
 });
 

@@ -2,6 +2,7 @@
 export {
   BOOKING_BLOCK_MINUTES,
   BOOKING_TIMES,
+  buildBookingTimeOptions,
   buildAppointmentSlotId,
   getBusinessDateKey,
   validateBookingSchedule
@@ -17,3 +18,8 @@ export {
 export {
   createAppointmentBooking
 } from './AppointmentBookingCommandService';
+
+// Expone la reprogramación protegida
+export {
+  reprogramAppointmentBooking
+} from './AppointmentReschedulingService';

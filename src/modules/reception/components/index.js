@@ -9,6 +9,7 @@ export { default as ConfirmAppointmentModal } from './ConfirmAppointmentModal';
 export { default as NoShowAppointmentModal } from './NoShowAppointmentModal';
 export { default as KanbanAppointmentActions } from './KanbanAppointmentActions';
 export { default as ReceptionKanbanBoard } from './ReceptionKanbanBoard';
+export { default as AppointmentCreditSelector } from './AppointmentCreditSelector';
 export { default as SignatureModal } from './SignatureModal';
 export { default as ClientProfileModal } from './ClientProfileModal';
 export { default as ClientTable } from './ClientTable';

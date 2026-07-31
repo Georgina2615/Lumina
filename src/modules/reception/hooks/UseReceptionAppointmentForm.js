@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  BOOKING_TIMES,
-  getBusinessDateKey,
-  validateBookingSchedule
+  buildBookingTimeOptions,
+  getBusinessDateKey
 } from '../services/AppointmentBookingService';
-import {
-  buildDepositInput,
-  createPaymentDraft
-} from '../services/PaymentPolicy';
+import { createPaymentDraft } from '../services/PaymentPolicy';
+import { buildAppointmentSubmission } from '../services/AppointmentSubmissionPolicy';
 import { useReceptionAppointments } from './useReceptionAppointments';
+import { useAppointmentRescheduling } from './UseAppointmentRescheduling';
 
 const emptyClient = { fullName: '', phone: '', email: '' };
 
@@ -32,7 +30,7 @@ export const useReceptionAppointmentForm = ({
     foundClient, clientSearchLoading, clientSearchError,
     searchClientByPhone, clearClientSearch,
     bookingLoading, bookingError, bookingSuccess, bookedAppointment,
-    bookAppointment, resetBooking
+    bookAppointment, reprogramAppointment, resetBooking
   } = useReceptionAppointments();
   const [client, setClient] = useState(emptyClient);
   const [appointment, setAppointment] = useState({
@@ -42,35 +40,23 @@ export const useReceptionAppointmentForm = ({
   const [localError, setLocalError] = useState(null);
   const searchRef = useRef({ phone: '', result: null });
   const submitLockRef = useRef(false);
+  const rescheduling = useAppointmentRescheduling(foundClient?.id);
   const selectedService = services.find(({ id }) => id === appointment.serviceId);
-  const depositCents = selectedService
+  const requiredDepositCents = selectedService
     ? Math.round(selectedService.priceCents * selectedService.depositPercentage / 100)
     : 0;
+  const additionalDepositCents = Math.max(
+    requiredDepositCents - (rescheduling.selectedCredit?.creditCents ?? 0),
+    0
+  );
+  const creditLookupReady = !foundClient || rescheduling.ready;
+  const creditExceedsServicePrice = Boolean(selectedService
+    && rescheduling.selectedCredit
+    && rescheduling.selectedCredit.creditCents > selectedService.priceCents);
   const currentSlots = availabilityDate === appointment.dateKey ? slots : [];
-  const timeOptions = BOOKING_TIMES.map((bookingTime) => {
-    const occupied = currentSlots.some(
-      ({ time }) => time === bookingTime.value
-    );
-    let scheduleUnavailable = false;
-
-    try {
-      validateBookingSchedule({
-        dateKey: appointment.dateKey,
-        time: bookingTime.value
-      });
-    } catch {
-      scheduleUnavailable = Boolean(appointment.dateKey);
-    }
-
-    return {
-      ...bookingTime,
-      disabled: occupied || scheduleUnavailable,
-      status: occupied
-        ? 'Ocupado'
-        : scheduleUnavailable
-          ? 'No disponible'
-          : ''
-    };
+  const timeOptions = buildBookingTimeOptions({
+    dateKey: appointment.dateKey,
+    slots: currentSlots
   });
   const selectedTimeUnavailable = timeOptions.some(
     ({ disabled, value }) => disabled && value === appointment.time
@@ -82,14 +68,10 @@ export const useReceptionAppointmentForm = ({
   // Sincroniza fecha modal y estado de escritura
   useEffect(() => {
     setAvailabilityDate(appointment.dateKey);
-  }, [
-    appointment.dateKey, setAvailabilityDate
-  ]);
+  }, [appointment.dateKey, setAvailabilityDate]);
   useEffect(() => {
     onSubmittingChange?.(bookingLoading);
-  }, [
-    bookingLoading, onSubmittingChange
-  ]);
+  }, [bookingLoading, onSubmittingChange]);
   useEffect(() => () => {
     onSubmittingChange?.(false);
   }, [onSubmittingChange]);
@@ -141,6 +123,7 @@ export const useReceptionAppointmentForm = ({
     if (field === 'phone') {
       searchRef.current = { phone: '', result: null, promise: null };
       clearClientSearch();
+      rescheduling.clearSelection();
     }
     setClient((current) => ({ ...current, [field]: nextValue }));
     setLocalError(null);
@@ -150,6 +133,7 @@ export const useReceptionAppointmentForm = ({
   // Restablece la selección de cliente
   const handleClearClient = () => {
     clearClientSearch();
+    rescheduling.clearSelection();
     searchRef.current = { phone: '', result: null, promise: null };
     setClient(emptyClient);
     setLocalError(null);
@@ -168,6 +152,21 @@ export const useReceptionAppointmentForm = ({
     resetBooking();
   };
 
+  // Actualiza la decisión de crédito y limpia el pago anterior
+  const handleCreditChoiceChange = (choice) => {
+    rescheduling.onCreditChoiceChange(choice);
+    setPayment(createPaymentDraft());
+    setLocalError(null);
+    resetBooking();
+  };
+
+  // Reintenta la consulta sin conservar errores anteriores
+  const handleCreditRetry = () => {
+    setLocalError(null);
+    resetBooking();
+    rescheduling.retry();
+  };
+
   // Envía una sola reserva protegida
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -182,27 +181,34 @@ export const useReceptionAppointmentForm = ({
       if (matchedClient === undefined) {
         return;
       }
-      if (!selectedService || depositCents <= 0) {
+      if (!selectedService || requiredDepositCents <= 0) {
         throw new Error('Selecciona un servicio disponible');
       }
       if (currentSlots.some(({ time }) => time === appointment.time)) {
         throw new Error('El horario acaba de ser ocupado');
       }
       const activeClient = matchedClient ? mapFoundClient(matchedClient) : client;
-      const normalizedEmail = activeClient.email.trim();
-      await bookAppointment({
-        client: {
-          ...(activeClient.id ? { id: activeClient.id } : {}),
-          fullName: activeClient.fullName.trim(),
-          phone: activeClient.phone,
-          ...(normalizedEmail ? { email: normalizedEmail } : {})
-        },
-        contactChannel: normalizedEmail ? 'correo' : 'llamada',
-        serviceId: appointment.serviceId,
-        dateKey: appointment.dateKey,
-        time: appointment.time,
-        deposit: buildDepositInput(payment, depositCents)
+
+      // Comprueba créditos antes de decidir el comando
+      const availableCredits = activeClient.id
+        ? await rescheduling.ensureCredits(activeClient.id)
+        : [];
+      const submission = buildAppointmentSubmission({
+        activeClient,
+        appointment,
+        availableCredits,
+        creditChoice: rescheduling.creditChoice,
+        payment,
+        requiredDepositCents,
+        servicePriceCents: selectedService.priceCents
       });
+
+      // Ejecuta únicamente el comando elegido
+      if (submission.type === 'reschedule') {
+        await reprogramAppointment(submission.request);
+      } else {
+        await bookAppointment(submission.request);
+      }
     } catch (error) {
       setLocalError(error.message || 'Revisa los datos de la cita');
     } finally {
@@ -240,7 +246,8 @@ export const useReceptionAppointmentForm = ({
       timeOptions
     },
     paymentSectionProps: {
-      depositCents,
+      depositCents: additionalDepositCents,
+      isAdditionalDeposit: Boolean(rescheduling.selectedCredit),
       payment,
       onChange: (nextPayment) => {
         setPayment(nextPayment);
@@ -248,12 +255,40 @@ export const useReceptionAppointmentForm = ({
         resetBooking();
       }
     },
-    showPayment: Boolean(selectedService && depositCents > 0),
+    creditSelectorProps: {
+      additionalDepositCents,
+      creditChoice: rescheduling.creditChoice,
+      credits: rescheduling.credits,
+      error: rescheduling.error,
+      loading: rescheduling.loading,
+      onChange: handleCreditChoiceChange,
+      onRetry: handleCreditRetry,
+      requiredDepositCents,
+      selectedCredit: rescheduling.selectedCredit,
+      servicePriceCents: selectedService?.priceCents ?? 0
+    },
+    showCreditSelector: Boolean(foundClient),
+    showPayment: Boolean(
+      selectedService
+      && additionalDepositCents > 0
+      && creditLookupReady
+      && !rescheduling.decisionPending
+      && !rescheduling.error
+    ),
     error: bookingError || localError,
     isBooking: bookingLoading,
     submitDisabled: bookingLoading || clientSearchLoading
-      || servicesLoading || availabilityLoading || selectedTimeUnavailable,
+      || servicesLoading || availabilityLoading || selectedTimeUnavailable
+      || rescheduling.loading || rescheduling.decisionPending
+      || !creditLookupReady || creditExceedsServicePrice
+      || Boolean(rescheduling.error),
     success: bookingSuccess && Boolean(bookedAppointment),
+    isRescheduled: Boolean(bookedAppointment?.isRescheduled),
+    submitLabel: rescheduling.selectedCredit
+      ? additionalDepositCents > 0
+        ? 'Aplicar crédito y registrar diferencia'
+        : 'Aplicar crédito y reprogramar'
+      : 'Registrar anticipo y reservar',
     registeredName: foundClient?.nombreCompleto || client.fullName,
     handleSubmit,
     handleSuccessClose,

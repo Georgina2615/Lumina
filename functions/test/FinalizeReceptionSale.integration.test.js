@@ -82,6 +82,10 @@ test('finaliza una venta atómica y conserva la idempotencia', {
     saleSnapshot.data().pagoAnticipoId,
     scenario.references.deposit.id
   );
+  assert.deepEqual(
+    saleSnapshot.data().pagosAnticipoIds,
+    [scenario.references.deposit.id]
+  );
   assert.equal(
     scenario.references.deposit.id,
     `${scenario.appointmentId}_anticipo`

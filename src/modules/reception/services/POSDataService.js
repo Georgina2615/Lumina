@@ -53,14 +53,66 @@ const mapRetailProduct = (snapshot) => {
 
 // Verifica que el método represente las partes guardadas
 const hasMatchingDepositMethod = (data) => {
-  // Compara el único método registrado
-  if (data.anticipoPagos.length === 1) {
-    // Devuelve la coincidencia individual
-    return data.anticipoMetodo === data.anticipoPagos[0]?.metodo;
+  // Reúne los métodos reales sin repetirlos
+  const methods = [...new Set(
+    data.anticipoPagos.map((payment) => payment?.metodo)
+  )];
+
+  // Compara el método individual o combinado
+  return methods.length === 1
+    ? data.anticipoMetodo === methods[0]
+    : methods.length >= 2 && data.anticipoMetodo === 'mixto';
+};
+
+// Verifica las identidades de pagos acumulados
+const hasValidDepositPaymentIds = (data) => {
+  // Las citas normales conservan su contrato anterior
+  if (!data.reprogramacionOrigen) {
+    return true;
   }
-  // Compara dos métodos diferentes
-  return data.anticipoMetodo === 'mixto'
-    && data.anticipoPagos[0]?.metodo !== data.anticipoPagos[1]?.metodo;
+
+  // Exige entre uno y cinco pagos reales
+  if (
+    typeof data.reprogramacionOrigen !== 'string'
+    || !data.reprogramacionOrigen
+    || data.reprogramacionOrigen.includes('/')
+    || !Array.isArray(data.pagosAnticipoIds)
+    || data.pagosAnticipoIds.length < 1
+    || data.pagosAnticipoIds.length > 5
+    || data.anticipoPagos.length > data.pagosAnticipoIds.length * 2
+  ) {
+    return false;
+  }
+
+  // Exige identidades únicas y seguras
+  const uniqueIds = new Set(data.pagosAnticipoIds);
+  return uniqueIds.size === data.pagosAnticipoIds.length
+    && data.pagosAnticipoIds.every((paymentId) => (
+      typeof paymentId === 'string'
+      && paymentId.length >= 1
+      && paymentId.length <= 500
+      && !paymentId.includes('/')
+    ));
+};
+
+// Verifica el total requerido según el origen de la cita
+const hasValidDepositAmount = (data, expectedDepositCents) => {
+  // Conserva la igualdad exacta para citas normales
+  if (!data.reprogramacionOrigen) {
+    return data.anticipoMontoCentavos === expectedDepositCents;
+  }
+
+  // Obtiene el mínimo canónico persistido
+  const requiredDepositCents = Number.isSafeInteger(
+    data.anticipoRequeridoCentavos
+  )
+    ? data.anticipoRequeridoCentavos
+    : expectedDepositCents;
+
+  // Acepta crédito acumulado sin superar el servicio
+  return requiredDepositCents === expectedDepositCents
+    && data.anticipoMontoCentavos >= requiredDepositCents
+    && data.anticipoMontoCentavos <= data.precioServicioCentavos;
 };
 
 // Identifica si una cita pertenece al flujo vigente
@@ -86,7 +138,11 @@ const getAppointmentChargeIssue = (data) => {
     || typeof data.servicio !== 'string'
     || !data.servicio.trim()
     || !Array.isArray(data.anticipoPagos)
-    || ![1, 2].includes(data.anticipoPagos.length)
+    || data.anticipoPagos.length < 1
+    || data.anticipoPagos.length > (
+      data.reprogramacionOrigen ? 10 : 2
+    )
+    || !hasValidDepositPaymentIds(data)
   ) {
     // Devuelve el motivo financiero
     return 'La cita no tiene importes válidos para cobrar';
@@ -96,7 +152,7 @@ const getAppointmentChargeIssue = (data) => {
     data.precioServicioCentavos * 30 / 100
   );
   // Verifica el porcentaje monetario exacto
-  if (data.anticipoMontoCentavos !== expectedDepositCents) {
+  if (!hasValidDepositAmount(data, expectedDepositCents)) {
     // Devuelve el motivo del porcentaje
     return 'El anticipo no corresponde al treinta por ciento del servicio';
   }

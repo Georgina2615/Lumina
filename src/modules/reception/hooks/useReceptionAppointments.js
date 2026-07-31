@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createAppointmentBooking,
+  reprogramAppointmentBooking,
   subscribeActiveServices,
   subscribeSlotsByDate
 } from '../services/AppointmentBookingService';
@@ -110,25 +111,36 @@ export const useReceptionAppointments = () => {
     setClientSearchLoading(false);
   }, []);
 
-  const bookAppointment = useCallback(async (input) => {
+  // Ejecuta un comando de reserva con estado compartido
+  const executeBooking = useCallback(async (command, input) => {
     setBookingLoading(true);
     setBookingError(null);
     setBookingSuccess(false);
     setBookedAppointment(null);
 
     try {
-      const booking = await createAppointmentBooking(input);
+      const booking = await command(input);
       setBookedAppointment(booking);
       setBookingSuccess(true);
       return booking;
     } catch (error) {
-      console.error('Error al crear la cita', error);
-      setBookingError(error.message || 'No pudimos crear la cita');
+      console.error('Error al registrar la cita', error);
+      setBookingError(error.message || 'No pudimos registrar la cita');
       throw error;
     } finally {
       setBookingLoading(false);
     }
   }, []);
+
+  // Registra una cita con anticipo nuevo
+  const bookAppointment = useCallback((input) => (
+    executeBooking(createAppointmentBooking, input)
+  ), [executeBooking]);
+
+  // Reprograma una cita usando el crédito elegido
+  const reprogramAppointment = useCallback((input) => (
+    executeBooking(reprogramAppointmentBooking, input)
+  ), [executeBooking]);
 
   const resetBooking = useCallback(() => {
     setBookingError(null);
@@ -155,6 +167,7 @@ export const useReceptionAppointments = () => {
     bookingSuccess,
     bookedAppointment,
     bookAppointment,
+    reprogramAppointment,
     resetBooking
   };
 };

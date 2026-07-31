@@ -7,7 +7,8 @@ const buildArguments = (overrides = {}) => ({
   actorUid: 'actor_1',
   appointment: null,
   client: null,
-  depositPaymentId: null,
+  depositPaymentIds: [],
+  depositPayments: [],
   checkoutPaymentIds: ['payment_1'],
   folio: 'LS-TEST',
   inventoryWarnings: [],
@@ -60,6 +61,8 @@ test('omite el ticket cuando no existe correo', () => {
 
   assert.equal(sale.clienteEmail, '');
   assert.equal(sale.ticket.estado, 'omitido');
+  assert.equal(sale.pagoAnticipoId, null);
+  assert.deepEqual(sale.pagosAnticipoIds, []);
 });
 
 test('incluye métodos de anticipo y liquidación sin duplicados', () => {
@@ -68,12 +71,20 @@ test('incluye métodos de anticipo y liquidación sin duplicados', () => {
     appointment: {
       servicioId: 'service_1',
       servicio: 'Limpieza facial profunda',
-      precioServicioCentavos: 45_000,
-      anticipoPagos: [
-        { metodo: 'efectivo' },
-        { metodo: 'transferencia' }
-      ]
+      precioServicioCentavos: 45_000
     },
+    depositPaymentIds: ['payment_original', 'payment_additional'],
+    depositPayments: [
+      {
+        partes: [
+          { metodo: 'efectivo' },
+          { metodo: 'transferencia' }
+        ]
+      },
+      {
+        partes: [{ metodo: 'transferencia' }]
+      }
+    ],
     client: {
       id: 'client_1',
       name: 'Cliente Real',
@@ -95,4 +106,9 @@ test('incluye métodos de anticipo y liquidación sin duplicados', () => {
     ['efectivo', 'transferencia', 'tarjeta']
   );
   assert.equal(sale.clienteEmail, 'directorio@example.com');
+  assert.equal(sale.pagoAnticipoId, 'payment_original');
+  assert.deepEqual(
+    sale.pagosAnticipoIds,
+    ['payment_original', 'payment_additional']
+  );
 });

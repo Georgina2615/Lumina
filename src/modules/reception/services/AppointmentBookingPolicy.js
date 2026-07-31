@@ -109,3 +109,37 @@ export const validateBookingSchedule = ({
   // Devuelve el intervalo autorizado
   return interval;
 };
+
+// Construye las opciones visibles de horario
+export const buildBookingTimeOptions = ({
+  dateKey,
+  slots,
+  now = new Date()
+}) => (
+  BOOKING_TIMES.map((bookingTime) => {
+    const occupied = slots.some(
+      ({ time }) => time === bookingTime.value
+    );
+    let scheduleUnavailable = false;
+
+    try {
+      validateBookingSchedule({
+        dateKey,
+        time: bookingTime.value,
+        now
+      });
+    } catch {
+      scheduleUnavailable = Boolean(dateKey);
+    }
+
+    return {
+      ...bookingTime,
+      disabled: occupied || scheduleUnavailable,
+      status: occupied
+        ? 'Ocupado'
+        : scheduleUnavailable
+          ? 'No disponible'
+          : ''
+    };
+  })
+);

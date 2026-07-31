@@ -5,12 +5,16 @@ import {
 import AppointmentModalShell from './AppointmentModalShell';
 
 // Obtiene la descripción histórica del anticipo
-const getDepositOutcomeLabel = (outcome) => {
+const getDepositOutcomeLabel = (outcome, reschedulingState) => {
   if (outcome === 'retenido') {
     return 'Anticipo retenido por la clínica';
   }
 
   if (outcome === 'disponible_reprogramacion') {
+    if (reschedulingState === 'utilizada') {
+      return 'Anticipo aplicado a la cita reprogramada';
+    }
+
     return 'Anticipo disponible para reprogramación';
   }
 
@@ -51,7 +55,10 @@ export default function CancelAppointmentModal({
   const confirmation = appointment?.confirmacion;
   const depositOutcome = cancellation?.anticipoResultado
     || noShow?.anticipoResultado;
-  const depositLabel = getDepositOutcomeLabel(depositOutcome);
+  const depositLabel = getDepositOutcomeLabel(
+    depositOutcome,
+    appointment?.reprogramacion?.estado
+  );
 
   // Devuelve el modal accesible
   return (

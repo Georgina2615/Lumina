@@ -13,7 +13,7 @@ import {
   requireAuthorizedActor,
   requireCheckoutAppointment,
   requireClient,
-  requireDepositPayment
+  requireDepositPayments
 } from './StoredAppointmentPolicy.js';
 import {
   mapExistingSaleResponse,
@@ -31,6 +31,15 @@ const buildWarning = (product) => ({
 // Obtiene varias lecturas antes de escribir
 const getSnapshots = async (transaction, references) => (
   references.length ? transaction.getAll(...references) : []
+);
+
+// Resuelve movimientos explícitos o el legado determinista
+const resolveDepositPaymentIds = (appointmentId, appointment) => (
+  Array.isArray(appointment?.pagosAnticipoIds)
+    ? [...appointment.pagosAnticipoIds]
+    : appointment
+      ? [buildDepositPaymentId(appointmentId)]
+      : []
 );
 
 // Ejecuta todas las escrituras financieras en una transacción
@@ -97,18 +106,22 @@ export const runSaleTransaction = async ({
     ({ productId }) => firestore.collection('productos').doc(productId)
   );
 
-  // Identifica el anticipo previo
-  const depositPaymentReference = appointmentData
-    ? firestore.collection('pagos').doc(
-      buildDepositPaymentId(request.appointmentId)
-    )
-    : null;
+  // Resuelve los movimientos reales del anticipo
+  const depositPaymentIds = resolveDepositPaymentIds(
+    request.appointmentId,
+    appointmentData
+  );
+
+  // Identifica todos los movimientos del anticipo
+  const depositPaymentReferences = depositPaymentIds.map(
+    (paymentId) => firestore.collection('pagos').doc(paymentId)
+  );
 
   // Reúne las lecturas restantes
   const remainingReferences = [
     ...(clientReference ? [clientReference] : []),
     ...productReferences,
-    ...(depositPaymentReference ? [depositPaymentReference] : [])
+    ...depositPaymentReferences
   ];
 
   // Obtiene cliente productos y anticipos
@@ -143,18 +156,19 @@ export const runSaleTransaction = async ({
     data: appointmentData
   } : null;
 
-  // Verifica el anticipo consolidado
-  if (depositPaymentReference) {
-    requireDepositPayment({
-      snapshot: remainingSnapshots[snapshotIndex],
+  // Verifica todos los movimientos reales del anticipo
+  const depositEvidence = appointment
+    ? requireDepositPayments({
+      snapshots: remainingSnapshots.slice(snapshotIndex),
+      paymentIds: depositPaymentIds,
       appointment
-    });
-  }
+    })
+    : { payments: [], totalCents: 0 };
 
   // Calcula el resultado financiero
   const totals = calculateSaleTotals({
     servicePriceCents: appointmentData?.precioServicioCentavos ?? 0,
-    depositCents: appointmentData?.anticipoMontoCentavos ?? 0,
+    depositCents: depositEvidence.totalCents,
     productLines: products,
     payments: request.payments
   });
@@ -166,9 +180,6 @@ export const runSaleTransaction = async ({
   const checkoutPaymentIds = request.payments.map(
     (_, index) => buildCheckoutPaymentId(saleId, index)
   );
-
-  // Conserva el identificador del anticipo
-  const depositPaymentId = depositPaymentReference?.id ?? null;
 
   // Construye alertas de existencias
   const inventoryWarnings = products
@@ -183,8 +194,9 @@ export const runSaleTransaction = async ({
     appointmentReference,
     client,
     checkoutPaymentIds,
-    depositPaymentId,
-    depositPaymentReference,
+    depositPaymentIds,
+    depositPaymentReferences,
+    depositPayments: depositEvidence.payments,
     firestore,
     folio,
     inventoryWarnings,

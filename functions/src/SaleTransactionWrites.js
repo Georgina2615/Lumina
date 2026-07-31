@@ -15,8 +15,9 @@ export const writeSaleDocuments = ({
   appointmentReference,
   checkoutPaymentIds,
   client,
-  depositPaymentId,
-  depositPaymentReference,
+  depositPaymentIds,
+  depositPaymentReferences,
+  depositPayments,
   firestore,
   folio,
   inventoryWarnings,
@@ -35,7 +36,8 @@ export const writeSaleDocuments = ({
     actorUid,
     appointment: appointmentData,
     client,
-    depositPaymentId,
+    depositPaymentIds,
+    depositPayments,
     checkoutPaymentIds,
     folio,
     inventoryWarnings,
@@ -63,10 +65,10 @@ export const writeSaleDocuments = ({
     }));
   });
 
-  // Vincula el anticipo con la venta
-  if (depositPaymentReference) {
-    transaction.update(depositPaymentReference, { ventaId: saleId });
-  }
+  // Vincula todos los anticipos con la venta
+  depositPaymentReferences.forEach((reference) => {
+    transaction.update(reference, { ventaId: saleId });
+  });
 
   // Actualiza existencias y movimientos
   products.forEach((product, index) => {

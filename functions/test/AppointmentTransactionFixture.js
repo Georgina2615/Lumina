@@ -1,5 +1,31 @@
 // Copia valores simples para aislar cada lectura
-const clone = (value) => structuredClone(value);
+const clone = (value) => {
+  // Conserva valores primitivos
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
+  // Copia fechas nativas
+  if (value instanceof Date) {
+    return new Date(value.getTime());
+  }
+
+  // Copia arreglos de forma recursiva
+  if (Array.isArray(value)) {
+    return value.map(clone);
+  }
+
+  // Conserva valores inmutables de Firestore
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) {
+    return value;
+  }
+
+  // Copia objetos simples de forma recursiva
+  return Object.fromEntries(
+    Object.entries(value).map(([key, entry]) => [key, clone(entry)])
+  );
+};
 
 // Representa una referencia documental mínima
 class FakeReference {
@@ -7,6 +33,15 @@ class FakeReference {
   constructor(path) {
     this.path = path;
     this.id = path.split('/').at(-1);
+  }
+
+  // Construye referencias de una subcolección
+  collection(name) {
+    return {
+      doc: (id) => new FakeReference(
+        `${this.path}/${name}/${id}`
+      )
+    };
   }
 }
 
@@ -156,6 +191,16 @@ export class FakeAppointmentFirestore {
   // Obtiene un documento persistido
   get(path) {
     return this.documents.get(path);
+  }
+
+  // Reemplaza un documento durante la preparación
+  set(path, data) {
+    this.documents.set(path, clone(data));
+  }
+
+  // Elimina un documento durante la preparación
+  remove(path) {
+    this.documents.delete(path);
   }
 }
 

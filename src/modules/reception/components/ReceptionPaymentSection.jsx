@@ -31,6 +31,7 @@ const getInputCents = (value) => {
 // Presenta el registro real del anticipo
 export default function ReceptionPaymentSection({
   depositCents,
+  isAdditionalDeposit = false,
   payment,
   onChange
 }) {
@@ -98,10 +99,14 @@ export default function ReceptionPaymentSection({
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-            Anticipo obligatorio
+            {isAdditionalDeposit
+              ? 'Pago adicional de anticipo'
+              : 'Anticipo obligatorio'}
           </p>
           <h3 className="mt-1 font-title text-lg font-semibold text-primary">
-            Registrar pago del treinta por ciento
+            {isAdditionalDeposit
+              ? 'Registrar la diferencia pendiente'
+              : 'Registrar pago del treinta por ciento'}
           </h3>
         </div>
         <p className="font-title text-2xl font-bold text-primary">
@@ -152,7 +157,9 @@ export default function ReceptionPaymentSection({
       )}
 
       <p className="mt-3 text-xs leading-5 text-muted">
-        El anticipo reserva el horario y la asistencia se confirma por separado
+        {isAdditionalDeposit
+          ? 'Este pago completa el anticipo requerido para la nueva cita'
+          : 'El anticipo reserva el horario y la asistencia se confirma por separado'}
       </p>
     </section>
   );

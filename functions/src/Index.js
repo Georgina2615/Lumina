@@ -13,6 +13,9 @@ import {
   manageReceptionAppointmentHandler
 } from './ManageReceptionAppointment.js';
 import {
+  reprogramReceptionAppointmentHandler
+} from './ReprogramReceptionAppointment.js';
+import {
   resolveUnconfirmedSaleTicketHandler
 } from './ResolveUnconfirmedSaleTicket.js';
 import { retrySaleTicketHandler } from './RetrySaleTicket.js';
@@ -82,6 +85,16 @@ export const manageReceptionAppointment = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => manageReceptionAppointmentHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Reprograma una cita con su crédito disponible
+export const reprogramReceptionAppointment = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => reprogramReceptionAppointmentHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

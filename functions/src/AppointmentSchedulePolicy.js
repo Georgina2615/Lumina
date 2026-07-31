@@ -16,7 +16,7 @@ export const BOOKING_BLOCK_MINUTES = 180;
 export const DEPOSIT_PERCENTAGE = 30;
 
 // Define la anticipación mínima
-const MINIMUM_NOTICE_MINUTES = 15;
+export const MINIMUM_NOTICE_MINUTES = 15;
 
 // Define la zona fija de la sucursal
 const BUSINESS_OFFSET = '-06:00';
@@ -59,7 +59,8 @@ const parseDateKey = (dateKey) => {
 export const buildAppointmentInterval = ({
   dateKey,
   time,
-  now = new Date()
+  now = new Date(),
+  enforceMinimumNotice = true
 }) => {
   // Valida el reloj usado por el servidor
   if (!(now instanceof Date) || Number.isNaN(now.getTime())) {
@@ -95,7 +96,7 @@ export const buildAppointmentInterval = ({
   );
 
   // Detiene reservas demasiado próximas
-  if (start.getTime() < minimumStart) {
+  if (enforceMinimumNotice && start.getTime() < minimumStart) {
     fail('La cita requiere al menos quince minutos de anticipación');
   }
 

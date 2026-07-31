@@ -45,11 +45,11 @@ const resolveRecipientEmail = (client, request) => (
 );
 
 // Reúne los métodos reales sin duplicados
-const buildPaymentMethods = (appointment, payments) => {
-  // Obtiene los métodos del anticipo
-  const depositMethods = Array.isArray(appointment?.anticipoPagos)
-    ? appointment.anticipoPagos.map(({ metodo }) => metodo)
-    : [];
+const buildPaymentMethods = (depositPayments, payments) => {
+  // Obtiene los métodos desde los movimientos reales
+  const depositMethods = depositPayments.flatMap(
+    ({ partes }) => partes.map(({ metodo }) => metodo)
+  );
 
   // Obtiene los métodos de liquidación
   const checkoutMethods = payments.map(({ method }) => method);
@@ -63,7 +63,8 @@ export const buildSaleDocument = ({
   actorUid,
   appointment,
   client,
-  depositPaymentId,
+  depositPaymentIds = [],
+  depositPayments = [],
   checkoutPaymentIds,
   folio,
   inventoryWarnings,
@@ -86,8 +87,9 @@ export const buildSaleDocument = ({
     clienteEmail: recipientEmail,
     items: buildItems(appointment, products),
     desglose: mapStoredTotals(totals),
-    metodosPago: buildPaymentMethods(appointment, request.payments),
-    pagoAnticipoId: depositPaymentId,
+    metodosPago: buildPaymentMethods(depositPayments, request.payments),
+    pagoAnticipoId: depositPaymentIds[0] ?? null,
+    pagosAnticipoIds: [...depositPaymentIds],
     pagosLiquidacionIds: checkoutPaymentIds,
     alertasInventario: inventoryWarnings,
     estado: 'pagada',
