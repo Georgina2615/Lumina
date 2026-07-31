@@ -92,6 +92,7 @@ const mapBookingResult = (data) => {
 // Solicita la creación atómica de una cita
 export const createAppointmentBooking = async ({
   client,
+  contactChannel,
   serviceId,
   dateKey,
   time,
@@ -101,13 +102,14 @@ export const createAppointmentBooking = async ({
     // Envía solo la intención de negocio
     const response = await createAppointmentCallable({
       client,
+      contactChannel,
       serviceId,
       dateKey,
       time,
       deposit
     });
 
-    // Devuelve la reserva confirmada
+    // Devuelve la reserva registrada
     return mapBookingResult(response.data);
   } catch (error) {
     throw new Error(

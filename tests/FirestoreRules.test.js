@@ -278,8 +278,8 @@ test('rechaza ventas y productos creados desde recepción', async () => {
   }));
 });
 
-// Permite únicamente la transición previa al cobro
-test('permite en cabina hacia por cobrar con historial', async () => {
+// Rechaza transiciones directas del navegador
+test('rechaza en cabina hacia por cobrar sin la función segura', async () => {
   // Prepara una cita existente
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     // Obtiene la base aislada
@@ -318,8 +318,8 @@ test('permite en cabina hacia por cobrar con historial', async () => {
     }
   );
 
-  // Comprueba la transición registrada
-  await assertSucceeds(batch.commit());
+  // Comprueba el cierre de la escritura directa
+  await assertFails(batch.commit());
 });
 
 // Bloquea finalizaciones directas

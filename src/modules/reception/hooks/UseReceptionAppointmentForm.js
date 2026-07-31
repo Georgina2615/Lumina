@@ -144,6 +144,7 @@ export const useReceptionAppointmentForm = ({
     }
     setClient((current) => ({ ...current, [field]: nextValue }));
     setLocalError(null);
+    resetBooking();
   };
 
   // Restablece la selección de cliente
@@ -151,6 +152,8 @@ export const useReceptionAppointmentForm = ({
     clearClientSearch();
     searchRef.current = { phone: '', result: null, promise: null };
     setClient(emptyClient);
+    setLocalError(null);
+    resetBooking();
   };
 
   // Actualiza servicio fecha u hora
@@ -186,13 +189,15 @@ export const useReceptionAppointmentForm = ({
         throw new Error('El horario acaba de ser ocupado');
       }
       const activeClient = matchedClient ? mapFoundClient(matchedClient) : client;
+      const normalizedEmail = activeClient.email.trim();
       await bookAppointment({
         client: {
           ...(activeClient.id ? { id: activeClient.id } : {}),
           fullName: activeClient.fullName.trim(),
           phone: activeClient.phone,
-          ...(activeClient.email.trim() ? { email: activeClient.email.trim() } : {})
+          ...(normalizedEmail ? { email: normalizedEmail } : {})
         },
+        contactChannel: normalizedEmail ? 'correo' : 'llamada',
         serviceId: appointment.serviceId,
         dateKey: appointment.dateKey,
         time: appointment.time,
@@ -206,7 +211,7 @@ export const useReceptionAppointmentForm = ({
     }
   };
 
-  // Cierra el resultado confirmado
+  // Cierra el resultado registrado
   const handleSuccessClose = () => {
     resetBooking();
     onClose();
@@ -234,14 +239,22 @@ export const useReceptionAppointmentForm = ({
       servicesLoading,
       timeOptions
     },
-    paymentSectionProps: { depositCents, payment, onChange: setPayment },
+    paymentSectionProps: {
+      depositCents,
+      payment,
+      onChange: (nextPayment) => {
+        setPayment(nextPayment);
+        setLocalError(null);
+        resetBooking();
+      }
+    },
     showPayment: Boolean(selectedService && depositCents > 0),
     error: bookingError || localError,
     isBooking: bookingLoading,
     submitDisabled: bookingLoading || clientSearchLoading
       || servicesLoading || availabilityLoading || selectedTimeUnavailable,
     success: bookingSuccess && Boolean(bookedAppointment),
-    confirmedName: foundClient?.nombreCompleto || client.fullName,
+    registeredName: foundClient?.nombreCompleto || client.fullName,
     handleSubmit,
     handleSuccessClose,
     onClose

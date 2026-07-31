@@ -10,6 +10,9 @@ import {
 import { sendEmailJsTemplate } from './EmailJsTransport.js';
 import { finalizeReceptionSaleHandler } from './FinalizeReceptionSale.js';
 import {
+  manageReceptionAppointmentHandler
+} from './ManageReceptionAppointment.js';
+import {
   resolveUnconfirmedSaleTicketHandler
 } from './ResolveUnconfirmedSaleTicket.js';
 import { retrySaleTicketHandler } from './RetrySaleTicket.js';
@@ -69,6 +72,16 @@ export const createReceptionAppointment = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => createReceptionAppointmentHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Gestiona el ciclo operativo de una cita
+export const manageReceptionAppointment = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageReceptionAppointmentHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

@@ -17,6 +17,7 @@ const buildRequest = (overrides = {}) => ({
     phone: '9811017687',
     email: 'MARIA@example.com'
   },
+  contactChannel: 'correo',
   serviceId: 'limpieza-profunda',
   dateKey: '2026-08-04',
   time: '10:00',
@@ -41,10 +42,40 @@ test('normaliza una solicitud presencial válida', () => {
   assert.equal(request.client.fullName, 'María López');
   assert.equal(request.client.phone, '9811017687');
   assert.equal(request.client.email, 'maria@example.com');
+  assert.equal(request.contactChannel, 'correo');
   assert.equal(request.interval.start.toISOString(), '2026-08-04T16:00:00.000Z');
   assert.equal(request.interval.treatmentEnd.toISOString(), '2026-08-04T18:30:00.000Z');
   assert.equal(request.interval.blockEnd.toISOString(), '2026-08-04T19:00:00.000Z');
   assert.equal(request.deposit.payments[0].changeCents, 1_500);
+});
+
+// Exige un correo cuando ese canal fue elegido
+test('rechaza confirmacion por correo sin direccion', () => {
+  assert.throws(
+    () => validateAppointmentRequest(buildRequest({
+      client: {
+        fullName: 'María López',
+        phone: '9811017687',
+        email: ''
+      }
+    }), now),
+    /Agrega un correo/
+  );
+});
+
+// Permite confirmar por llamada sin correo
+test('acepta confirmacion por llamada sin correo', () => {
+  const request = validateAppointmentRequest(buildRequest({
+    contactChannel: 'llamada',
+    client: {
+      fullName: 'María López',
+      phone: '9811017687',
+      email: ''
+    }
+  }), now);
+
+  assert.equal(request.contactChannel, 'llamada');
+  assert.equal(request.client.email, '');
 });
 
 // Rechaza nombres con números

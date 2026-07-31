@@ -170,13 +170,14 @@ export const runAppointmentTransaction = async ({
       });
     }
 
-    // Crea la cita confirmada
+    // Crea la cita pendiente de confirmacion
     transaction.create(
       references.appointment,
       buildAppointmentDocument({
         actorUid,
         client,
         clientId: clientReference.id,
+        contactChannel: request.contactChannel,
         deposit,
         interval: request.interval,
         service,

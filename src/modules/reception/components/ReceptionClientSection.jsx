@@ -51,7 +51,7 @@ export default function ReceptionClientSection({
             className="w-full rounded-xl border border-surface-hover bg-background p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-surface-hover/60 disabled:text-muted"
             disabled={isExistingClient}
             id="appointment-client-name"
-            maxLength={120}
+            maxLength={150}
             minLength={2}
             name="fullName"
             onChange={handleChange}
@@ -100,18 +100,22 @@ export default function ReceptionClientSection({
             className="w-full rounded-xl border border-surface-hover bg-background p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-surface-hover/60 disabled:text-muted"
             disabled={isExistingClient}
             id="appointment-client-email"
-            maxLength={160}
+            maxLength={254}
             name="email"
             onChange={handleChange}
             placeholder="cliente@correo.com"
             type="email"
             value={client.email}
+            aria-describedby="appointment-client-contact-channel"
           />
-          {!isExistingClient && (
-            <p className="mt-2 text-xs leading-5 text-muted">
-              Sin correo no se podrán enviar comprobantes ni recordatorios
-            </p>
-          )}
+          <p
+            className="mt-2 text-xs leading-5 text-muted"
+            id="appointment-client-contact-channel"
+          >
+            {client.email.trim()
+              ? 'Canal preferido para confirmar correo electrónico'
+              : 'Canal preferido para confirmar llamada telefónica'}
+          </p>
         </div>
       </div>
 

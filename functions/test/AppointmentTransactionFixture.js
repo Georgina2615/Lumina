@@ -32,6 +32,8 @@ class FakeTransaction {
   constructor(documents) {
     this.documents = documents;
     this.creations = [];
+    this.updates = [];
+    this.deletions = [];
     this.hasWritten = false;
   }
 
@@ -73,10 +75,44 @@ class FakeTransaction {
     return this;
   }
 
-  // Confirma todas las creaciones
+  // Programa una actualizacion
+  update(reference, data) {
+    this.hasWritten = true;
+
+    if (!this.documents.has(reference.path)) {
+      throw new Error(`El documento ${reference.path} no existe`);
+    }
+
+    this.updates.push({
+      path: reference.path,
+      data: clone(data)
+    });
+
+    return this;
+  }
+
+  // Programa una eliminacion
+  delete(reference) {
+    this.hasWritten = true;
+    this.deletions.push(reference.path);
+    return this;
+  }
+
+  // Confirma todas las escrituras
   commit() {
     this.creations.forEach(({ path, data }) => {
       this.documents.set(path, data);
+    });
+
+    this.updates.forEach(({ path, data }) => {
+      this.documents.set(path, {
+        ...this.documents.get(path),
+        ...data
+      });
+    });
+
+    this.deletions.forEach((path) => {
+      this.documents.delete(path);
     });
   }
 }
@@ -151,6 +187,7 @@ export const buildCanonicalAppointmentRequest = ({
   }
 } = {}) => ({
   client,
+  contactChannel: 'correo',
   serviceId: 'limpieza-profunda',
   dateKey: '2026-08-04',
   time: '10:00',

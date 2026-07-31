@@ -7,7 +7,6 @@ import ReceptionPaymentSection from './ReceptionPaymentSection';
 export default function ReceptionAppointmentForm(props) {
   const {
     clientSectionProps,
-    confirmedName,
     detailsSectionProps,
     error,
     handleSubmit,
@@ -15,6 +14,7 @@ export default function ReceptionAppointmentForm(props) {
     isBooking,
     onClose,
     paymentSectionProps,
+    registeredName,
     showPayment,
     submitDisabled,
     success
@@ -24,13 +24,14 @@ export default function ReceptionAppointmentForm(props) {
     return (
       <div
         aria-live="polite"
-        className="m-5 rounded-2xl border border-status-confirmed/30 bg-status-confirmed/10 p-7 text-center sm:m-6"
+        className="m-5 rounded-2xl border border-status-pending/30 bg-status-pending/10 p-7 text-center sm:m-6"
+        role="status"
       >
         <h3 className="font-title text-2xl font-bold text-primary">
-          Cita confirmada
+          Cita registrada
         </h3>
         <p className="mt-2 text-sm text-muted">
-          La cita de <strong className="text-primary">{confirmedName}</strong> quedó registrada
+          La cita de <strong className="text-primary">{registeredName}</strong> quedó reservada y pendiente de confirmación
         </p>
         <button
           className="mt-6 rounded-xl bg-primary px-6 py-3 font-semibold text-surface"
@@ -75,7 +76,7 @@ export default function ReceptionAppointmentForm(props) {
           disabled={submitDisabled}
           type="submit"
         >
-          {isBooking ? 'Confirmando cita' : 'Registrar anticipo y confirmar'}
+          {isBooking ? 'Registrando cita' : 'Registrar anticipo y reservar'}
         </button>
       </div>
     </form>

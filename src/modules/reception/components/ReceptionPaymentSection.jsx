@@ -109,23 +109,26 @@ export default function ReceptionPaymentSection({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {[...paymentMethods, { value: 'mixto', label: 'Mixto' }].map((method) => (
-          <button
-            aria-pressed={payment.method === method.value}
-            className={`rounded-xl border px-3 py-3 text-sm font-semibold transition duration-200 active:scale-[0.98] ${
-              payment.method === method.value
-                ? 'border-primary bg-primary text-surface shadow-sm'
-                : 'border-surface-hover bg-background text-muted hover:border-primary/40 hover:text-primary'
-            }`}
-            key={method.value}
-            onClick={() => handleMethodChange(method.value)}
-            type="button"
-          >
-            {method.label}
-          </button>
-        ))}
-      </div>
+      <fieldset>
+        <legend className="sr-only">Método del anticipo</legend>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[...paymentMethods, { value: 'mixto', label: 'Mixto' }].map((method) => (
+            <button
+              aria-pressed={payment.method === method.value}
+              className={`rounded-xl border px-3 py-3 text-sm font-semibold transition duration-200 active:scale-[0.98] ${
+                payment.method === method.value
+                  ? 'border-primary bg-primary text-surface shadow-sm'
+                  : 'border-surface-hover bg-background text-muted hover:border-primary/40 hover:text-primary'
+              }`}
+              key={method.value}
+              onClick={() => handleMethodChange(method.value)}
+              type="button"
+            >
+              {method.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       {payment.method && !isMixed && (
         <div className="mt-4 rounded-2xl border border-surface-hover bg-background p-4">
@@ -149,7 +152,7 @@ export default function ReceptionPaymentSection({
       )}
 
       <p className="mt-3 text-xs leading-5 text-muted">
-        La cita se confirmará únicamente cuando el anticipo quede registrado
+        El anticipo reserva el horario y la asistencia se confirma por separado
       </p>
     </section>
   );

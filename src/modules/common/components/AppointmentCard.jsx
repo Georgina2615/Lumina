@@ -7,6 +7,8 @@ const getStatusConfig = (status) => {
     case 'en_cabina': return { bg: 'bg-status-incabin', text: 'text-primary', label: 'En Cabina' };
     case 'por_cobrar': return { bg: 'bg-secondary', text: 'text-surface', label: 'Por Cobrar' };
     case 'finalizada': return { bg: 'bg-status-completed', text: 'text-surface', label: 'Finalizada' };
+    case 'cancelada': return { bg: 'bg-error', text: 'text-white', label: 'Cancelada' };
+    case 'no_asistio': return { bg: 'bg-muted', text: 'text-white', label: 'No asistió' };
     default: return { bg: 'bg-surface-hover', text: 'text-primary', label: status };
   }
 };
@@ -34,7 +36,12 @@ const formatAppointmentDate = (dateKey) => {
 };
 
 // Presenta la información operativa de una cita
-export default function AppointmentCard({ appointment, children }) {
+export default function AppointmentCard({
+  appointment,
+  clientContact,
+  onOpenClientDirectory,
+  children
+}) {
   // Obtiene la apariencia del estado
   const status = getStatusConfig(appointment.estado);
   // Obtiene la fecha legible
@@ -55,6 +62,24 @@ export default function AppointmentCard({ appointment, children }) {
         </div>
         <h3 className="font-title font-semibold text-secondary text-lg">{appointment.nombreCompleto}</h3>
         <p className="text-sm text-muted">Servicio: {appointment.servicio}</p>
+        {appointment.contactoConfirmacion?.requiereLlamada && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-status-pending/20 px-3 py-1 text-xs font-semibold text-primary">
+              Requiere llamada
+            </span>
+            {clientContact?.phone ? (
+              <a className="text-sm font-semibold text-secondary underline-offset-4 hover:underline"
+                href={`tel:${clientContact.phone}`}>
+                {clientContact.phone}
+              </a>
+            ) : (
+              <button className="text-sm font-semibold text-secondary underline-offset-4 hover:underline"
+                onClick={onOpenClientDirectory} type="button">
+                Consultar perfil
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 w-full md:w-auto mt-2 md:mt-0">

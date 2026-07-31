@@ -1,21 +1,28 @@
-export default function KanbanColumn({ titulo, colorTitulo, cantidad, mensajeVacio, children }) {
+// Presenta una columna operativa del tablero
+export default function KanbanColumn({
+  title,
+  titleColor,
+  count,
+  emptyMessage,
+  children
+}) {
   return (
-    <div className="flex-1 min-w-[340px] bg-surface rounded-2xl p-4 flex flex-col border border-surface-hover">
-      <h2 className={`font-title font-semibold text-lg ${colorTitulo} mb-4 flex items-center justify-between`}>
-        {titulo}
+    <section className="flex min-w-[340px] flex-1 flex-col rounded-2xl border border-surface-hover bg-surface p-4">
+      <h2 className={`mb-4 flex items-center justify-between font-title text-lg font-semibold ${titleColor}`}>
+        {title}
         <span className="bg-background text-primary text-xs py-1 px-3 rounded-full shadow-sm">
-          {cantidad}
+          {count}
         </span>
       </h2>
       <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1">
-        {cantidad === 0 ? (
+        {count === 0 ? (
           <p className="text-sm text-muted text-center italic mt-10">
-            {mensajeVacio}
+            {emptyMessage}
           </p>
         ) : (
           children
         )}
       </div>
-    </div>
+    </section>
   );
 }

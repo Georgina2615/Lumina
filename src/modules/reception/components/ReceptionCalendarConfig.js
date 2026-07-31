@@ -31,12 +31,14 @@ const colorByStatus = {
   por_cobrar: 'var(--color-secondary)',
   completada: 'var(--color-status-completed)',
   finalizada: 'var(--color-status-completed)',
-  cancelada: 'var(--color-error)'
+  cancelada: 'var(--color-error)',
+  no_asistio: 'var(--color-muted)'
 };
 
 // Define los estados que necesitan texto claro
 const lightTextStatuses = new Set([
   'cancelada',
+  'no_asistio',
   'completada',
   'finalizada',
   'por_cobrar'
@@ -46,16 +48,18 @@ const lightTextStatuses = new Set([
 export const getAppointmentEventStyle = (appointment) => {
   // Detecta el estado histórico cancelado
   const isCancelled = appointment.estado === 'cancelada';
+  const isNoShow = appointment.estado === 'no_asistio';
+  const isIncident = isCancelled || isNoShow;
 
   // Devuelve estilos requeridos por la librería
   return {
     style: {
       backgroundColor: colorByStatus[appointment.estado] ?? 'var(--color-muted)',
-      border: isCancelled ? '1px dashed var(--color-error)' : '0',
+      border: isIncident ? '1px dashed var(--color-error)' : '0',
       borderRadius: '8px',
       color: lightTextStatuses.has(appointment.estado) ? '#ffffff' : '#181313',
       display: 'block',
-      opacity: isCancelled ? 0.58 : 0.92,
+      opacity: isIncident ? 0.62 : 0.92,
       textDecoration: isCancelled ? 'line-through' : 'none'
     }
   };

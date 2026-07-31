@@ -35,6 +35,22 @@ const normalizeServiceId = (value) => {
   return value;
 };
 
+// Normaliza el canal operativo de confirmacion
+const normalizeContactChannel = (value, client) => {
+  // Detiene canales desconocidos
+  if (!['correo', 'llamada'].includes(value)) {
+    fail('Selecciona un canal de confirmación válido');
+  }
+
+  // Evita correos sin una direccion disponible
+  if (value === 'correo' && !client.email) {
+    fail('Agrega un correo para usar la confirmación por correo');
+  }
+
+  // Devuelve el canal validado
+  return value;
+};
+
 // Normaliza una solicitud completa
 export const validateAppointmentRequest = (
   data,
@@ -51,7 +67,8 @@ export const validateAppointmentRequest = (
     'serviceId',
     'dateKey',
     'time',
-    'deposit'
+    'deposit',
+    'contactChannel'
   ];
 
   // Busca una propiedad desconocida
@@ -71,13 +88,20 @@ export const validateAppointmentRequest = (
     now
   });
 
+  // Normaliza primero la identidad del cliente
+  const client = normalizeAppointmentClient(data.client);
+
   // Devuelve el contrato canónico
   return {
-    client: normalizeAppointmentClient(data.client),
+    client,
     serviceId: normalizeServiceId(data.serviceId),
     dateKey: interval.dateKey,
     time: interval.time,
     interval,
-    deposit: normalizeAppointmentDeposit(data.deposit)
+    deposit: normalizeAppointmentDeposit(data.deposit),
+    contactChannel: normalizeContactChannel(
+      data.contactChannel,
+      client
+    )
   };
 };

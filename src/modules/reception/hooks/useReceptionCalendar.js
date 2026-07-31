@@ -6,15 +6,14 @@ import {
   startOfMonth,
   startOfWeek
 } from 'date-fns';
-import { useAuth } from '../../auth/context';
-import {
-  canCancelAppointment,
-  cancelAppointment
-} from '../services/AppointmentService';
+import { canCancelAppointment } from '../services/AppointmentService';
 import {
   formatDateKey,
   subscribeCalendarAppointments
 } from '../services/AppointmentQueryService';
+import {
+  useReceptionAppointmentActions
+} from './UseReceptionAppointmentActions';
 
 // Define el rango real de la vista
 const getCalendarRange = (visibleDate, view) => {
@@ -75,12 +74,17 @@ const mapCalendarAppointment = (appointment) => {
 
 // Controla la agenda visible
 export const useReceptionCalendar = ({ visibleDate, view }) => {
-  // Obtiene la identidad responsable
-  const { usuario: user } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [loadedRangeKey, setLoadedRangeKey] = useState(null);
-  const [error, setError] = useState(null);
-  const [cancelling, setCancelling] = useState(false);
+  const [syncError, setSyncError] = useState(null);
+
+  // Controla cancelaciones mediante el servidor
+  const {
+    actionError,
+    isProcessing,
+    cancelReceptionAppointment,
+    clearActionError
+  } = useReceptionAppointmentActions();
 
   // Calcula el rango de consulta
   const range = useMemo(
@@ -103,13 +107,13 @@ export const useReceptionCalendar = ({ visibleDate, view }) => {
           .filter(Boolean);
 
         setAppointments(calendarAppointments);
-        setError(null);
+        setSyncError(null);
         setLoadedRangeKey(rangeKey);
       },
       onError: (subscriptionError) => {
         console.error('Error al sincronizar la agenda:', subscriptionError);
         setAppointments([]);
-        setError('No pudimos sincronizar las citas de este periodo');
+        setSyncError('No pudimos sincronizar las citas de este periodo');
         setLoadedRangeKey(rangeKey);
       }
     });
@@ -119,29 +123,14 @@ export const useReceptionCalendar = ({ visibleDate, view }) => {
   }, [startDateKey, endDateKey, rangeKey]);
 
   // Cancela una cita desde la agenda
-  const cancelCalendarAppointment = async (appointmentId, reason) => {
-    setCancelling(true);
-    setError(null);
-
-    try {
-      // Devuelve el resultado de la cancelación
-      return await cancelAppointment({
-        appointmentId,
-        reason,
-        actorUid: user?.uid
-      });
-    } catch (cancellationError) {
-      console.error('Error al cancelar la cita:', cancellationError);
-      setError(cancellationError.message || 'No pudimos cancelar la cita');
-      throw cancellationError;
-    } finally {
-      setCancelling(false);
-    }
-  };
+  const cancelCalendarAppointment = (appointmentId, cancellation) => (
+    cancelReceptionAppointment(appointmentId, cancellation)
+  );
 
   // Limpia el mensaje de error
   const clearError = () => {
-    setError(null);
+    setSyncError(null);
+    clearActionError();
   };
 
   // Calcula la carga del rango vigente
@@ -151,8 +140,8 @@ export const useReceptionCalendar = ({ visibleDate, view }) => {
   return {
     appointments,
     loading,
-    error,
-    cancelling,
+    error: actionError || syncError,
+    cancelling: isProcessing,
     cancelCalendarAppointment,
     clearError
   };

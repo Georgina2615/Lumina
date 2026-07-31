@@ -76,6 +76,53 @@ export const subscribeAppointmentsByStatus = ({
   );
 };
 
+// Escucha un estado dentro de varias fechas concretas
+export const subscribeAppointmentsByStatusAndDates = ({
+  status,
+  dateKeys,
+  onData,
+  onError
+}) => {
+  // Conserva una copia por fecha para combinar resultados
+  const appointmentsByDate = new Map();
+  const loadedDates = new Set();
+
+  // Publica resultados solo después de cargar todas las fechas
+  const publishAppointments = () => {
+    if (loadedDates.size !== dateKeys.length) {
+      return;
+    }
+
+    // Combina las citas sin duplicarlas
+    const appointmentsById = new Map();
+    appointmentsByDate.forEach((appointments) => {
+      appointments.forEach((appointment) => {
+        appointmentsById.set(appointment.id, appointment);
+      });
+    });
+    onData(sortAppointments([...appointmentsById.values()]));
+  };
+
+  // Crea una escucha simple por fecha
+  const unsubscribeCallbacks = dateKeys.map((dateKey) => (
+    subscribeAppointmentsByStatus({
+      status,
+      dateKey,
+      onData: (appointments) => {
+        appointmentsByDate.set(dateKey, appointments);
+        loadedDates.add(dateKey);
+        publishAppointments();
+      },
+      onError
+    })
+  ));
+
+  // Detiene todas las escuchas activas
+  return () => {
+    unsubscribeCallbacks.forEach((unsubscribe) => unsubscribe());
+  };
+};
+
 // Escucha las citas del rango visible
 export const subscribeCalendarAppointments = ({
   startDateKey,

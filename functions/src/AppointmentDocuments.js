@@ -38,11 +38,12 @@ const buildStoredDeposit = (deposit) => (
   deposit.payments.map(buildStoredDepositPart)
 );
 
-// Construye una cita confirmada
+// Construye una cita pendiente de confirmacion
 export const buildAppointmentDocument = ({
   actorUid,
   client,
   clientId,
+  contactChannel,
   deposit,
   interval,
   service,
@@ -71,7 +72,13 @@ export const buildAppointmentDocument = ({
     finTratamiento: toTimestamp(interval.treatmentEnd),
     finBloque: toTimestamp(interval.blockEnd),
     cupoId: slotId,
-    estado: 'confirmada',
+    estado: 'por_confirmar',
+    contactoConfirmacion: {
+      canal: contactChannel,
+      estado: 'pendiente',
+      requiereLlamada: contactChannel === 'llamada',
+      solicitudEnviada: false
+    },
     anticipoPagado: true,
     anticipoPorcentaje: service.depositPercentage,
     anticipoMontoCentavos: deposit.amountCents,

@@ -1,26 +1,27 @@
-import {
-  collection,
-  doc,
-  runTransaction,
-  serverTimestamp
-} from 'firebase/firestore';
-import { db } from '../../../config/firebase';
-
-// Define los estados actuales de las citas
+// Define los estados persistentes de las citas
 export const appointmentStatus = Object.freeze({
   pending: 'por_confirmar',
   confirmed: 'confirmada',
   inCabin: 'en_cabina',
   checkout: 'por_cobrar',
   finalized: 'finalizada',
-  cancelled: 'cancelada'
+  cancelled: 'cancelada',
+  noShow: 'no_asistio'
 });
-// Define las transiciones operativas actuales
-const allowedTransitions = {
-  [appointmentStatus.pending]: new Set([appointmentStatus.confirmed]),
-  [appointmentStatus.confirmed]: new Set([appointmentStatus.inCabin]),
-  [appointmentStatus.inCabin]: new Set([appointmentStatus.checkout])
-};
+
+// Define los canales válidos de confirmación
+export const confirmationChannel = Object.freeze({
+  email: 'correo',
+  phoneCall: 'llamada',
+  whatsapp: 'whatsapp',
+  inPerson: 'presencial'
+});
+
+// Define los orígenes válidos de cancelación
+export const cancellationOrigin = Object.freeze({
+  client: 'cliente',
+  clinic: 'clinica'
+});
 
 // Define los estados que permiten cancelación
 const cancellableStatuses = new Set([
@@ -28,177 +29,81 @@ const cancellableStatuses = new Set([
   appointmentStatus.confirmed
 ]);
 
-// Valida la identidad del operador
-const requireActor = (actorUid) => {
-  // Detiene operaciones sin usuario
-  if (!actorUid) {
-    throw new Error('No se pudo identificar a la persona responsable');
-  }
-};
+// Define los estados que permiten registrar inasistencia
+const noShowStatuses = new Set([
+  appointmentStatus.pending,
+  appointmentStatus.confirmed
+]);
 
-// Obtiene una cita dentro de una transacción
-const requireAppointment = async (transaction, appointmentReference) => {
-  // Lee el documento actual
-  const appointmentSnapshot = await transaction.get(appointmentReference);
-
-  // Detiene la operación si la cita no existe
-  if (!appointmentSnapshot.exists()) {
-    throw new Error('La cita ya no existe');
+// Convierte el inicio persistido en una fecha local
+export const getAppointmentStart = (appointment) => {
+  // Usa la marca temporal canónica cuando existe
+  if (typeof appointment?.inicio?.toDate === 'function') {
+    return appointment.inicio.toDate();
   }
 
-  // Devuelve los datos vigentes
-  return appointmentSnapshot.data();
-};
+  // Conserva fechas ya convertidas
+  if (appointment?.inicio instanceof Date) {
+    return appointment.inicio;
+  }
 
-// Crea un evento histórico
-const createHistoryEvent = (
-  transaction,
-  appointmentReference,
-  previousStatus,
-  nextStatus,
-  actorUid,
-  reason,
-  depositOutcome
-) => {
-  // Crea una referencia determinista para el evento
-  const eventReference = doc(
-    collection(appointmentReference, 'eventos'),
-    nextStatus
+  // Reconstruye citas heredadas desde fecha y hora
+  const fallback = new Date(
+    `${appointment?.fecha ?? ''}T${appointment?.hora ?? ''}:00`
   );
 
-  transaction.set(eventReference, {
-    tipo: 'cambio_estado',
-    estadoAnterior: previousStatus,
-    estadoNuevo: nextStatus,
-    motivo: reason,
-    anticipoResultado: depositOutcome,
-    actorUid,
-    fecha: serverTimestamp()
-  });
+  // Descarta valores incompletos
+  return Number.isNaN(fallback.getTime()) ? null : fallback;
 };
 
 // Comprueba si una cita puede cancelarse
-export const canCancelAppointment = (appointment) => {
-  // Devuelve la disponibilidad de cancelación
-  return cancellableStatuses.has(appointment?.estado);
-};
+export const canCancelAppointment = (appointment) => (
+  cancellableStatuses.has(appointment?.estado)
+);
 
-// Cambia el estado de una cita de forma atómica
-export const transitionAppointmentStatus = async ({
-  appointmentId,
-  nextStatus,
-  actorUid
-}) => {
-  requireActor(actorUid);
-
-  // Define la referencia de la cita
-  const appointmentReference = doc(db, 'citas', appointmentId);
-
-  // Ejecuta la transición protegida
-  return runTransaction(db, async (transaction) => {
-    // Obtiene el estado vigente
-    const appointment = await requireAppointment(transaction, appointmentReference);
-    const previousStatus = appointment.estado;
-    const validNextStatuses = allowedTransitions[previousStatus];
-
-    // Detiene transiciones fuera del flujo
-    if (!validNextStatuses?.has(nextStatus)) {
-      throw new Error('La cita cambió de estado y la acción ya no es válida');
-    }
-
-    transaction.update(appointmentReference, {
-      estado: nextStatus,
-      actualizadaEn: serverTimestamp(),
-      actualizadaPor: actorUid
-    });
-    createHistoryEvent(
-      transaction,
-      appointmentReference,
-      previousStatus,
-      nextStatus,
-      actorUid,
-      null,
-      null
-    );
-
-    // Devuelve el estado confirmado
-    return nextStatus;
-  });
-};
-
-// Cancela una cita y conserva su historia
-export const cancelAppointment = async ({
-  appointmentId,
-  reason,
-  actorUid
-}) => {
-  requireActor(actorUid);
-
-  // Normaliza el motivo capturado
-  const normalizedReason = reason?.trim();
-
-  // Detiene cancelaciones sin motivo suficiente
-  if (!normalizedReason
-    || normalizedReason.length < 5
-    || normalizedReason.length > 500) {
-    throw new Error('Escribe un motivo de entre cinco y quinientos caracteres');
+// Comprueba si ya venció la tolerancia de asistencia
+export const canMarkAppointmentNoShow = (
+  appointment,
+  currentTime,
+  toleranceMinutes = 15
+) => {
+  // Detiene estados fuera del flujo operativo
+  if (!noShowStatuses.has(appointment?.estado)) {
+    return false;
   }
-  // Define la referencia de la cita
-  const appointmentReference = doc(db, 'citas', appointmentId);
-  // Ejecuta la cancelación protegida
-  return runTransaction(db, async (transaction) => {
-    const appointment = await requireAppointment(transaction, appointmentReference);
-    const slotReference = (typeof appointment.cupoId === 'string'
-      && appointment.cupoId
-      && !appointment.cupoId.includes('/'))
-      ? doc(db, 'cupos', appointment.cupoId)
-      : null;
-    const slotSnapshot = slotReference ? await transaction.get(slotReference) : null;
-    const usesManagedSlot = [1, 2, 3].includes(appointment.schemaVersion);
 
-    // Detiene cancelaciones fuera del flujo
-    if (!canCancelAppointment(appointment)) {
-      throw new Error('Esta cita ya no admite cancelación');
-    }
-    if (usesManagedSlot && (
-      !slotSnapshot?.exists()
-      || slotSnapshot.data().citaId !== appointmentId
-    )) {
-      throw new Error('No se pudo comprobar el cupo de esta cita');
-    }
+  // Obtiene el inicio real de la cita
+  const appointmentStart = getAppointmentStart(appointment);
 
-    // Define el resultado real del anticipo
-    const depositOutcome = appointment.anticipoPagado === true
-      ? 'retenido'
-      : 'no_aplica';
+  // Detiene citas sin un horario válido
+  if (!appointmentStart) {
+    return false;
+  }
 
-    transaction.update(appointmentReference, {
-      estado: appointmentStatus.cancelled,
-      actualizadaEn: serverTimestamp(),
-      actualizadaPor: actorUid,
-      'cancelacion.motivo': normalizedReason,
-      'cancelacion.fecha': serverTimestamp(),
-      'cancelacion.actorUid': actorUid,
-      'cancelacion.anticipoResultado': depositOutcome
-    });
-    createHistoryEvent(
-      transaction,
-      appointmentReference,
-      appointment.estado,
-      appointmentStatus.cancelled,
-      actorUid,
-      normalizedReason,
-      depositOutcome
-    );
+  // Compara con la tolerancia acordada
+  const threshold = appointmentStart.getTime() + toleranceMinutes * 60 * 1000;
+  return currentTime.getTime() >= threshold;
+};
 
-    if (
-      usesManagedSlot
-      && slotSnapshot?.exists()
-      && slotSnapshot.data().citaId === appointmentId
-    ) {
-      transaction.delete(slotReference);
-    }
+// Limita las pendientes al horizonte operativo
+export const filterOperationalPendingAppointments = ({
+  appointments,
+  currentTime,
+  horizonHours = 24
+}) => {
+  // Calcula el inicio del día para conservar vencidas de hoy
+  const startOfToday = new Date(currentTime);
+  startOfToday.setHours(0, 0, 0, 0);
 
-    return depositOutcome;
+  // Calcula el límite futuro exacto
+  const horizon = currentTime.getTime() + horizonHours * 60 * 60 * 1000;
+
+  // Conserva solo citas útiles para recepción
+  return appointments.filter((appointment) => {
+    const start = getAppointmentStart(appointment);
+
+    return start
+      && start.getTime() >= startOfToday.getTime()
+      && start.getTime() <= horizon;
   });
 };

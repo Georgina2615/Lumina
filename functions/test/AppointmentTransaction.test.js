@@ -35,6 +35,12 @@ test('crea una cita nueva de forma atómica', async () => {
   const payment = firestore.get('pagos/citas_1_anticipo');
 
   assert.equal(appointment.servicio, 'Limpieza facial profunda');
+  assert.equal(appointment.estado, 'por_confirmar');
+  assert.equal(appointment.contactoConfirmacion.canal, 'correo');
+  assert.equal(
+    appointment.contactoConfirmacion.solicitudEnviada,
+    false
+  );
   assert.equal(appointment.precioServicioCentavos, 45_000);
   assert.equal(appointment.anticipoMontoCentavos, 13_500);
   assert.equal(appointment.finBloque, '2026-08-04T19:00:00.000Z');
