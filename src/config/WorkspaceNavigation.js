@@ -6,6 +6,7 @@ import {
   FaExchangeAlt,
   FaFlask,
   FaHome,
+  FaMoneyBillWave,
   FaNotesMedical,
   FaUsers
 } from 'react-icons/fa';
@@ -18,6 +19,14 @@ const adminWorkspaceItems = [
     label: 'Resumen',
     mobileLabel: 'Resumen',
     path: '/dashboard/admin',
+    roles: ['admin']
+  },
+  {
+    icon: FaMoneyBillWave,
+    id: 'admin-payments-report',
+    label: 'Cobros y ventas',
+    mobileLabel: 'Cobros',
+    path: '/dashboard/admin/cobros',
     roles: ['admin']
   },
   {

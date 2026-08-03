@@ -30,6 +30,7 @@ import {
   AdminCabinInventory,
   AdminDashboard,
   AdminLayout,
+  AdminPaymentsReport,
   AdminRetailInventory
 } from './modules/admin';
 
@@ -112,6 +113,7 @@ export default function App() {
                   path="inventario-cabina"
                   element={<AdminCabinInventory />}
                 />
+                <Route path="cobros" element={<AdminPaymentsReport />} />
               </Route>
             </Route>
           </Route>
