@@ -19,7 +19,7 @@ export default function AdminCabinInventory() {
   // Devuelve la pantalla con operaciones aisladas
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 pb-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header>
         <div>
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-secondary">
             Administración
@@ -28,12 +28,9 @@ export default function AdminCabinInventory() {
             Inventario de cabina
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-muted sm:text-base">
-            Control de insumos profesionales, costos privados y movimientos auditables
+            Cantidades y costos de los insumos que usa la cosmetóloga
           </p>
         </div>
-        <p className="rounded-full border border-surface-hover bg-surface px-3 py-1.5 text-xs font-semibold text-muted">
-          Sucursal principal
-        </p>
       </header>
 
       <InventoryFeedback
@@ -48,7 +45,7 @@ export default function AdminCabinInventory() {
             className="mt-0.5 shrink-0 text-secondary"
           />
           <p>
-            Los insumos están disponibles, pero sus costos privados no pudieron consultarse
+            Los insumos están disponibles pero no se pudieron cargar sus costos de compra
           </p>
         </div>
       )}
@@ -98,7 +95,7 @@ export default function AdminCabinInventory() {
         <section className="overflow-hidden rounded-2xl border border-surface-hover bg-surface shadow-sm">
           <header className="flex items-center justify-between border-b border-surface-hover px-4 py-3 sm:px-5">
             <div>
-              <h2 className="text-lg text-primary">Almacén de uso interno</h2>
+              <h2 className="text-lg text-primary">Lista de insumos</h2>
               <p className="text-xs text-muted">
                 {filters.filteredSupplies.length} de {inventory.supplies.length} insumos
               </p>

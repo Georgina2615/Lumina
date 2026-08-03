@@ -23,8 +23,8 @@ const adminWorkspaceItems = [
   {
     icon: FaBoxOpen,
     id: 'admin-retail-inventory',
-    label: 'Inventario retail',
-    mobileLabel: 'Inventario',
+    label: 'Productos para venta',
+    mobileLabel: 'Productos',
     path: '/dashboard/admin/inventario-retail',
     roles: ['admin']
   },
@@ -40,7 +40,7 @@ const adminWorkspaceItems = [
     icon: FaExchangeAlt,
     id: 'open-reception',
     intent: 'switch',
-    label: 'Abrir recepción',
+    label: 'Ir a recepción',
     mobileLabel: 'Recepción',
     path: '/dashboard/reception',
     roles: ['admin']

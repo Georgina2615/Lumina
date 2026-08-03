@@ -3,7 +3,7 @@ import InventoryDialogShell from '../../components/InventoryDialogShell';
 import { useCabinMovementForm } from '../hooks/UseCabinMovementForm';
 import CabinMovementFields from './CabinMovementFields';
 
-// Coordina entradas salidas y ajustes auditables
+// Coordina cambios en la cantidad disponible
 export default function CabinMovementModal({
   busy,
   error,
@@ -23,12 +23,12 @@ export default function CabinMovementModal({
   return (
     <InventoryDialogShell
       busy={busy}
-      description={`${supply.name} · control por ${supply.unit}`}
-      eyebrow="Movimiento auditable"
+      description={`${supply.name} · unidad ${supply.unit}`}
+      eyebrow="Cambio de inventario"
       focusKey={`${supply.id}-${mode}`}
       onClose={onClose}
       open
-      title={mode === 'replenish' ? 'Registrar entrada' : 'Ajustar existencias'}
+      title={mode === 'replenish' ? 'Agregar cantidad' : 'Corregir cantidad'}
     >
       <form
         onSubmit={(event) => {
@@ -71,7 +71,7 @@ export default function CabinMovementModal({
             ) : (
               <FiRepeat aria-hidden="true" />
             )}
-            {busy ? 'Registrando' : 'Registrar movimiento'}
+            {busy ? 'Guardando' : 'Guardar cambio'}
           </button>
         </footer>
       </form>

@@ -15,11 +15,11 @@ export const cabinUnitOptions = [
 ];
 
 export const cabinMovementOptions = [
-  { label: 'Reabastecimiento por compra', type: 'entrada_reabastecimiento' },
-  { label: 'Corrección positiva de conteo', type: 'ajuste_positivo' },
-  { label: 'Corrección negativa de conteo', type: 'ajuste_negativo' },
-  { label: 'Salida por merma', type: 'salida_merma' },
-  { label: 'Salida por caducidad', type: 'salida_caducidad' }
+  { label: 'Agregar por compra', type: 'entrada_reabastecimiento' },
+  { label: 'Agregar por corrección', type: 'ajuste_positivo' },
+  { label: 'Restar por corrección', type: 'ajuste_negativo' },
+  { label: 'Restar por daño o pérdida', type: 'salida_merma' },
+  { label: 'Restar por caducidad', type: 'salida_caducidad' }
 ];
 
 // Formatea costos privados para administración
@@ -85,7 +85,7 @@ export const validateCabinSupplyForm = (form, creating) => {
   }
 
   if (parseCabinQuantity(form.minimumStock, form.unit, true) === null) {
-    return 'Escribe una alerta de stock válida';
+    return 'Escribe una cantidad mínima válida';
   }
 
   if (creating && parseCabinQuantity(form.initialQuantity, form.unit) === null) {
@@ -152,7 +152,7 @@ export const validateCabinMovement = (form, supply) => {
     form.type === 'entrada_reabastecimiento'
     && parseCabinCents(form.totalCost) === null
   ) {
-    return 'Escribe el costo total del reabastecimiento';
+    return 'Escribe el costo total de la compra';
   }
 
   if (

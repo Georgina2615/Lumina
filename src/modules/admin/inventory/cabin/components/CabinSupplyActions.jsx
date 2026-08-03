@@ -33,7 +33,7 @@ export default function CabinSupplyActions({
         type="button"
       >
         <FiPlusCircle aria-hidden="true" />
-        Entrada
+        Agregar
       </button>
       <button
         className={actionClassName}
@@ -41,7 +41,7 @@ export default function CabinSupplyActions({
         type="button"
       >
         <FiMinusCircle aria-hidden="true" />
-        Ajustar
+        Corregir
       </button>
       <button
         className={`${actionClassName} ${supply.active ? 'hover:border-error/40 hover:text-error' : 'hover:border-status-confirmed/50'}`}

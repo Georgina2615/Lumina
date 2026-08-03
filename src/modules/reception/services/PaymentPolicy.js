@@ -12,7 +12,7 @@ const parseMoneyToCents = (value) => {
 
   // Detiene cantidades con formato inválido
   if (!/^\d+(\.\d{1,2})?$/.test(normalizedValue)) {
-    throw new Error('Escribe un importe válido');
+    throw new Error('Escribe un monto válido');
   }
 
   // Calcula el importe entero
@@ -20,7 +20,7 @@ const parseMoneyToCents = (value) => {
 
   // Detiene cantidades fuera de rango
   if (!Number.isSafeInteger(amountCents) || amountCents <= 0) {
-    throw new Error('Escribe un importe válido');
+    throw new Error('Escribe un monto válido');
   }
 
   // Devuelve centavos seguros
@@ -79,7 +79,7 @@ const normalizePaymentPart = (part, amountCents) => {
 
   // Detiene efectivo insuficiente
   if (method === 'efectivo' && cashReceivedCents < amountCents) {
-    throw new Error('El efectivo recibido no cubre el importe');
+    throw new Error('El efectivo recibido no cubre el monto');
   }
 
   // Calcula el cambio exacto

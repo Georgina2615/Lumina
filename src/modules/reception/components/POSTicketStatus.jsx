@@ -13,38 +13,38 @@ import POSTicketActions from './POSTicketActions';
 const statusContent = {
   pendiente: {
     icon: FiMail,
-    title: 'Ticket en preparación',
+    title: 'Comprobante en preparación',
     description: 'El envío comenzará en unos segundos',
     tone: 'border-status-pending/30 bg-status-pending/10 text-secondary'
   },
   enviando: {
     icon: FiSend,
-    title: 'Enviando ticket',
-    description: 'Estamos entregando el comprobante digital',
+    title: 'Enviando comprobante',
+    description: null,
     tone: 'border-status-incabin/30 bg-status-incabin/10 text-status-incabin'
   },
   enviado: {
     icon: FiCheck,
-    title: 'Ticket enviado',
-    description: 'El servicio de correo aceptó el envío',
+    title: 'Comprobante enviado',
+    description: null,
     tone: 'border-status-confirmed/30 bg-status-confirmed/10 text-status-confirmed'
   },
   fallido: {
     icon: FiAlertTriangle,
-    title: 'El ticket no pudo enviarse',
+    title: 'El comprobante no pudo enviarse',
     description: 'La venta está segura y puedes reintentar el envío',
     tone: 'border-error/25 bg-error/5 text-error'
   },
   omitido: {
     icon: FiSlash,
-    title: 'Ticket digital omitido',
+    title: 'Comprobante digital omitido',
     description: 'La venta se registró sin correo de entrega',
     tone: 'border-surface-hover bg-background text-muted'
   },
   no_confirmado: {
     icon: FiHelpCircle,
-    title: 'Envío por verificar',
-    description: 'Revisa el historial de EmailJS antes de reenviar',
+    title: 'No se pudo confirmar el envío',
+    description: null,
     tone: 'border-status-pending/30 bg-status-pending/10 text-secondary'
   }
 };
@@ -73,7 +73,10 @@ export default function POSTicketStatus({
   );
   // Prioriza errores vigentes de la acción
   const visibleError = observationError
-    || (isActionable ? actionError || lastError : '');
+    || (isActionable ? actionError : '')
+    || (isActionable && lastError
+      ? 'No se pudo completar el envío anterior'
+      : '');
 
   // Devuelve la tarjeta de seguimiento
   return (
@@ -92,9 +95,11 @@ export default function POSTicketStatus({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-primary">{content.title}</p>
-          <p className="mt-0.5 text-xs leading-5 text-muted">
-            {content.description}
-          </p>
+          {content.description && (
+            <p className="mt-0.5 text-xs leading-5 text-muted">
+              {content.description}
+            </p>
+          )}
           {recipientEmail && (
             <p className="mt-1 break-all text-xs font-semibold text-primary">
               {recipientEmail}
@@ -110,7 +115,7 @@ export default function POSTicketStatus({
 
       {ticketStatus === 'no_confirmado' && (
         <p className="mt-3 rounded-lg bg-surface/70 px-3 py-2 text-xs leading-5 text-primary">
-          Revisa el historial de EmailJS antes de confirmar o reintentar
+          Revisa el historial de correos enviados antes de confirmar o reintentar
         </p>
       )}
 

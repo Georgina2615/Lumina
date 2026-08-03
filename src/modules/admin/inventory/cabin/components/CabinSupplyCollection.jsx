@@ -11,7 +11,7 @@ const CabinSupplyCard = ({ actions, supply }) => (
     <div className="my-4 grid grid-cols-2 gap-3 rounded-xl bg-background p-3">
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-          Valor registrado
+          Valor actual
         </p>
         <p className="mt-1 font-semibold text-primary">
           {formatCabinCurrency(supply.inventoryValueCents)}
@@ -30,8 +30,8 @@ const CabinSupplyTable = ({ actions, supplies }) => (
       <thead className="bg-background text-[11px] uppercase tracking-[0.12em] text-muted">
         <tr>
           <th className="px-5 py-3 font-semibold" scope="col">Insumo</th>
-          <th className="px-4 py-3 font-semibold" scope="col">Valor registrado</th>
-          <th className="px-4 py-3 text-right font-semibold" scope="col">Existencias</th>
+          <th className="px-4 py-3 font-semibold" scope="col">Valor actual</th>
+          <th className="px-4 py-3 text-right font-semibold" scope="col">Cantidad disponible</th>
           <th className="px-5 py-3 text-right font-semibold" scope="col">Acciones</th>
         </tr>
       </thead>
@@ -90,11 +90,11 @@ export default function CabinSupplyCollection({
           <FiDroplet aria-hidden="true" size={24} />
         </span>
         <h2 className="text-xl text-primary">
-          {totalCount === 0 ? 'Inventario sin insumos' : 'Sin coincidencias'}
+          {totalCount === 0 ? 'No hay insumos registrados' : 'Sin coincidencias'}
         </h2>
         <p className="mt-1 max-w-sm text-sm text-muted">
           {totalCount === 0
-            ? 'Crea el primer insumo real para controlar el almacén de cabina'
+            ? 'Crea el primer insumo para controlar el inventario de cabina'
             : 'Prueba otra búsqueda o restablece los filtros actuales'}
         </p>
         {totalCount > 0 && (

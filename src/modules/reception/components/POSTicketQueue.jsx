@@ -34,11 +34,8 @@ export default function POSTicketQueue({
               id="ticket-queue-title"
               className="text-lg text-primary"
             >
-              Tickets que requieren atención
+              Comprobantes pendientes
             </h2>
-            <p className="mt-0.5 text-xs leading-5 text-muted">
-              Casos persistentes pendientes de revisión por recepción
-            </p>
           </div>
         </div>
         <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-surface">

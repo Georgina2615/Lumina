@@ -25,7 +25,7 @@ export default function POSPaymentEvidenceFields({
           <div className="flex justify-between gap-3 text-xs">
             <span className="font-semibold text-secondary">Pago en efectivo</span>
             <span className="text-muted">
-              Importe {formatCurrency(preview.cashAmountCents)}
+              Monto {formatCurrency(preview.cashAmountCents)}
             </span>
           </div>
           <label

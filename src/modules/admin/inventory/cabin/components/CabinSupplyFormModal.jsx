@@ -24,9 +24,6 @@ export default function CabinSupplyFormModal({
   return (
     <InventoryDialogShell
       busy={busy}
-      description={creating
-        ? 'La cantidad y el costo inicial generan un movimiento auditable'
-        : 'La unidad queda protegida para conservar un historial consistente'}
       eyebrow="Inventario de cabina"
       focusKey={supply?.id ?? 'new-cabin-supply'}
       onClose={onClose}

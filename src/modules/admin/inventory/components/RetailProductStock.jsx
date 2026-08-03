@@ -7,7 +7,7 @@ export default function RetailProductStock({ product, detailed = false }) {
     : isLow
       ? 'border-status-pending/30 bg-status-pending/15 text-primary'
       : 'border-status-confirmed/25 bg-status-confirmed/10 text-primary';
-  const label = isSoldOut ? 'Agotado' : isLow ? 'Stock bajo' : 'Disponible';
+  const label = isSoldOut ? 'Agotado' : isLow ? 'Por agotarse' : 'Disponible';
 
   // Devuelve el indicador con referencia mínima opcional
   return (
@@ -23,7 +23,7 @@ export default function RetailProductStock({ product, detailed = false }) {
       </div>
       {detailed && (
         <p className="mt-1.5 text-xs text-muted">
-          Alerta configurada en {product.minimumStock}
+          Avisar cuando queden {product.minimumStock}
         </p>
       )}
     </div>

@@ -31,7 +31,7 @@ export default function PaymentEvidenceFields({
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl bg-surface p-3">
           <p className="text-xs font-semibold text-muted">
-            Importe aplicado
+            Monto aplicado
           </p>
           <p className="mt-2 font-title text-xl font-bold text-primary">
             {formatCurrency(amountCents)}

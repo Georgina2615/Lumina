@@ -10,7 +10,7 @@ export default function CabinSupplyStock({ detailed = false, supply }) {
     : isLow
       ? 'border-status-pending/30 bg-status-pending/15 text-primary'
       : 'border-status-confirmed/25 bg-status-confirmed/10 text-primary';
-  const label = isSoldOut ? 'Agotado' : isLow ? 'Stock bajo' : 'Disponible';
+  const label = isSoldOut ? 'Agotado' : isLow ? 'Por agotarse' : 'Disponible';
 
   // Devuelve cantidad y referencia mínima
   return (
@@ -23,7 +23,7 @@ export default function CabinSupplyStock({ detailed = false, supply }) {
       </div>
       {detailed && (
         <p className="mt-1.5 text-xs text-muted">
-          Alerta en {formatCabinQuantity(
+          Avisar cuando queden {formatCabinQuantity(
             supply.minimumStockScaled,
             supply.unit
           )}

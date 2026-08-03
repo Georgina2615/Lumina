@@ -60,11 +60,11 @@ export const validateProductForm = (form, creating) => {
     || Number(form.minimumStock) < 0
     || Number(form.minimumStock) > 99999
   ) {
-    return 'Escribe un stock mínimo válido';
+    return 'Escribe una cantidad mínima válida';
   }
 
   if (creating && parseInventoryCents(form.acquisitionCost) === null) {
-    return 'Escribe el costo unitario de adquisición';
+    return 'Escribe el costo de compra por unidad';
   }
 
   return null;
@@ -96,23 +96,23 @@ export const isStockEntry = (movementType) => (
 
 export const stockMovementOptions = [
   {
-    label: 'Reabastecimiento por compra',
+    label: 'Agregar por compra',
     type: 'entrada_reabastecimiento'
   },
   {
-    label: 'Corrección positiva de conteo',
+    label: 'Agregar por corrección',
     type: 'ajuste_positivo'
   },
   {
-    label: 'Corrección negativa de conteo',
+    label: 'Restar por corrección',
     type: 'ajuste_negativo'
   },
   {
-    label: 'Salida por merma',
+    label: 'Restar por daño o pérdida',
     type: 'salida_merma'
   },
   {
-    label: 'Salida por caducidad',
+    label: 'Restar por caducidad',
     type: 'salida_caducidad'
   }
 ];

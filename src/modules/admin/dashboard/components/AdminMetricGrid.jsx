@@ -28,8 +28,8 @@ export default function AdminMetricGrid({
   const metrics = [
     {
       description: finances.isStale
-        ? 'Último valor disponible'
-        : 'Movimientos confirmados del día',
+        ? 'Datos de la última actualización'
+        : 'Incluye anticipos y pagos finales',
       error: finances.data ? null : finances.error,
       icon: FiDollarSign,
       label: 'Cobrado hoy',
@@ -38,8 +38,8 @@ export default function AdminMetricGrid({
     },
     {
       description: finances.isStale
-        ? 'Último valor disponible'
-        : 'Pagos confirmados del mes',
+        ? 'Datos de la última actualización'
+        : 'Incluye anticipos y pagos finales',
       error: finances.data ? null : finances.error,
       icon: FiDollarSign,
       label: 'Cobrado este mes',
@@ -48,8 +48,8 @@ export default function AdminMetricGrid({
     },
     {
       description: appointments.isStale
-        ? 'Último valor disponible'
-        : 'Excluye cancelaciones e inasistencias',
+        ? 'Datos de la última actualización'
+        : 'No incluye canceladas ni ausencias',
       error: appointments.data ? null : appointments.error,
       icon: FiCalendar,
       label: 'Citas vigentes hoy',
@@ -58,7 +58,7 @@ export default function AdminMetricGrid({
     },
     {
       description: appointments.isStale
-        ? 'Último valor disponible'
+        ? 'Datos de la última actualización'
         : 'Esperan confirmación de asistencia',
       error: appointments.data ? null : appointments.error,
       icon: FiClock,
@@ -68,8 +68,8 @@ export default function AdminMetricGrid({
     },
     {
       description: sales.isStale
-        ? 'Último valor disponible'
-        : 'Cierres confirmados en punto de venta',
+        ? 'Datos de la última actualización'
+        : 'Ventas que ya fueron cobradas',
       error: sales.data ? null : sales.error,
       icon: FiShoppingBag,
       label: 'Ventas de hoy',
@@ -78,11 +78,11 @@ export default function AdminMetricGrid({
     },
     {
       description: inventory.isStale
-        ? 'Último valor disponible'
-        : 'En o por debajo del mínimo configurado',
+        ? 'Datos de la última actualización'
+        : 'Llegaron a la cantidad mínima',
       error: inventory.data ? null : inventory.error,
       icon: FiPackage,
-      label: 'Productos con stock bajo',
+      label: 'Productos por agotarse',
       loading: loading || (refreshing && !inventory.data),
       value: inventory.data?.lowStockProducts.length ?? 0
     }
@@ -111,7 +111,7 @@ export default function AdminMetricGrid({
           role="status"
         >
           <FiAlertTriangle aria-hidden="true" />
-          {finances.error} Se conservan los últimos valores financieros
+          {finances.error} Se muestran los datos de la última actualización
         </p>
       )}
 
@@ -121,7 +121,7 @@ export default function AdminMetricGrid({
           role="alert"
         >
           <FiAlertTriangle aria-hidden="true" />
-          Algunos pagos tienen datos incompatibles y no se incluyeron
+          Algunos pagos tienen información incompleta y no se sumaron
         </p>
       )}
     </div>

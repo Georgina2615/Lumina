@@ -49,7 +49,7 @@ export default function CabinMovementFields({ form, mode, onChange, supply }) {
         </div>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-            Movimiento
+            Cambio
           </p>
           <p className={`mt-1 font-title text-lg font-bold tabular-nums ${entry ? 'text-status-confirmed' : 'text-error'}`}>
             {validQuantity
@@ -68,7 +68,7 @@ export default function CabinMovementFields({ form, mode, onChange, supply }) {
       </div>
 
       <label className={`block ${labelClassName}`}>
-        Tipo de movimiento
+        Tipo de cambio
         <select
           className={inputClassName}
           onChange={(event) => onChange('type', event.target.value)}
@@ -119,40 +119,37 @@ export default function CabinMovementFields({ form, mode, onChange, supply }) {
 
       {entry && (
         <div className="rounded-xl border border-status-confirmed/25 bg-status-confirmed/10 px-4 py-3">
-          <p className="text-xs font-semibold text-primary">
-            Información privada de administración
-          </p>
-          <p className="mt-1 text-xs leading-relaxed text-muted">
+          <p className="text-xs leading-relaxed text-muted">
             {totalCostCents
-              ? `${formatCabinCurrency(totalCostCents)} se integrará al valor registrado`
+              ? `${formatCabinCurrency(totalCostCents)} quedará guardado como costo de compra`
               : requiresCost
-                ? 'Captura el costo porque todavía no existe un promedio registrado'
+                ? 'Escribe el costo porque todavía no hay compras anteriores'
               : form.type === 'ajuste_positivo'
-                ? 'Sin costo nuevo se conservará el costo promedio actual'
-                : 'El costo total permite mantener la valoración real del almacén'}
+                ? 'Si no escribes un costo se conservará el promedio actual'
+                : 'El costo permite calcular cuánto vale el inventario'}
           </p>
         </div>
       )}
 
       <label className={`block ${labelClassName}`}>
-        Motivo del movimiento
+        Motivo del cambio
         <textarea
           className={`${inputClassName} min-h-24 resize-y py-3`}
           maxLength={240}
           onChange={(event) => onChange('reason', event.target.value)}
-          placeholder="Describe por qué se modifica el inventario"
+          placeholder="Explica por qué cambió la cantidad"
           required
           value={form.reason}
         />
       </label>
 
       <label className={`block ${labelClassName}`}>
-        Referencia opcional
+        Factura o nota opcional
         <input
           className={inputClassName}
           maxLength={120}
           onChange={(event) => onChange('reference', event.target.value)}
-          placeholder="Factura proveedor o nota interna"
+          placeholder="Número de factura o una nota"
           value={form.reference}
         />
       </label>

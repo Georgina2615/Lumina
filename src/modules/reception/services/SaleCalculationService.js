@@ -50,7 +50,7 @@ const buildPaymentAmounts = (form, amountDueCents) => {
     || primaryAmountCents <= 0
     || primaryAmountCents >= amountDueCents
   ) {
-    throw new Error('El primer importe debe ser menor al saldo');
+    throw new Error('El primer monto debe ser menor al saldo');
   }
   // Devuelve dos importes exactos
   return [
@@ -73,7 +73,7 @@ const addPaymentDetails = (payment, form) => {
       cashReceivedCents === null
       || cashReceivedCents < payment.amountCents
     ) {
-      throw new Error('El efectivo recibido no cubre su importe');
+      throw new Error('El efectivo recibido no cubre su monto');
     }
     // Devuelve el pago en efectivo
     return { ...payment, cashReceivedCents };
@@ -112,7 +112,7 @@ const addPaymentDetails = (payment, form) => {
 
 // Formatea centavos sin usarlos como unidad de negocio
 export const formatCurrency = (amountCents) => (
-  currencyFormatter.format(requireCents(amountCents, 'El importe') / 100)
+  currencyFormatter.format(requireCents(amountCents, 'El monto') / 100)
 );
 
 // Convierte una captura monetaria a centavos exactos

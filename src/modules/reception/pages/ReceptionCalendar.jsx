@@ -97,7 +97,6 @@ export default function ReceptionCalendar() {
         <div>
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Recepción</p>
           <h1 className="font-title text-3xl font-bold text-primary">Calendario de Citas</h1>
-          <p className="mt-1 text-muted">Control visual de disponibilidad</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button aria-pressed={showIncidents}
@@ -107,7 +106,9 @@ export default function ReceptionCalendar() {
                 : 'border-surface-hover bg-surface text-muted hover:border-primary/30 hover:text-primary'
             }`}
             onClick={() => setShowIncidents((current) => !current)} type="button">
-            {showIncidents ? 'Ocultar incidencias' : 'Mostrar incidencias'}
+            {showIncidents
+              ? 'Ocultar canceladas y ausencias'
+              : 'Mostrar canceladas y ausencias'}
             <span className="ml-2 rounded-full bg-background px-2 py-0.5 text-xs">{incidentCount}</span>
           </button>
           <button className="rounded-xl bg-primary px-6 py-3 font-semibold text-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]"

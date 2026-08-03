@@ -83,13 +83,13 @@ export default function POSTicketQueueItem({
 
           {isUnconfirmed && (
             <p className="mt-2 rounded-lg bg-status-pending/10 px-3 py-2 text-xs leading-5 text-primary">
-              Revisa el historial de EmailJS antes de confirmar o reintentar
+              Revisa el historial de correos enviados antes de confirmar o reintentar
             </p>
           )}
 
           {ticket.lastError && (
             <p className="mt-2 rounded-lg bg-error/5 px-3 py-2 text-xs leading-5 text-error">
-              {ticket.lastError}
+              No se pudo completar el envío anterior
             </p>
           )}
 

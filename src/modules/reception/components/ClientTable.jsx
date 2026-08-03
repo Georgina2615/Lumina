@@ -137,7 +137,7 @@ export default function ClientTable({ clients, onOpenProfile, onOpenSignature })
             <tr>
               <th scope="col" className="p-4 font-semibold">Cliente</th>
               <th scope="col" className="p-4 font-semibold">Contacto</th>
-              <th scope="col" className="p-4 text-center font-semibold">Estatus Legal</th>
+              <th scope="col" className="p-4 text-center font-semibold">Consentimiento</th>
               <th scope="col" className="p-4 text-center font-semibold">Acciones</th>
             </tr>
           </thead>

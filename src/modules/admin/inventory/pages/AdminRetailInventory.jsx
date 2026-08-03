@@ -8,7 +8,7 @@ import RetailProductCollection from '../components/RetailProductCollection';
 import { useRetailInventory } from '../hooks/UseRetailInventory';
 import { useRetailInventoryFilters } from '../hooks/UseRetailInventoryFilters';
 
-// Presenta la administración completa del inventario retail
+// Presenta los productos disponibles para venta
 export default function AdminRetailInventory() {
   const inventory = useRetailInventory();
   const filters = useRetailInventoryFilters(inventory.products);
@@ -39,7 +39,7 @@ export default function AdminRetailInventory() {
     await inventory.adjustStock({ command, product: movement.product });
     setMovement(null);
     setFeedback({
-      message: 'Movimiento de existencias registrado correctamente',
+      message: 'Cambio de inventario guardado',
       tone: 'success'
     });
   };
@@ -52,7 +52,7 @@ export default function AdminRetailInventory() {
       setFeedback({
         message: nextActive
           ? 'Producto reactivado para Punto de Venta'
-          : 'Producto desactivado sin eliminar su historial',
+          : 'Producto desactivado sin borrar sus registros anteriores',
         tone: 'success'
       });
     } catch {
@@ -74,19 +74,13 @@ export default function AdminRetailInventory() {
   // Devuelve la pantalla y sus operaciones modales
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 pb-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header>
         <div>
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-secondary">
             Administración
           </p>
-          <h1 className="text-3xl text-primary sm:text-4xl">Inventario retail</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted sm:text-base">
-            Control de productos para venta costos privados y movimientos auditables
-          </p>
+          <h1 className="text-3xl text-primary sm:text-4xl">Productos para venta</h1>
         </div>
-        <p className="rounded-full border border-surface-hover bg-surface px-3 py-1.5 text-xs font-semibold text-muted">
-          Sucursal principal
-        </p>
       </header>
 
       <InventoryFeedback
@@ -98,7 +92,7 @@ export default function AdminRetailInventory() {
         <div className="flex items-start gap-3 rounded-2xl border border-status-pending/40 bg-status-pending/10 px-4 py-3 text-sm text-primary">
           <FiAlertTriangle aria-hidden="true" className="mt-0.5 shrink-0 text-secondary" />
           <p>
-            El catálogo está disponible pero los costos privados no pudieron consultarse
+            Los productos están disponibles pero no se pudieron cargar sus costos de compra
           </p>
         </div>
       )}
@@ -144,7 +138,7 @@ export default function AdminRetailInventory() {
         <section className="overflow-hidden rounded-2xl border border-surface-hover bg-surface shadow-sm">
           <header className="flex items-center justify-between border-b border-surface-hover px-4 py-3 sm:px-5">
             <div>
-              <h2 className="text-lg text-primary">Catálogo de productos</h2>
+              <h2 className="text-lg text-primary">Lista de productos</h2>
               <p className="text-xs text-muted">
                 {filters.filteredProducts.length} de {inventory.products.length} productos
               </p>

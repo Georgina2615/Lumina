@@ -81,11 +81,11 @@ export default function POSCheckoutModal({
                 >
                   {retryMode ? 'Reanudar cobro' : 'Confirmar cobro'}
                 </h2>
-                <p className="mt-0.5 text-xs text-muted">
-                  {retryMode
-                    ? 'La operación original permanece protegida'
-                    : 'Verifica la distribución antes de registrar'}
-                </p>
+                {!retryMode && (
+                  <p className="mt-0.5 text-xs text-muted">
+                    Verifica la distribución antes de registrar
+                  </p>
+                )}
               </div>
               <button
                 type="button"

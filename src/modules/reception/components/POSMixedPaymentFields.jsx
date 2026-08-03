@@ -54,14 +54,14 @@ export default function POSMixedPaymentFields({
       <div className="grid gap-3 sm:grid-cols-2">
         <PaymentMethodSelect
           id="primary-payment-method"
-          label="Primer método"
+          label="Primera forma de pago"
           value={form.primaryMethod}
           disabledMethod={form.secondaryMethod}
           onChange={(value) => onChange('primaryMethod', value)}
         />
         <PaymentMethodSelect
           id="secondary-payment-method"
-          label="Segundo método"
+          label="Segunda forma de pago"
           value={form.secondaryMethod}
           disabledMethod={form.primaryMethod}
           onChange={(value) => onChange('secondaryMethod', value)}
@@ -71,7 +71,7 @@ export default function POSMixedPaymentFields({
         htmlFor="primary-payment-amount"
         className="mt-3 block text-xs font-semibold text-secondary"
       >
-        Importe del primer método
+        Monto de la primera forma de pago
         <div className="relative">
           <span className="absolute inset-y-0 left-3 flex items-center text-muted">
             $
@@ -93,7 +93,7 @@ export default function POSMixedPaymentFields({
         </div>
       </label>
       <div className="mt-3 flex justify-between rounded-lg bg-surface px-3 py-2 text-xs">
-        <span className="text-muted">Segundo importe automático</span>
+        <span className="text-muted">Resto con la segunda forma de pago</span>
         <span className="font-semibold text-primary">
           {formatCurrency(secondaryAmountCents)}
         </span>

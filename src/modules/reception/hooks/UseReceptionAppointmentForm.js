@@ -286,8 +286,8 @@ export const useReceptionAppointmentForm = ({
     isRescheduled: Boolean(bookedAppointment?.isRescheduled),
     submitLabel: rescheduling.selectedCredit
       ? additionalDepositCents > 0
-        ? 'Aplicar crédito y registrar diferencia'
-        : 'Aplicar crédito y reprogramar'
+        ? 'Usar anticipo y registrar diferencia'
+        : 'Usar anticipo y reprogramar'
       : 'Registrar anticipo y reservar',
     registeredName: foundClient?.nombreCompleto || client.fullName,
     handleSubmit,

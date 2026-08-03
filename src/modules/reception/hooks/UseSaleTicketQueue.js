@@ -170,7 +170,7 @@ export const useSaleTicketQueue = () => {
         ...current,
         [saleId]: {
           action,
-          error: error.message || 'No se pudo resolver el ticket',
+          error: error.message || 'No se pudo actualizar el comprobante',
           processing: false
         }
       }));

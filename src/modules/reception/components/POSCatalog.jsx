@@ -38,7 +38,6 @@ export default function POSCatalog({
             <h2 id="product-catalog-title" className="text-lg text-primary">
               Productos
             </h2>
-            <p className="text-xs text-muted">Catálogo disponible en sucursal</p>
           </div>
           {!productsLoading && !productsError && (
             <span className="rounded-full bg-surface px-3 py-1 text-xs font-semibold text-secondary">
@@ -61,7 +60,7 @@ export default function POSCatalog({
             className="flex h-full min-h-64 flex-col items-center justify-center gap-3 text-muted"
           >
             <FiLoader aria-hidden="true" className="animate-spin text-2xl" />
-            <p className="text-sm font-medium">Cargando productos reales</p>
+            <p className="text-sm font-medium">Cargando productos</p>
           </div>
         )}
 

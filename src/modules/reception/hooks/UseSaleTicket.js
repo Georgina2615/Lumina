@@ -92,7 +92,7 @@ export const useSaleTicket = (saleResult) => {
       onError: (error) => {
         setObservationState({
           saleId,
-          message: error?.message || 'No se pudo actualizar el ticket'
+          message: error?.message || 'No se pudo actualizar el comprobante'
         });
       }
     });
@@ -150,7 +150,7 @@ export const useSaleTicket = (saleResult) => {
       setActionState({
         action,
         saleId,
-        error: error.message || 'No se pudo reenviar el ticket',
+        error: error.message || 'No se pudo reenviar el comprobante',
         processing: false
       });
     } finally {
@@ -163,7 +163,7 @@ export const useSaleTicket = (saleResult) => {
     saleId
   ]);
 
-  // Confirma una entrega revisada en EmailJS
+  // Confirma una entrega revisada por recepción
   const confirmDelivery = useCallback(() => (
     runAction('confirmed')
   ), [runAction]);

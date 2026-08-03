@@ -36,7 +36,7 @@ export const useCabinInventoryOperations = (inventory) => {
     await inventory.adjustStock({ command, supply: movement.supply });
     setMovement(null);
     setFeedback({
-      message: 'Movimiento de cabina registrado correctamente',
+      message: 'Cantidad actualizada correctamente',
       tone: 'success'
     });
   };
@@ -49,8 +49,8 @@ export const useCabinInventoryOperations = (inventory) => {
       setStatusSupply(null);
       setFeedback({
         message: nextActive
-          ? 'Insumo reactivado para operaciones de cabina'
-          : 'Insumo desactivado sin eliminar su historial',
+          ? 'Insumo reactivado para uso en cabina'
+          : 'Insumo desactivado sin borrar sus registros anteriores',
         tone: 'success'
       });
     } catch {

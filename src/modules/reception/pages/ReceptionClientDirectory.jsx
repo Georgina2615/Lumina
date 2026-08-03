@@ -58,7 +58,7 @@ export default function ReceptionClientDirectory() {
           Directorio de Clientes
         </h1>
         <p className="mt-1 font-body text-muted">
-          Gestión de expedientes y firmas de consentimiento
+          Consulta datos de contacto y firmas de consentimiento
         </p>
       </header>
 

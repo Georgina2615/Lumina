@@ -19,7 +19,7 @@ const RetailProductCard = ({ product, actions }) => (
       </div>
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-          Costo promedio
+          Costo promedio por unidad
         </p>
         <p className="mt-1 font-semibold text-primary">
           {formatInventoryCurrency(product.averageCostCents)}
@@ -41,8 +41,8 @@ const RetailProductTable = ({ products, actions }) => (
         <tr>
           <th className="px-5 py-3 font-semibold">Producto</th>
           <th className="px-4 py-3 font-semibold">Precio de venta</th>
-          <th className="px-4 py-3 font-semibold">Costo promedio</th>
-          <th className="px-4 py-3 text-right font-semibold">Existencias</th>
+          <th className="px-4 py-3 font-semibold">Costo promedio por unidad</th>
+          <th className="px-4 py-3 text-right font-semibold">Cantidad disponible</th>
           <th className="px-5 py-3 text-right font-semibold">Acciones</th>
         </tr>
       </thead>
@@ -104,11 +104,11 @@ export default function RetailProductCollection({
           <FiPackage aria-hidden="true" size={24} />
         </span>
         <h2 className="text-xl text-primary">
-          {totalCount === 0 ? 'Inventario sin productos' : 'Sin coincidencias'}
+          {totalCount === 0 ? 'No hay productos registrados' : 'Sin coincidencias'}
         </h2>
         <p className="mt-1 max-w-sm text-sm text-muted">
           {totalCount === 0
-            ? 'Crea el primer producto real para habilitarlo en Punto de Venta'
+            ? 'Crea el primer producto para usarlo en Punto de Venta'
             : 'Prueba otra búsqueda o restablece los filtros actuales'}
         </p>
         {totalCount > 0 && (

@@ -145,7 +145,7 @@ const getAppointmentChargeIssue = (data) => {
     || !hasValidDepositPaymentIds(data)
   ) {
     // Devuelve el motivo financiero
-    return 'La cita no tiene importes válidos para cobrar';
+    return 'La cita no tiene montos válidos para cobrar';
   }
   // Calcula el anticipo obligatorio
   const expectedDepositCents = Math.round(

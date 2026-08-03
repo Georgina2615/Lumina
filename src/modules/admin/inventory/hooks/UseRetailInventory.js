@@ -47,7 +47,7 @@ export const useRetailInventory = () => {
       }
     } catch {
       if (requestId === requestIdRef.current) {
-        setError('No se pudo cargar el inventario retail');
+        setError('No se pudieron cargar los productos para venta');
       }
     } finally {
       if (requestId === requestIdRef.current) {
@@ -132,7 +132,7 @@ export const useRetailInventory = () => {
     })
   ), [runMutation]);
 
-  // Registra un movimiento de existencias auditado
+  // Registra un cambio en la cantidad disponible
   const adjustStock = useCallback(({ command, product }) => (
     runMutation(() => adjustRetailProductStock({
       ...command,
@@ -166,7 +166,7 @@ export const useRetailInventory = () => {
       })
       .catch(() => {
         if (requestId === requestIdRef.current) {
-          setError('No se pudo cargar el inventario retail');
+          setError('No se pudieron cargar los productos para venta');
         }
       })
       .finally(() => {

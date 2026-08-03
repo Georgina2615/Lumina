@@ -16,7 +16,7 @@ export default function CabinSupplyStatusDialog({
     <InventoryDialogShell
       busy={busy}
       description={supply.name}
-      eyebrow="Disponibilidad interna"
+      eyebrow="Insumo"
       focusKey={supply.id}
       onClose={onClose}
       open
@@ -26,8 +26,8 @@ export default function CabinSupplyStatusDialog({
         <div className={`rounded-2xl border p-4 ${nextActive ? 'border-status-confirmed/30 bg-status-confirmed/10' : 'border-status-pending/40 bg-status-pending/10'}`}>
           <p className="text-sm leading-relaxed text-primary">
             {nextActive
-              ? 'El insumo volverá a estar disponible para operaciones de cabina'
-              : 'El insumo quedará fuera de operaciones nuevas, pero conservará existencias, costos y movimientos'}
+              ? 'El insumo volverá a estar disponible para uso en cabina'
+              : 'El insumo dejará de estar disponible pero conservará sus cantidades y registros anteriores'}
           </p>
         </div>
         {error && (
@@ -46,7 +46,7 @@ export default function CabinSupplyStatusDialog({
           onClick={onClose}
           type="button"
         >
-          Conservar estado
+          Cancelar
         </button>
         <button
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-wait disabled:opacity-60"

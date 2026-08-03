@@ -29,9 +29,9 @@ export default function RetailProductFormModal({
     <InventoryDialogShell
       busy={busy}
       description={creating
-        ? 'El alta inicia con treinta unidades y movimiento auditable'
-        : 'El stock y el costo se controlan desde movimientos separados'}
-      eyebrow="Inventario retail"
+        ? undefined
+        : 'La cantidad y el costo de compra se cambian por separado'}
+      eyebrow="Productos para venta"
       focusKey={product?.id ?? 'new-product'}
       onClose={onClose}
       open={open}

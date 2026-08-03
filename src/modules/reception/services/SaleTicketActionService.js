@@ -34,31 +34,31 @@ const getTicketActionErrorMessage = (error) => {
   // Explica permisos insuficientes
   if (error?.code === 'functions/permission-denied') {
     // Devuelve un mensaje seguro
-    return 'No tienes permisos para resolver este ticket';
+    return 'No tienes permisos para actualizar este comprobante';
   }
 
   // Explica una sesión ausente
   if (error?.code === 'functions/unauthenticated') {
     // Devuelve un mensaje seguro
-    return 'Inicia sesión para resolver el ticket';
+    return 'Inicia sesión para actualizar el comprobante';
   }
 
   // Explica una función ausente
   if (error?.code === 'functions/not-found') {
     // Devuelve un mensaje seguro
-    return 'La resolución de tickets no está disponible en este entorno';
+    return 'No se puede actualizar el comprobante por el momento';
   }
 
   // Explica una conexión ausente
   if (error?.code === 'functions/unavailable') {
     // Devuelve un mensaje seguro
-    return 'No hay conexión para resolver el ticket';
+    return 'No hay conexión para actualizar el comprobante';
   }
 
   // Explica el límite definitivo
   if (error?.code === 'functions/resource-exhausted') {
     // Devuelve un mensaje seguro
-    return 'El ticket alcanzó el límite de tres intentos';
+    return 'El comprobante alcanzó el límite de tres intentos';
   }
 
   // Explica el enfriamiento operativo
@@ -70,7 +70,7 @@ const getTicketActionErrorMessage = (error) => {
   // Explica un estado que cambió
   if (error?.code === 'functions/failed-precondition') {
     // Devuelve un mensaje seguro
-    return 'El estado del ticket cambió y la acción ya no es válida';
+    return 'El comprobante cambió. Actualiza la pantalla e inténtalo de nuevo';
   }
 
   // Obtiene un mensaje remoto seguro
@@ -78,7 +78,7 @@ const getTicketActionErrorMessage = (error) => {
 
   // Devuelve el mejor mensaje disponible
   return normalizeRemoteMessage(remoteMessage)
-    || 'No se pudo resolver el ticket';
+    || 'No se pudo actualizar el comprobante';
 };
 
 // Valida la respuesta mínima de una acción
@@ -141,7 +141,7 @@ export const resolveSaleTicket = async (saleId, action) => {
 
   // Rechaza acciones desconocidas
   if (!resolutionActions.has(action)) {
-    throw new Error('La resolución del ticket no es válida');
+    throw new Error('No se pudo actualizar el comprobante');
   }
 
   // Devuelve la acción remota

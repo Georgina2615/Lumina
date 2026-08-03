@@ -54,7 +54,7 @@ export default function POSCart({
           <div className="flex h-full min-h-56 flex-col items-center justify-center px-5 text-center text-muted">
             <FiShoppingBag aria-hidden="true" className="text-4xl opacity-30" />
             <h3 className="mt-3 text-base text-primary">La venta está vacía</h3>
-            <p className="mt-1 text-xs">Selecciona productos reales del catálogo</p>
+            <p className="mt-1 text-xs">Agrega productos para comenzar</p>
           </div>
         ) : (
           <ul className="space-y-3">

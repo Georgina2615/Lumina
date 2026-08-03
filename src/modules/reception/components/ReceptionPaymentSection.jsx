@@ -106,7 +106,7 @@ export default function ReceptionPaymentSection({
           <h3 className="mt-1 font-title text-lg font-semibold text-primary">
             {isAdditionalDeposit
               ? 'Registrar la diferencia pendiente'
-              : 'Registrar pago del treinta por ciento'}
+              : 'Registrar anticipo'}
           </h3>
         </div>
         <p className="font-title text-2xl font-bold text-primary">

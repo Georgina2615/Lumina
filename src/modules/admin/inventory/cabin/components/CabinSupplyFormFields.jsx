@@ -64,12 +64,12 @@ export default function CabinSupplyFormFields({
       </label>
 
       <label className={`block ${labelClassName}`}>
-        Descripción interna
+        Descripción o notas
         <textarea
           className={`${inputClassName} min-h-20 resize-y py-3`}
           maxLength={500}
           onChange={(event) => onFieldChange('description', event.target.value)}
-          placeholder="Presentación concentración o indicaciones de almacén"
+          placeholder="Presentación concentración o notas para el personal"
           value={form.description}
         />
         <span className="mt-1 block text-right text-[11px] font-normal text-muted">
@@ -79,7 +79,7 @@ export default function CabinSupplyFormFields({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className={labelClassName}>
-          Unidad de control
+          Unidad de medida
           {creating ? (
             <select
               className={inputClassName}
@@ -103,7 +103,7 @@ export default function CabinSupplyFormFields({
           )}
         </label>
         <label className={labelClassName}>
-          Alerta de stock mínimo
+          Avisar cuando queden
           <input
             className={inputClassName}
             inputMode="decimal"
@@ -138,7 +138,7 @@ export default function CabinSupplyFormFields({
             />
           </label>
           <label className={labelClassName}>
-            Costo total de adquisición
+            Costo total de compra
             <input
               className={inputClassName}
               inputMode="decimal"
@@ -155,7 +155,7 @@ export default function CabinSupplyFormFields({
         </div>
       ) : (
         <div className="rounded-xl border border-status-incabin/25 bg-status-incabin/10 px-4 py-3 text-sm text-primary">
-          La unidad, las existencias y el valor se modifican mediante movimientos auditados
+          La unidad no se puede cambiar. Usa Agregar o Corregir para cambiar la cantidad y el costo
         </div>
       )}
     </div>

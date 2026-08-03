@@ -106,7 +106,6 @@ export default function ReceptionDashboard() {
         <h1 className="font-title text-3xl font-bold text-primary">
           Panel de Recepción
         </h1>
-        <p className="mt-1 text-muted">Control de citas en tiempo real</p>
       </header>
 
       {error && !activeDialog && (

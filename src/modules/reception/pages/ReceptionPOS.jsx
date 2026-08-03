@@ -42,8 +42,8 @@ function ReceptionPOSContent({ appointmentId }) {
           <h1 className="text-3xl text-primary">Punto de venta</h1>
           <p className="mt-1 text-sm text-muted">
             {hasAppointment
-              ? 'Liquidación de cita y productos adicionales'
-              : 'Venta de mostrador con inventario real'}
+              ? 'Cobro de cita y productos adicionales'
+              : 'Venta de productos sin cita'}
           </p>
         </div>
         {pos.appointment && (

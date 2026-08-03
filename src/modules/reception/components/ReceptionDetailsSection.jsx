@@ -89,19 +89,19 @@ export default function ReceptionDetailsSection({
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-muted">Tratamiento</dt>
+              <dt className="text-xs text-muted">Duración del servicio</dt>
               <dd className="mt-1 font-semibold text-primary">
                 {formatDuration(selectedService.serviceDurationMinutes)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-muted">Limpieza</dt>
+              <dt className="text-xs text-muted">Preparación y limpieza</dt>
               <dd className="mt-1 font-semibold text-primary">
                 {formatDuration(selectedService.preparationMinutes)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-muted">Bloqueo</dt>
+              <dt className="text-xs text-muted">Tiempo total reservado</dt>
               <dd className="mt-1 font-semibold text-primary">
                 {formatDuration(selectedService.blockDurationMinutes)}
               </dd>

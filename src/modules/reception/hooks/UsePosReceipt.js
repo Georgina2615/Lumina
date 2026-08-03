@@ -38,7 +38,7 @@ const getReceiptEmailError = (value) => {
     || !emailPattern.test(normalizedEmail)
   ) {
     // Devuelve una orientación clara
-    return 'Escribe un correo válido para enviar el ticket';
+    return 'Escribe un correo válido para enviar el comprobante';
   }
 
   // Confirma una captura válida

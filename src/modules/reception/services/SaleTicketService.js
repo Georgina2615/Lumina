@@ -31,7 +31,7 @@ const mapSaleTicket = (snapshot) => {
 
   // Rechaza estados desconocidos
   if (!isTicketStatus(storedStatus)) {
-    throw new Error('El estado del ticket no es válido');
+    throw new Error('El comprobante necesita revisión');
   }
 
   // Devuelve el estado seguro
@@ -56,13 +56,13 @@ const getObservationErrorMessage = (error) => {
   // Explica permisos insuficientes
   if (error?.code === 'permission-denied') {
     // Devuelve un mensaje seguro
-    return 'No tienes permisos para consultar el estado del ticket';
+    return 'No tienes permisos para consultar el comprobante';
   }
 
   // Explica una conexión ausente
   if (error?.code === 'unavailable') {
     // Devuelve un mensaje seguro
-    return 'No hay conexión para actualizar el estado del ticket';
+    return 'No hay conexión para actualizar el comprobante';
   }
 
   // Conserva errores locales ya controlados
@@ -72,7 +72,7 @@ const getObservationErrorMessage = (error) => {
   }
 
   // Oculta detalles técnicos inesperados
-  return 'No se pudo actualizar el estado del ticket';
+  return 'No se pudo actualizar el comprobante';
 };
 
 // Escucha el estado real del ticket confirmado

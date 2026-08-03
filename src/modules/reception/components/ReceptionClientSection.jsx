@@ -113,8 +113,8 @@ export default function ReceptionClientSection({
             id="appointment-client-contact-channel"
           >
             {client.email.trim()
-              ? 'Canal preferido para confirmar correo electrónico'
-              : 'Canal preferido para confirmar llamada telefónica'}
+              ? 'Las confirmaciones podrán enviarse por correo electrónico'
+              : 'Las confirmaciones deberán hacerse por llamada telefónica'}
           </p>
         </div>
       </div>
@@ -122,8 +122,8 @@ export default function ReceptionClientSection({
       {clientFound && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-status-confirmed/30 bg-status-confirmed/10 p-4">
           <div>
-            <p className="text-sm font-semibold text-primary">Cliente existente reconocido</p>
-            <p className="mt-1 text-xs text-muted">Los datos solo se editan desde el directorio</p>
+            <p className="text-sm font-semibold text-primary">Cliente encontrado</p>
+            <p className="mt-1 text-xs text-muted">Para cambiar sus datos ve a Clientes</p>
           </div>
           <button
             className="rounded-xl border border-status-confirmed/40 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-status-confirmed/10"

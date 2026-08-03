@@ -34,7 +34,7 @@ export default function MixedDepositFields({
           <div key={partName}>
             <label className="mb-1 block text-xs font-semibold text-muted"
               htmlFor={`${partName}-payment-method`}>
-              {index === 0 ? 'Primer método' : 'Segundo método'}
+              {index === 0 ? 'Primera forma de pago' : 'Segunda forma de pago'}
             </label>
             <select
               className="w-full rounded-xl border border-surface-hover bg-surface p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
@@ -65,7 +65,7 @@ export default function MixedDepositFields({
         <div>
           <label className="mb-1 block text-xs font-semibold text-muted"
             htmlFor="primary-payment-amount">
-            Importe aplicado al primer método
+            Monto de la primera forma de pago
           </label>
           <input
             className="w-full rounded-xl border border-surface-hover bg-surface p-3 text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
@@ -84,7 +84,7 @@ export default function MixedDepositFields({
         </div>
         <div className="rounded-xl bg-surface p-3">
           <p className="text-xs font-semibold text-muted">
-            Importe aplicado al segundo método
+            Resto con la segunda forma de pago
           </p>
           <p className="mt-2 font-title text-xl font-bold text-primary">
             {formatCurrency(remainingCents)}
@@ -107,12 +107,12 @@ export default function MixedDepositFields({
       {[
         {
           amountCents: primaryAmountCents,
-          label: `Primer método · ${primaryLabel}`,
+          label: `Primera forma de pago · ${primaryLabel}`,
           name: 'primary'
         },
         {
           amountCents: remainingCents,
-          label: `Segundo método · ${secondaryLabel}`,
+          label: `Segunda forma de pago · ${secondaryLabel}`,
           name: 'secondary'
         }
       ].map((part) => (

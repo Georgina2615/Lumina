@@ -59,9 +59,6 @@ export default function AdminAppointmentSummary({
     >
       <header className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-secondary">
-            Operación diaria
-          </p>
           <h2
             className="text-xl text-primary"
             id="admin-appointments-title"
@@ -105,7 +102,7 @@ export default function AdminAppointmentSummary({
         {data?.warningCount > 0 && (
           <p className="mt-3 flex items-center gap-2 text-xs text-error">
             <FiAlertTriangle aria-hidden="true" />
-            {data.warningCount} citas tienen un estado incompatible
+            {data.warningCount} citas tienen información incompleta y no se incluyeron
           </p>
         )}
       </AdminPanelState>

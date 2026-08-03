@@ -19,7 +19,7 @@ const formatDate = (dateKey) => {
   }).format(date);
 };
 
-// Presenta créditos reales de cancelaciones de la clínica
+// Presenta anticipos disponibles de citas canceladas por Lumina
 export default function AppointmentCreditSelector({
   additionalDepositCents,
   creditChoice,
@@ -37,7 +37,7 @@ export default function AppointmentCreditSelector({
     return (
       <div aria-live="polite"
         className="rounded-2xl border border-surface-hover bg-surface p-4 text-sm text-muted">
-        Consultando créditos disponibles
+        Consultando anticipos disponibles
       </div>
     );
   }
@@ -68,11 +68,11 @@ export default function AppointmentCreditSelector({
             Reprogramación disponible
           </span>
           <span className="mt-1 block font-title text-lg font-semibold text-primary">
-            Aplicar un anticipo conservado
+            Usar el anticipo de una cita cancelada
           </span>
         </legend>
         <p className="mt-2 text-sm leading-6 text-muted">
-          Elige un crédito de una cita cancelada por la clínica o continúa con un anticipo nuevo
+          Elige un anticipo disponible o registra uno nuevo
         </p>
 
         <div className="mt-4 grid gap-3">
@@ -84,7 +84,7 @@ export default function AppointmentCreditSelector({
             <input checked={creditChoice === 'none'}
               className="mr-3 accent-primary" name="appointment-credit"
               onChange={() => onChange('none')} type="radio" />
-            <span className="font-semibold text-primary">No usar crédito</span>
+            <span className="font-semibold text-primary">No usar un anticipo anterior</span>
             <span className="mt-1 block pl-7 text-xs text-muted">
               Registrar un anticipo nuevo
             </span>
@@ -128,7 +128,7 @@ export default function AppointmentCreditSelector({
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted">Crédito aplicado</dt>
+            <dt className="text-xs text-muted">Anticipo usado</dt>
             <dd className="mt-1 font-semibold text-status-confirmed">
               {formatCurrency(selectedCredit.creditCents)}
             </dd>
@@ -146,7 +146,7 @@ export default function AppointmentCreditSelector({
         && selectedCredit.creditCents > servicePriceCents && (
         <p className="mt-3 rounded-2xl border border-error/20 bg-error/10 p-3 text-sm text-error"
           role="alert">
-          El crédito supera el precio del servicio seleccionado
+          El anticipo disponible supera el precio del servicio seleccionado
         </p>
       )}
     </section>

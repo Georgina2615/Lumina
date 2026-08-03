@@ -21,7 +21,7 @@ export default function ProductStatusDialog({
     <InventoryDialogShell
       busy={busy}
       description={product.name}
-      eyebrow="Disponibilidad comercial"
+      eyebrow="Producto"
       focusKey={product.id}
       onClose={onClose}
       open
@@ -32,7 +32,7 @@ export default function ProductStatusDialog({
           <p className="text-sm leading-relaxed text-primary">
             {nextActive
               ? 'El producto volverá a estar disponible para nuevas ventas'
-              : 'El producto dejará de aparecer en Punto de Venta pero conservará ventas movimientos y existencias'}
+              : 'El producto dejará de aparecer en Punto de Venta pero conservará sus registros anteriores'}
           </p>
         </div>
         {error && (
@@ -51,7 +51,7 @@ export default function ProductStatusDialog({
           onClick={onClose}
           type="button"
         >
-          Conservar estado
+          Cancelar
         </button>
         <button
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-wait disabled:opacity-60"

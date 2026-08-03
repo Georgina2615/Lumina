@@ -60,7 +60,7 @@ const getReschedulingErrorMessage = (error) => {
   return 'No pudimos reprogramar la cita';
 };
 
-// Convierte una cita cancelada en crédito utilizable
+// Convierte una cita cancelada en un anticipo disponible
 const mapAvailableCredit = (appointmentSnapshot) => {
   const appointment = appointmentSnapshot.data();
   const creditCents = appointment.reprogramacion
@@ -82,7 +82,7 @@ const mapAvailableCredit = (appointmentSnapshot) => {
     return null;
   }
 
-  // Devuelve únicamente datos operativos del crédito
+  // Devuelve únicamente datos del anticipo disponible
   return {
     sourceAppointmentId: appointmentSnapshot.id,
     serviceId: appointment.servicioId,
@@ -93,7 +93,7 @@ const mapAvailableCredit = (appointmentSnapshot) => {
   };
 };
 
-// Consulta créditos reales del cliente en una sola lectura
+// Consulta anticipos disponibles del cliente en una sola lectura
 export const getAvailableReschedulingCredits = async (clientId) => {
   // Detiene identidades documentales inválidas
   if (
@@ -111,7 +111,7 @@ export const getAvailableReschedulingCredits = async (clientId) => {
       where('clienteId', '==', clientId)
     ));
 
-    // Filtra localmente los créditos disponibles
+    // Filtra localmente los anticipos disponibles
     return snapshot.docs
       .map(mapAvailableCredit)
       .filter(Boolean)
@@ -119,9 +119,9 @@ export const getAvailableReschedulingCredits = async (clientId) => {
         second.dateKey.localeCompare(first.dateKey)
       ));
   } catch (error) {
-    console.error('Error al consultar créditos de citas', error);
+    console.error('Error al consultar anticipos de citas', error);
     throw new Error(
-      'No pudimos consultar los créditos disponibles',
+      'No pudimos consultar los anticipos disponibles',
       { cause: error }
     );
   }

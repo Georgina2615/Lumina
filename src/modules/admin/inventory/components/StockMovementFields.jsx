@@ -8,7 +8,7 @@ import {
 const inputClassName = 'mt-1.5 min-h-11 w-full rounded-xl border border-surface-hover bg-background px-3 text-sm text-primary outline-none transition placeholder:text-muted/60 focus:border-secondary focus:ring-2 focus:ring-secondary/15';
 const labelClassName = 'text-xs font-semibold text-muted';
 
-// Presenta los datos de un movimiento de existencias
+// Presenta los datos de un cambio de existencias
 export default function StockMovementFields({ form, onChange, product }) {
   const entry = isStockEntry(form.type);
   const quantity = Number(form.quantity);
@@ -32,7 +32,7 @@ export default function StockMovementFields({ form, onChange, product }) {
         </div>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-            Movimiento
+            Cambio
           </p>
           <p className={`mt-1 font-title text-xl font-bold tabular-nums ${entry ? 'text-status-confirmed' : 'text-error'}`}>
             {validQuantity ? `${entry ? '+' : '−'}${quantity}` : '—'}
@@ -49,7 +49,7 @@ export default function StockMovementFields({ form, onChange, product }) {
       </div>
 
       <label className={`block ${labelClassName}`}>
-        Tipo de movimiento
+        Tipo de cambio
         <select
           className={inputClassName}
           onChange={(event) => onChange('type', event.target.value)}
@@ -99,36 +99,33 @@ export default function StockMovementFields({ form, onChange, product }) {
 
       {entry && (
         <div className="rounded-xl border border-status-confirmed/25 bg-status-confirmed/10 px-4 py-3">
-          <p className="text-xs font-semibold text-primary">
-            Información privada de administración
-          </p>
-          <p className="mt-1 text-xs leading-relaxed text-muted">
+          <p className="text-xs leading-relaxed text-muted">
             {costCents
-              ? `${formatInventoryCurrency(costCents)} por unidad se integrará al costo promedio`
-              : 'El costo se usa para reportes y nunca se muestra en Punto de Venta'}
+              ? `${formatInventoryCurrency(costCents)} por unidad quedará guardado como costo de compra`
+              : 'Este costo no se muestra en Punto de Venta'}
           </p>
         </div>
       )}
 
       <label className={`block ${labelClassName}`}>
-        Motivo del movimiento
+        Motivo del cambio
         <textarea
           className={`${inputClassName} min-h-24 resize-y py-3`}
           maxLength={240}
           onChange={(event) => onChange('reason', event.target.value)}
-          placeholder="Describe por qué se modifica el inventario"
+          placeholder="Explica por qué cambió la cantidad"
           required
           value={form.reason}
         />
       </label>
 
       <label className={`block ${labelClassName}`}>
-        Referencia opcional
+        Factura o nota opcional
         <input
           className={inputClassName}
           maxLength={120}
           onChange={(event) => onChange('reference', event.target.value)}
-          placeholder="Factura proveedor o nota interna"
+          placeholder="Número de factura o una nota"
           value={form.reference}
         />
       </label>

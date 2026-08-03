@@ -23,11 +23,8 @@ export default function AdminLowStockPanel({
     >
       <header className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-secondary">
-            Inventario retail
-          </p>
           <h2 className="text-xl text-primary" id="admin-stock-title">
-            Stock que requiere atención
+            Productos por agotarse
           </h2>
         </div>
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-background text-secondary">
@@ -37,7 +34,7 @@ export default function AdminLowStockPanel({
 
       <AdminPanelState
         empty={isEmpty}
-        emptyMessage="El inventario activo está por encima de su mínimo"
+        emptyMessage="Todos los productos tienen suficientes unidades"
         error={error}
         hasData={hasData}
         loading={loading}
@@ -73,14 +70,14 @@ export default function AdminLowStockPanel({
 
         {products.length > 5 && (
           <p className="mt-3 text-center text-xs text-muted">
-            Hay {products.length - 5} productos adicionales con stock bajo
+            Hay {products.length - 5} productos adicionales por agotarse
           </p>
         )}
 
         {data?.warningCount > 0 && (
           <p className="mt-3 flex items-center gap-2 text-xs text-error">
             <FiAlertTriangle aria-hidden="true" />
-            {data.warningCount} productos tienen datos incompatibles
+            No se pudieron revisar {data.warningCount} productos porque tienen información incompleta
           </p>
         )}
 
@@ -88,7 +85,7 @@ export default function AdminLowStockPanel({
           className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-surface-hover bg-background px-4 text-sm font-semibold text-primary transition hover:border-secondary/40 hover:shadow-sm active:scale-[0.98]"
           to="/dashboard/admin/inventario-retail"
         >
-          Gestionar inventario
+          Ver productos
         </Link>
       </AdminPanelState>
     </section>

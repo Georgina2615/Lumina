@@ -21,7 +21,7 @@ const metricDefinitions = [
   {
     id: 'lowStock',
     icon: FiAlertTriangle,
-    label: 'Stock bajo',
+    label: 'Por agotarse',
     tone: 'bg-status-pending/20 text-secondary'
   },
   {

@@ -102,10 +102,10 @@ export default function CabinInventoryToolbar({
           onChange={(event) => onStockChange(event.target.value)}
           value={stockFilter}
         >
-          <option value="all">Cualquier stock</option>
+          <option value="all">Cualquier cantidad</option>
           <option value="sold_out">Agotados</option>
-          <option value="low">Stock bajo</option>
-          <option value="healthy">Stock saludable</option>
+          <option value="low">Por agotarse</option>
+          <option value="healthy">Cantidad suficiente</option>
         </select>
         {hasFilters && (
           <button

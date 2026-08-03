@@ -12,7 +12,7 @@ export const buildAppointmentSubmission = ({
 }) => {
   // Exige una decisión cuando existe crédito
   if (availableCredits.length > 0 && creditChoice === null) {
-    throw new Error('Elige si deseas aplicar el crédito disponible');
+    throw new Error('Elige si deseas usar el anticipo disponible');
   }
 
   // Obtiene el crédito todavía disponible
@@ -26,12 +26,12 @@ export const buildAppointmentSubmission = ({
     && creditChoice !== 'none'
     && !selectedCredit
   ) {
-    throw new Error('El crédito seleccionado ya no está disponible');
+    throw new Error('El anticipo seleccionado ya no está disponible');
   }
 
-  // Impide aplicar crédito por encima del servicio
+  // Impide usar un anticipo mayor al precio del servicio
   if (selectedCredit && selectedCredit.creditCents > servicePriceCents) {
-    throw new Error('El crédito supera el precio del servicio seleccionado');
+    throw new Error('El anticipo supera el precio del servicio seleccionado');
   }
 
   // Calcula únicamente la diferencia por cobrar

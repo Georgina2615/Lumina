@@ -1,4 +1,3 @@
-import { initialRetailStock } from '../services/RetailInventoryPolicy';
 import RetailProductImageField from './RetailProductImageField';
 
 const inputClassName = 'mt-1.5 min-h-11 w-full rounded-xl border border-surface-hover bg-background px-3 text-sm text-primary outline-none transition placeholder:text-muted/60 focus:border-secondary focus:ring-2 focus:ring-secondary/15';
@@ -65,7 +64,7 @@ export default function RetailProductFormFields({
       </label>
 
       <label className={`block ${labelClassName}`}>
-        Descripción comercial
+        Descripción del producto
         <textarea
           className={`${inputClassName} min-h-24 resize-y py-3`}
           maxLength={500}
@@ -95,7 +94,7 @@ export default function RetailProductFormFields({
         </label>
         {creating ? (
           <label className={labelClassName}>
-            Costo unitario de adquisición
+            Costo de compra por unidad
             <input
               className={inputClassName}
               inputMode="decimal"
@@ -110,15 +109,15 @@ export default function RetailProductFormFields({
           </label>
         ) : (
           <div className="rounded-xl border border-surface-hover bg-surface px-3 py-2.5">
-            <p className="text-xs font-semibold text-muted">Código interno</p>
+            <p className="text-xs font-semibold text-muted">Código del producto</p>
             <p className="mt-1 font-mono text-sm text-primary">{product.sku}</p>
           </div>
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className={`grid gap-4 ${creating ? '' : 'sm:grid-cols-2'}`}>
         <label className={labelClassName}>
-          Alerta de stock mínimo
+          Avisar cuando queden
           <input
             className={inputClassName}
             inputMode="numeric"
@@ -131,16 +130,16 @@ export default function RetailProductFormFields({
             value={form.minimumStock}
           />
         </label>
-        <div className="rounded-xl border border-status-confirmed/25 bg-status-confirmed/10 px-3 py-2.5">
-          <p className="text-xs font-semibold text-muted">
-            {creating ? 'Inventario inicial protegido' : 'Control de existencias'}
-          </p>
-          <p className="mt-1 text-sm font-semibold text-primary">
-            {creating
-              ? `${initialRetailStock} unidades al crear`
-              : 'Se modifica mediante movimientos auditados'}
-          </p>
-        </div>
+        {!creating && (
+          <div className="rounded-xl border border-status-confirmed/25 bg-status-confirmed/10 px-3 py-2.5">
+            <p className="text-xs font-semibold text-muted">
+              Cantidad disponible
+            </p>
+            <p className="mt-1 text-sm font-semibold text-primary">
+              Usa Agregar o Corregir para cambiar la cantidad
+            </p>
+          </div>
+        )}
       </div>
 
       <RetailProductImageField

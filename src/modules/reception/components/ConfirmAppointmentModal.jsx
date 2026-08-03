@@ -56,9 +56,6 @@ export default function ConfirmAppointmentModal({
           <p className="text-sm font-semibold text-primary">
             Cómo confirmó la clienta
           </p>
-          <p className="mt-1 text-sm text-muted">
-            Registra el canal utilizado para conservar un historial claro
-          </p>
         </div>
 
         <fieldset>

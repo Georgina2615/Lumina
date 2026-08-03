@@ -7,7 +7,7 @@ import AppointmentModalShell from './AppointmentModalShell';
 // Obtiene la descripción histórica del anticipo
 const getDepositOutcomeLabel = (outcome, reschedulingState) => {
   if (outcome === 'retenido') {
-    return 'Anticipo retenido por la clínica';
+    return 'Anticipo retenido por Lumina Skin';
   }
 
   if (outcome === 'disponible_reprogramacion') {
@@ -95,7 +95,7 @@ export default function CancelAppointmentModal({
                     : 'border-surface-hover bg-surface text-muted'
                 }`} disabled={isSubmitting}
                 onClick={() => setOrigin(cancellationOrigin.client)}
-                type="button">Clienta</button>
+                type="button">Cliente</button>
               <button aria-pressed={origin === cancellationOrigin.clinic}
                 className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
                   origin === cancellationOrigin.clinic
@@ -103,7 +103,7 @@ export default function CancelAppointmentModal({
                     : 'border-surface-hover bg-surface text-muted'
                 }`} disabled={isSubmitting}
                 onClick={() => setOrigin(cancellationOrigin.clinic)}
-                type="button">Clínica</button>
+                type="button">Lumina Skin</button>
             </div>
           </fieldset>
 
@@ -111,7 +111,7 @@ export default function CancelAppointmentModal({
             <div className="rounded-2xl border border-status-pending/40 bg-status-pending/15 p-4 text-sm text-primary">
               {origin === cancellationOrigin.clinic
                 ? 'El anticipo quedará disponible para reprogramar'
-                : 'El anticipo quedará retenido por la clínica'}
+                : 'El anticipo quedará retenido por Lumina Skin'}
             </div>
           )}
 

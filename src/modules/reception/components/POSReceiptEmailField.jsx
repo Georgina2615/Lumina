@@ -29,7 +29,7 @@ export default function POSReceiptEmailField({
             htmlFor="pos-receipt-email"
             className="flex flex-wrap items-center gap-2 text-sm font-semibold text-primary"
           >
-            Correo para el ticket
+            Correo para el comprobante
             <span className="rounded-full bg-surface-hover px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-secondary">
               Opcional
             </span>

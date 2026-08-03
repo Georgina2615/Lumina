@@ -52,7 +52,7 @@ export default function POSTicketActions({
           ) : (
             <FiCheck aria-hidden="true" />
           )}
-          {isConfirming ? 'Confirmando entrega' : 'Sí aparece en EmailJS'}
+          {isConfirming ? 'Confirmando entrega' : 'Sí aparece en el historial'}
         </button>
       )}
 

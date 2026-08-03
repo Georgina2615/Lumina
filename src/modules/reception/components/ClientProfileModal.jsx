@@ -86,8 +86,7 @@ function ClientProfileDialog({ client, onClose, onUpdateContact }) {
         onKeyDown={handleKeyDown} ref={dialogRef} role="dialog">
         <header className="mb-5 flex items-start justify-between gap-4 border-b border-surface-hover pb-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Directorio</p>
-            <h2 className="mt-1 font-title text-2xl font-bold text-primary" id="client-profile-title">
+            <h2 className="font-title text-2xl font-bold text-primary" id="client-profile-title">
               Perfil del cliente
             </h2>
           </div>
@@ -117,7 +116,7 @@ function ClientProfileDialog({ client, onClose, onUpdateContact }) {
             {client.emailPendienteCorreccion && (
               <p className="mb-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
                 id="client-profile-email-warning" role="alert">
-                El correo heredado está incompleto Corrígelo o bórralo antes de guardar
+                Este correo está incompleto. Corrígelo o bórralo antes de guardar
               </p>
             )}
             <input autoComplete="email"

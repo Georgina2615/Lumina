@@ -46,9 +46,6 @@ export default function AdminRecentSales({
     >
       <header className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-secondary">
-            Actividad comercial
-          </p>
           <h2 className="text-xl text-primary" id="admin-sales-title">
             Ventas recientes
           </h2>
@@ -56,7 +53,7 @@ export default function AdminRecentSales({
         <div className="flex items-center gap-3">
           {hasData && (
             <div className="text-right">
-              <p className="text-xs text-muted">Venta bruta de hoy</p>
+              <p className="text-xs text-muted">Total vendido hoy</p>
               <p className="font-semibold tabular-nums text-primary">
                 {formatCurrency(data.todayGrossCents)}
               </p>
@@ -113,7 +110,7 @@ export default function AdminRecentSales({
         {data?.warningCount > 0 && (
           <p className="mt-3 flex items-center gap-2 text-xs text-error">
             <FiAlertTriangle aria-hidden="true" />
-            Algunos registros de venta tienen datos incompatibles
+            Algunas ventas tienen información incompleta y no se muestran
           </p>
         )}
       </AdminPanelState>

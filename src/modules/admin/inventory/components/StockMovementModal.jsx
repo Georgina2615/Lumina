@@ -3,7 +3,7 @@ import { useStockMovementForm } from '../hooks/UseStockMovementForm';
 import InventoryDialogShell from './InventoryDialogShell';
 import StockMovementFields from './StockMovementFields';
 
-// Coordina entradas y salidas auditables
+// Coordina cambios en la cantidad disponible
 export default function StockMovementModal({
   busy,
   error,
@@ -24,11 +24,11 @@ export default function StockMovementModal({
     <InventoryDialogShell
       busy={busy}
       description={`${product.name} · ${product.sku}`}
-      eyebrow="Movimiento auditable"
+      eyebrow="Cambio de inventario"
       focusKey={`${product.id}-${mode}`}
       onClose={onClose}
       open={Boolean(product)}
-      title={mode === 'replenish' ? 'Registrar entrada' : 'Ajustar existencias'}
+      title={mode === 'replenish' ? 'Agregar unidades' : 'Corregir cantidad'}
     >
       <form
         onSubmit={(event) => {
@@ -70,7 +70,7 @@ export default function StockMovementModal({
             ) : (
               <FiRepeat aria-hidden="true" />
             )}
-            {busy ? 'Registrando' : 'Registrar movimiento'}
+            {busy ? 'Guardando' : 'Guardar cambio'}
           </button>
         </footer>
       </form>
