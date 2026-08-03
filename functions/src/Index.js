@@ -14,6 +14,7 @@ import { finalizeReceptionSaleHandler } from './FinalizeReceptionSale.js';
 import {
   manageReceptionAppointmentHandler
 } from './ManageReceptionAppointment.js';
+import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import {
   reprogramReceptionAppointmentHandler
@@ -129,6 +130,16 @@ export const adjustRetailStock = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => adjustRetailStockHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Administra el inventario interno de cabina
+export const manageCabinSupply = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageCabinSupplyHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

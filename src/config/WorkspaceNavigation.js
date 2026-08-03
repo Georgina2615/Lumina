@@ -4,6 +4,7 @@ import {
   FaCashRegister,
   FaChartPie,
   FaExchangeAlt,
+  FaFlask,
   FaHome,
   FaNotesMedical,
   FaUsers
@@ -25,6 +26,14 @@ const adminWorkspaceItems = [
     label: 'Inventario retail',
     mobileLabel: 'Inventario',
     path: '/dashboard/admin/inventario-retail',
+    roles: ['admin']
+  },
+  {
+    icon: FaFlask,
+    id: 'admin-cabin-inventory',
+    label: 'Insumos de cabina',
+    mobileLabel: 'Cabina',
+    path: '/dashboard/admin/inventario-cabina',
     roles: ['admin']
   },
   {

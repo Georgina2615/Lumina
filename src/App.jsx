@@ -27,6 +27,7 @@ import {
 
 // Expone las capacidades administrativas
 import {
+  AdminCabinInventory,
   AdminDashboard,
   AdminLayout,
   AdminRetailInventory
@@ -106,6 +107,10 @@ export default function App() {
                 <Route
                   path="inventario-retail"
                   element={<AdminRetailInventory />}
+                />
+                <Route
+                  path="inventario-cabina"
+                  element={<AdminCabinInventory />}
                 />
               </Route>
             </Route>

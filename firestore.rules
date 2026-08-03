@@ -391,6 +391,22 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create, update, delete: if false;
     }
+    // Inventario interno de cabina
+    match /insumosCabina/{supplyId} {
+      allow read: if isAdmin()
+        || (isClinical() && resource.data.activo == true);
+      allow create, update, delete: if false;
+    }
+    // Costos privados de insumos de cabina
+    match /costosInsumosCabina/{supplyId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+    // Movimientos protegidos de insumos de cabina
+    match /movimientosInsumosCabina/{movementId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
     // Colecciones heredadas
     match /pacientes/{patientId} {
       allow read, create, update: if isAdmin() || isClinical();
