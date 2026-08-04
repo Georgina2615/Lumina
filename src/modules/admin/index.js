@@ -8,4 +8,7 @@ export { default as AdminPaymentsReport } from './reports/pages/AdminPaymentsRep
 export {
   default as AdminSettingsLayout
 } from './settings/layouts/AdminSettingsLayout';
+export {
+  default as AdminAvailability
+} from './settings/availability/pages/AdminAvailability';
 export { default as AdminServices } from './settings/catalog/pages/AdminServices';

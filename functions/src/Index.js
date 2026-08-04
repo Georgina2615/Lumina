@@ -16,6 +16,9 @@ import {
 } from './ManageReceptionAppointment.js';
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
+import {
+  manageScheduleAvailabilityHandler
+} from './ManageScheduleAvailability.js';
 import { manageServiceCatalogHandler } from './ManageServiceCatalog.js';
 import {
   reprogramReceptionAppointmentHandler
@@ -151,6 +154,16 @@ export const manageServiceCatalog = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => manageServiceCatalogHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Administra los bloqueos reales de la agenda
+export const manageScheduleAvailability = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageScheduleAvailabilityHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

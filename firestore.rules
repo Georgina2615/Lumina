@@ -345,6 +345,11 @@ service cloud.firestore {
       allow read: if canReadOperations();
       allow create, update, delete: if false;
     }
+    // Historial privado de disponibilidad
+    match /cambiosDisponibilidad/{changeId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
     match /citas/{appointmentId} {
       allow read: if canReadOperations();
       allow create: if false;

@@ -6,7 +6,7 @@ export {
   buildAppointmentSlotId,
   getBusinessDateKey,
   validateBookingSchedule
-} from './AppointmentBookingPolicy';
+} from '../../../shared/services/AppointmentSchedulePolicy';
 
 // Comparte las consultas reactivas del calendario
 export {

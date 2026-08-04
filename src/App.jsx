@@ -27,6 +27,7 @@ import {
 
 // Expone las capacidades administrativas
 import {
+  AdminAvailability,
   AdminCabinInventory,
   AdminDashboard,
   AdminLayout,
@@ -121,6 +122,10 @@ export default function App() {
                 <Route path="configuracion" element={<AdminSettingsLayout />}>
                   <Route index element={<Navigate to="servicios" replace />} />
                   <Route path="servicios" element={<AdminServices />} />
+                  <Route
+                    path="disponibilidad"
+                    element={<AdminAvailability />}
+                  />
                   <Route
                     path="*"
                     element={(

@@ -1,7 +1,14 @@
 import { AppointmentError } from './AppointmentError.js';
 
 // Define los horarios operativos disponibles
-const ALLOWED_TIMES = new Set(['10:00', '14:00', '17:00']);
+export const APPOINTMENT_TIMES = Object.freeze([
+  '10:00',
+  '14:00',
+  '17:00'
+]);
+
+// Indexa los horarios operativos
+const ALLOWED_TIMES = new Set(APPOINTMENT_TIMES);
 
 // Define la duración clínica vigente
 export const SERVICE_DURATION_MINUTES = 150;
