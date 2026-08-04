@@ -5,3 +5,7 @@ export {
 export { default as AdminRetailInventory } from './inventory/pages/AdminRetailInventory';
 export { default as AdminLayout } from './layouts/AdminLayout';
 export { default as AdminPaymentsReport } from './reports/pages/AdminPaymentsReport';
+export {
+  default as AdminSettingsLayout
+} from './settings/layouts/AdminSettingsLayout';
+export { default as AdminServices } from './settings/catalog/pages/AdminServices';

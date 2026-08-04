@@ -16,6 +16,7 @@ import {
 } from './ManageReceptionAppointment.js';
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
+import { manageServiceCatalogHandler } from './ManageServiceCatalog.js';
 import {
   reprogramReceptionAppointmentHandler
 } from './ReprogramReceptionAppointment.js';
@@ -140,6 +141,16 @@ export const manageCabinSupply = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => manageCabinSupplyHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Administra el catalogo real de servicios
+export const manageServiceCatalog = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageServiceCatalogHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

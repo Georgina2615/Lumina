@@ -1,4 +1,5 @@
-import { FiRefreshCw } from 'react-icons/fi';
+import { FiRefreshCw, FiSettings } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import AdminAppointmentSummary from '../components/AdminAppointmentSummary';
 import AdminLowStockPanel from '../components/AdminLowStockPanel';
 import AdminMetricGrid from '../components/AdminMetricGrid';
@@ -58,18 +59,27 @@ export default function AdminDashboard() {
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <button
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-surface shadow-sm transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary disabled:cursor-wait disabled:opacity-70"
-            disabled={isLoading || isRefreshing}
-            onClick={refreshDashboard}
-            type="button"
-          >
-            <FiRefreshCw
-              aria-hidden="true"
-              className={isRefreshing ? 'motion-safe:animate-spin' : ''}
-            />
-            {isRefreshing ? 'Actualizando' : 'Actualizar datos'}
-          </button>
+          <div className="flex gap-2">
+            <Link
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-surface-hover bg-surface px-4 text-sm font-semibold text-primary shadow-sm transition hover:bg-surface-hover/50 md:hidden"
+              to="/dashboard/admin/configuracion/servicios"
+            >
+              <FiSettings aria-hidden="true" />
+              Configurar
+            </Link>
+            <button
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-surface shadow-sm transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary disabled:cursor-wait disabled:opacity-70"
+              disabled={isLoading || isRefreshing}
+              onClick={refreshDashboard}
+              type="button"
+            >
+              <FiRefreshCw
+                aria-hidden="true"
+                className={isRefreshing ? 'motion-safe:animate-spin' : ''}
+              />
+              {isRefreshing ? 'Actualizando' : 'Actualizar datos'}
+            </button>
+          </div>
           {loadedAt && (
             <p className="text-xs text-muted" role="status">
               Actualizado a las {updateTimeFormatter.format(loadedAt)}

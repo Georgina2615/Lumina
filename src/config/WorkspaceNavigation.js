@@ -8,6 +8,7 @@ import {
   FaHome,
   FaMoneyBillWave,
   FaNotesMedical,
+  FaCog,
   FaUsers
 } from 'react-icons/fa';
 
@@ -43,6 +44,15 @@ const adminWorkspaceItems = [
     label: 'Insumos de cabina',
     mobileLabel: 'Cabina',
     path: '/dashboard/admin/inventario-cabina',
+    roles: ['admin']
+  },
+  {
+    icon: FaCog,
+    id: 'admin-settings',
+    label: 'Configuración',
+    mobileHidden: true,
+    mobileLabel: 'Ajustes',
+    path: '/dashboard/admin/configuracion/servicios',
     roles: ['admin']
   },
   {

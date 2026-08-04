@@ -50,26 +50,15 @@ service cloud.firestore {
       allow delete: if isAdmin() && userId != request.auth.uid;
     }
     // Catalogo de servicios
-    function hasValidServiceData(data) {
-      return hasExactFields(data, [
-          'nombre', 'precioCentavos', 'duracionServicioMinutos', 'tiempoPreparacionMinutos',
-          'duracionBloqueMinutos', 'porcentajeAnticipo', 'activo', 'orden'
-        ])
-        && data.nombre is string && data.nombre == data.nombre.trim()
-        && data.nombre.size() >= 2 && data.nombre.size() <= 120
-        && data.precioCentavos is int && data.precioCentavos > 0
-        && data.duracionServicioMinutos is int && data.duracionServicioMinutos == 150
-        && data.tiempoPreparacionMinutos is int && data.tiempoPreparacionMinutos == 30
-        && data.duracionBloqueMinutos is int && data.duracionBloqueMinutos == 180
-        && data.porcentajeAnticipo is int && data.porcentajeAnticipo == 30
-        && data.activo is bool
-        && data.orden is int && data.orden >= 0;
-    }
+    // Las funciones seguras administran los cambios
     match /servicios/{serviceId} {
       allow read: if canReadOperations();
-      allow create, update: if isAdmin()
-        && hasValidServiceData(request.resource.data);
-      allow delete: if false;
+      allow create, update, delete: if false;
+    }
+    // Historial privado de cambios en servicios
+    match /cambiosServicios/{changeId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
     }
     // Clientes e identidades normalizadas
     function clientBefore(clientId) { return get(/databases/$(database)/documents/clientes/$(clientId)).data; }

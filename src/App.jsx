@@ -31,7 +31,9 @@ import {
   AdminDashboard,
   AdminLayout,
   AdminPaymentsReport,
-  AdminRetailInventory
+  AdminRetailInventory,
+  AdminServices,
+  AdminSettingsLayout
 } from './modules/admin';
 
 // Dirige cada rol hacia su área principal
@@ -114,6 +116,19 @@ export default function App() {
                   element={<AdminCabinInventory />}
                 />
                 <Route path="cobros" element={<AdminPaymentsReport />} />
+                <Route path="configuracion" element={<AdminSettingsLayout />}>
+                  <Route index element={<Navigate to="servicios" replace />} />
+                  <Route path="servicios" element={<AdminServices />} />
+                  <Route
+                    path="*"
+                    element={(
+                      <Navigate
+                        to="/dashboard/admin/configuracion/servicios"
+                        replace
+                      />
+                    )}
+                  />
+                </Route>
               </Route>
             </Route>
           </Route>
