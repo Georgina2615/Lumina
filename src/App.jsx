@@ -14,7 +14,7 @@ import { ProtectedRoute } from './modules/auth/components';
 import { PublicLayout, DashboardLayout } from './app/layouts';
 
 // Expone las capacidades públicas
-import { LandingPage } from './modules/public/pages';
+import { LandingPage, PresentationPage } from './modules/public/pages';
 
 // Expone las capacidades de recepción
 import {
@@ -69,6 +69,8 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/presentacion" element={<PresentationPage />} />
+
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
           </Route>
