@@ -13,7 +13,6 @@ export default function KanbanAppointmentActions({
   onCancel,
   onNoShow,
   onMoveToCabin,
-  onMoveToCheckout,
   onOpenCheckout
 }) {
   // Presenta acciones de una cita pendiente
@@ -51,8 +50,9 @@ export default function KanbanAppointmentActions({
   // Presenta la acción de una cita en cabina
   if (appointment.estado === appointmentStatus.inCabin) {
     return (
-      <button className={primaryButton} disabled={isProcessing}
-        onClick={onMoveToCheckout} type="button">Ir a cobrar</button>
+      <span className="rounded-xl bg-status-incabin/10 px-4 py-2 text-sm font-semibold text-status-incabin">
+        Atención en curso
+      </span>
     );
   }
 

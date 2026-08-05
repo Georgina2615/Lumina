@@ -27,6 +27,7 @@ export const writeSaleDocuments = ({
   requestHash,
   saleId,
   saleReference,
+  slotReference,
   timestamp,
   totals,
   transaction
@@ -104,5 +105,6 @@ export const writeSaleDocuments = ({
       appointmentReference.collection('eventos').doc('finalizada'),
       buildFinalizedEvent({ actorUid, saleId, timestamp })
     );
+    transaction.delete(slotReference);
   }
 };

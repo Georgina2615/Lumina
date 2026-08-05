@@ -62,6 +62,11 @@ export default function AppointmentCard({
         </div>
         <h3 className="font-title font-semibold text-secondary text-lg">{appointment.nombreCompleto}</h3>
         <p className="text-sm text-muted">Servicio: {appointment.servicio}</p>
+        {appointment.estado === 'por_cobrar' && appointment.atencionClinica?.recomendacionRevision > 0 && (
+          <span className="mt-2 w-fit rounded-full bg-status-confirmed/10 px-3 py-1 text-xs font-semibold text-status-confirmed">
+            Recomendaciones listas
+          </span>
+        )}
         {appointment.contactoConfirmacion?.requiereLlamada && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-status-pending/20 px-3 py-1 text-xs font-semibold text-primary">

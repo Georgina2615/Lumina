@@ -118,6 +118,7 @@ test('el POS aplica ambos anticipos una sola vez', async () => {
   );
   assert.equal(originalPayment.ventaId, identifiers.saleId);
   assert.equal(additionalPayment.ventaId, identifiers.saleId);
+  assert.equal(firestore.get(`cupos/${appointment.cupoId}`), undefined);
   assert.equal(
     firestore.get(appointmentPath).estado,
     'finalizada'

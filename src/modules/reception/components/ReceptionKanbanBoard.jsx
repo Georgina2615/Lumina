@@ -38,7 +38,6 @@ export default function ReceptionKanbanBoard({
   onCancel,
   onConfirm,
   onMoveToCabin,
-  onMoveToCheckout,
   onNoShow,
   onOpenCheckout,
   onOpenClientDirectory
@@ -60,7 +59,6 @@ export default function ReceptionKanbanBoard({
                 onCancel={() => onCancel(appointment.id)}
                 onConfirm={() => onConfirm(appointment.id)}
                 onMoveToCabin={() => onMoveToCabin(appointment.id)}
-                onMoveToCheckout={() => onMoveToCheckout(appointment.id)}
                 onNoShow={() => onNoShow(appointment.id)}
                 onOpenCheckout={() => onOpenCheckout(appointment.id)} />
             </AppointmentCard>

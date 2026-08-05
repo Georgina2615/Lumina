@@ -5,7 +5,6 @@ import { functionsInstance } from '../../../config/firebase';
 export const appointmentAction = Object.freeze({
   confirm: 'confirmar',
   moveToCabin: 'enviar_cabina',
-  moveToCheckout: 'enviar_cobro',
   cancel: 'cancelar',
   markNoShow: 'marcar_no_asistio'
 });

@@ -26,6 +26,9 @@ export const createIntegrationScenario = () => {
   // Identifica la cita
   const appointmentId = `appointment_${suffix}`;
 
+  // Identifica el horario reservado
+  const slotId = `slot_${suffix}`;
+
   // Identifica el producto
   const productId = `product_${suffix}`;
 
@@ -88,7 +91,8 @@ export const createIntegrationScenario = () => {
     transferPayment: firestore.collection('pagos').doc(transferPaymentId),
     product: firestore.collection('productos').doc(productId),
     movement: firestore.collection('movimientosInventario').doc(movementId),
-    sale: firestore.collection('ventas').doc(saleId)
+    sale: firestore.collection('ventas').doc(saleId),
+    slot: firestore.collection('cupos').doc(slotId)
   };
 
   // Identifica el evento final
@@ -107,7 +111,8 @@ export const createIntegrationScenario = () => {
     productId,
     references,
     requestData,
-    saleId
+    saleId,
+    slotId
   };
 };
 
@@ -164,6 +169,7 @@ export const seedIntegrationScenario = async (scenario) => {
     schemaVersion: 3,
     estado: 'por_cobrar',
     clienteId: scenario.clientId,
+    cupoId: scenario.slotId,
     servicioId: 'limpieza-facial-profunda',
     servicio: 'Limpieza facial profunda',
     precioServicioCentavos: 45_000,
@@ -181,6 +187,9 @@ export const seedIntegrationScenario = async (scenario) => {
     }],
     creadaEn: seedTimestamp,
     creadaPor: scenario.actorUid
+  });
+  seed.set(scenario.references.slot, {
+    citaId: scenario.appointmentId
   });
 
   // Persiste el escenario en el emulador

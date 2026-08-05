@@ -11,6 +11,8 @@ export default function POSCatalog({
   cartQuantities,
   hasAppointment,
   interactionLocked,
+  recommendation,
+  recommendationError,
   onAdd,
   onRetry,
   onSearchChange
@@ -51,6 +53,12 @@ export default function POSCatalog({
           ariaLabel="Buscar productos del catálogo"
           placeholder="Buscar por nombre o categoría"
         />
+        {recommendation?.productIds.length > 0 && (
+          <p className="mt-3 rounded-xl bg-status-confirmed/10 px-3 py-2 text-xs font-medium text-status-confirmed">
+            La cosmetóloga recomendó {recommendation.productIds.length} {recommendation.productIds.length === 1 ? 'producto' : 'productos'} para esta clienta
+          </p>
+        )}
+        {recommendationError && <p className="mt-3 rounded-xl bg-status-pending/10 px-3 py-2 text-xs font-medium text-secondary">No pudimos mostrar las recomendaciones de esta cita</p>}
       </div>
 
       <div className="p-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">

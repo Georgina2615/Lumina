@@ -86,6 +86,12 @@ export default function ClinicalAppointmentCard({ appointment, featured = false 
           >
             Recomendaciones de cuidado
           </Link>
+          <Link
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-surface transition hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:col-span-2"
+            to={`/dashboard/clinical/finalizar/${appointment.clientId}/${appointment.id}`}
+          >
+            Terminar atención
+          </Link>
         </div>
       )}
     </article>

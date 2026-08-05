@@ -44,6 +44,7 @@ import {
   CabinConsumption,
   CareRecommendations,
   ClinicalAgenda,
+  ClinicalCompletion,
   ClinicalConsent,
   ClinicalDirectory,
   ClinicalLayout,
@@ -175,6 +176,10 @@ export default function App() {
                 <Route
                   path="recomendaciones/:clientId/:appointmentId"
                   element={<CareRecommendations />}
+                />
+                <Route
+                  path="finalizar/:clientId/:appointmentId"
+                  element={<ClinicalCompletion />}
                 />
                 <Route
                   path="seguimiento/:clientId/:appointmentId"

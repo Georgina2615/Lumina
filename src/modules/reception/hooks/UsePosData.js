@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   subscribePOSAppointment,
+  subscribePOSRecommendation,
   subscribeRetailProducts
 } from '../services/POSDataService';
 
@@ -34,6 +35,11 @@ export const usePOSData = (appointmentId) => {
     data: null,
     error: null
   });
+  const [recommendationState, setRecommendationState] = useState({
+    appointmentId: null,
+    data: null,
+    error: null
+  });
   // Controla reintentos explícitos
   const [reloadVersion, setReloadVersion] = useState(0);
   // Verifica la ruta antes de consultar
@@ -57,6 +63,7 @@ export const usePOSData = (appointmentId) => {
       data: null,
       error: null
     });
+    setRecommendationState({ appointmentId: null, data: null, error: null });
     setReloadVersion((current) => current + 1);
   }, []);
 
@@ -114,6 +121,20 @@ export const usePOSData = (appointmentId) => {
     });
   }, [appointmentId, reloadVersion, validAppointmentId]);
 
+  // Escucha recomendaciones solo dentro de un cobro con cita
+  useEffect(() => {
+    if (!appointmentId || !validAppointmentId) return undefined;
+    return subscribePOSRecommendation({
+      appointmentId,
+      onData: (data) => setRecommendationState({ appointmentId, data, error: null }),
+      onError: (error) => setRecommendationState({
+        appointmentId,
+        data: null,
+        error: getDataErrorMessage(error, 'No se pudieron cargar las recomendaciones')
+      })
+    });
+  }, [appointmentId, reloadVersion, validAppointmentId]);
+
   // Devuelve estados externos normalizados
   return {
     appointment: currentAppointmentState?.data ?? null,
@@ -126,6 +147,12 @@ export const usePOSData = (appointmentId) => {
     products: productState.data,
     productsError: productState.error,
     productsLoading: productState.loading,
+    recommendation: recommendationState.appointmentId === appointmentId
+      ? recommendationState.data
+      : null,
+    recommendationError: recommendationState.appointmentId === appointmentId
+      ? recommendationState.error
+      : null,
     retry
   };
 };

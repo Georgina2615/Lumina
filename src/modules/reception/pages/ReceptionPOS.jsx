@@ -93,6 +93,8 @@ function ReceptionPOSContent({ appointmentId }) {
           cartQuantities={cartQuantities}
           hasAppointment={hasAppointment}
           interactionLocked={pos.hasFrozenSaleRequest}
+          recommendation={pos.recommendation}
+          recommendationError={pos.recommendationError}
           onAdd={pos.addProduct}
           onRetry={pos.retry}
           onSearchChange={pos.setSearchQuery}

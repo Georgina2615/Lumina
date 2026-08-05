@@ -12,6 +12,7 @@ import { writeSaleDocuments } from './SaleTransactionWrites.js';
 import {
   requireAuthorizedActor,
   requireCheckoutAppointment,
+  requireCheckoutSlot,
   requireClient,
   requireDepositPayments
 } from './StoredAppointmentPolicy.js';
@@ -101,6 +102,11 @@ export const runSaleTransaction = async ({
     ? firestore.collection('clientes').doc(clientId)
     : null;
 
+  // Identifica el horario reservado de la cita
+  const slotReference = appointmentData
+    ? firestore.collection('cupos').doc(appointmentData.cupoId)
+    : null;
+
   // Identifica los productos solicitados
   const productReferences = request.productItems.map(
     ({ productId }) => firestore.collection('productos').doc(productId)
@@ -125,6 +131,7 @@ export const runSaleTransaction = async ({
   // Reúne las lecturas restantes
   const remainingReferences = [
     ...(clientReference ? [clientReference] : []),
+    ...(slotReference ? [slotReference] : []),
     ...productReferences,
     ...productCostReferences,
     ...depositPaymentReferences
@@ -143,6 +150,14 @@ export const runSaleTransaction = async ({
   const client = clientReference
     ? requireClient(remainingSnapshots[snapshotIndex++])
     : null;
+
+  // Verifica que el horario todavía pertenezca a la cita
+  if (slotReference) {
+    requireCheckoutSlot({
+      appointmentId: request.appointmentId,
+      snapshot: remainingSnapshots[snapshotIndex++]
+    });
+  }
 
   // Resuelve el correo canónico del comprobante
   const recipientEmail = client ? client.email : request.receiptEmail || '';
@@ -213,6 +228,7 @@ export const runSaleTransaction = async ({
     requestHash,
     saleId,
     saleReference,
+    slotReference,
     timestamp,
     transaction,
     totals

@@ -4,7 +4,6 @@ import { AppointmentError } from './AppointmentError.js';
 const actionStatuses = Object.freeze({
   confirmar: 'confirmada',
   enviar_cabina: 'en_cabina',
-  enviar_cobro: 'por_cobrar',
   cancelar: 'cancelada',
   marcar_no_asistio: 'no_asistio'
 });

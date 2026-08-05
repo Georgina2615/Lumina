@@ -12,8 +12,8 @@ const {
   slotId
 } = managementIds;
 
-// Recorre el flujo operativo sin liberar el cupo
-test('confirma envia a cabina y envia a cobro', async () => {
+// Recorre el flujo de recepción hasta cabina
+test('confirma y envia a cabina sin liberar el cupo', async () => {
   const firestore = buildFirestore();
 
   await manage({
@@ -33,19 +33,8 @@ test('confirma envia a cabina y envia a cobro', async () => {
     now: new Date('2026-08-04T15:30:00.000Z'),
     firestore
   });
-  await manage({
-    action: 'enviar_cobro',
-    now: new Date('2026-08-04T16:00:00.000Z'),
-    firestore
-  });
-
   assert.equal(
     firestore.get(`citas/${appointmentId}`).estado,
-    'por_cobrar'
-  );
-  assert.equal(
-    firestore.get(`citas/${appointmentId}/eventos/por_cobrar`)
-      .estadoAnterior,
     'en_cabina'
   );
   assert.equal(firestore.get(`cupos/${slotId}`).citaId, appointmentId);

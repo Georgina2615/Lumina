@@ -58,7 +58,8 @@ test('finaliza una venta atómica y conserva la idempotencia', {
     productSnapshot,
     movementSnapshot,
     appointmentSnapshot,
-    eventSnapshot
+    eventSnapshot,
+    slotSnapshot
   ] = await scenario.firestore.getAll(
     scenario.references.sale,
     scenario.references.deposit,
@@ -67,7 +68,8 @@ test('finaliza una venta atómica y conserva la idempotencia', {
     scenario.references.product,
     scenario.references.movement,
     scenario.references.appointment,
-    scenario.eventReference
+    scenario.eventReference,
+    scenario.references.slot
   );
 
   assert.equal(saleSnapshot.data().estado, 'pagada');
@@ -107,6 +109,7 @@ test('finaliza una venta atómica y conserva la idempotencia', {
   assert.equal(appointmentSnapshot.data().estado, 'finalizada');
   assert.equal(appointmentSnapshot.data().ventaId, scenario.saleId);
   assert.equal(eventSnapshot.data().estadoNuevo, 'finalizada');
+  assert.equal(slotSnapshot.exists, false);
 
   // Repite exactamente la misma solicitud
   const repeatedResult = await finalizeReceptionSaleHandler({

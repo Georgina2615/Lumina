@@ -75,6 +75,7 @@ const buildCheckoutAppointmentData = (overrides = {}) => ({
   anticipoPorcentaje: 30,
   anticipoMontoCentavos: 13_500,
   clienteId: 'client_1',
+  cupoId: 'slot_1',
   servicioId: 'service_1',
   servicio: 'Limpieza facial profunda',
   anticipoMetodo: 'efectivo',

@@ -83,19 +83,29 @@ export const usePOS = (appointmentId) => {
 
   // Filtra catálogo sin alterar datos
   const filteredProducts = useMemo(() => {
+    // Identifica productos sugeridos por la cosmetóloga
+    const recommendedIds = new Set(data.recommendation?.productIds ?? []);
+    const prioritizedProducts = data.products
+      .map((product) => ({
+        ...product,
+        recommended: recommendedIds.has(product.id)
+      }))
+      .sort((first, second) => (
+        Number(second.recommended) - Number(first.recommended)
+      ));
     // Normaliza el término capturado
     const searchValue = normalizeSearchText(searchQuery);
     // Devuelve todo sin búsqueda
     if (!searchValue) {
       // Conserva el catálogo completo
-      return data.products;
+      return prioritizedProducts;
     }
     // Devuelve coincidencias tolerantes
-    return data.products.filter((product) => (
+    return prioritizedProducts.filter((product) => (
       normalizeSearchText(product.name).includes(searchValue)
       || normalizeSearchText(product.category).includes(searchValue)
     ));
-  }, [data.products, searchQuery]);
+  }, [data.products, data.recommendation, searchQuery]);
 
   // Determina problemas de cita
   const appointmentIssue = appointmentId

@@ -10,7 +10,6 @@ export const CABIN_ADVANCE_MINUTES = 30;
 const allowedPreviousStatuses = Object.freeze({
   confirmar: ['por_confirmar'],
   enviar_cabina: ['confirmada'],
-  enviar_cobro: ['en_cabina'],
   cancelar: ['por_confirmar', 'confirmada'],
   marcar_no_asistio: ['por_confirmar', 'confirmada']
 });
@@ -92,17 +91,6 @@ const requireActionTime = ({ appointment, now, request }) => {
     fail(
       'failed-precondition',
       'La cita podrá pasar a cabina treinta minutos antes'
-    );
-  }
-
-  // Evita cobrar antes del inicio
-  if (
-    request.action === 'enviar_cobro'
-    && currentTime < startTime
-  ) {
-    fail(
-      'failed-precondition',
-      'La cita no puede pasar a cobro antes de iniciar'
     );
   }
 

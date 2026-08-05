@@ -25,7 +25,6 @@ export default function ReceptionDashboard() {
     isProcessingAppointment,
     confirmAppointment,
     moveAppointmentToCabin,
-    moveAppointmentToCheckout,
     cancelReceptionAppointment,
     markAppointmentNoShow,
     clearError
@@ -76,17 +75,6 @@ export default function ReceptionDashboard() {
     navigate(`/dashboard/reception/venta?appointmentId=${encodeURIComponent(appointmentId)}`);
   };
 
-  // Envía la cita al cobro antes de navegar
-  const sendToCheckout = async (appointmentId) => {
-    const moved = await runAction(
-      () => moveAppointmentToCheckout(appointmentId)
-    );
-
-    if (moved) {
-      openCheckout(appointmentId);
-    }
-  };
-
   // Presenta la primera carga del tablero
   if (loading) {
     return (
@@ -125,7 +113,6 @@ export default function ReceptionDashboard() {
         onMoveToCabin={(appointmentId) => runAction(
           () => moveAppointmentToCabin(appointmentId)
         )}
-        onMoveToCheckout={sendToCheckout}
         onNoShow={(appointmentId) => openDialog('noShow', appointmentId)}
         onOpenCheckout={openCheckout}
         onOpenClientDirectory={() => navigate('/dashboard/reception/clientes')} />

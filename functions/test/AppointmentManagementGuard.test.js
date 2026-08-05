@@ -72,30 +72,13 @@ test('permite cabina únicamente desde treinta minutos antes', async () => {
   );
 });
 
-// Evita pasar al cobro antes del inicio
-test('permite cobro únicamente desde el inicio', async () => {
-  const earlyFirestore = buildManagementFirestore('en_cabina');
-
-  await assert.rejects(
-    manageAppointment({
-      action: 'enviar_cobro',
-      now: new Date('2026-08-04T15:59:59.000Z'),
-      firestore: earlyFirestore
-    }),
-    /antes de iniciar/
-  );
-
-  const allowedFirestore = buildManagementFirestore('en_cabina');
-  await manageAppointment({
+// Reserva el cierre para la función clínica
+test('rechaza enviar al cobro desde recepción', () => {
+  const firestore = buildManagementFirestore('en_cabina');
+  assert.throws(() => manageAppointment({
     action: 'enviar_cobro',
-    now: new Date('2026-08-04T16:00:00.000Z'),
-    firestore: allowedFirestore
-  });
-
-  assert.equal(
-    allowedFirestore.get(`citas/${managementIds.appointmentId}`).estado,
-    'por_cobrar'
-  );
+    firestore
+  }), /acción no es válida/);
 });
 
 // Clasifica ausencias después de la tolerancia

@@ -43,6 +43,11 @@ export default function POSProductCard({
         <span className="absolute left-3 top-3 rounded-full bg-background/95 px-2.5 py-1 text-[11px] font-semibold text-secondary shadow-sm">
           {product.category}
         </span>
+        {product.recommended && (
+          <span className="absolute right-3 top-3 rounded-full bg-status-confirmed px-2.5 py-1 text-[11px] font-semibold text-surface shadow-sm">
+            Recomendado
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">

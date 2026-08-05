@@ -76,7 +76,6 @@ export const useReceptionKanban = () => {
     isProcessingAppointment: actions.isProcessingAppointment,
     confirmAppointment: actions.confirmAppointment,
     moveAppointmentToCabin: actions.moveAppointmentToCabin,
-    moveAppointmentToCheckout: actions.moveAppointmentToCheckout,
     cancelReceptionAppointment: actions.cancelReceptionAppointment,
     markAppointmentNoShow: actions.markAppointmentNoShow,
     clearError

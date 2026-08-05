@@ -1,5 +1,5 @@
 import { FiRefreshCw, FiSave } from 'react-icons/fi';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import CareProductPicker from '../components/CareProductPicker';
 import CareRecommendationFields from '../components/CareRecommendationFields';
 import { useCareRecommendation } from '../hooks/UseCareRecommendation';
@@ -28,7 +28,7 @@ export default function CareRecommendations() {
         <CareProductPicker onSearch={care.setSearch} onToggle={care.toggleProduct} products={care.products} search={care.search} selectedIds={care.selectedProductIds} />
         <CareRecommendationFields fields={care.fields} onChange={care.changeField} services={care.data.services} />
       </div>
-      <footer className="flex justify-end"><button className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-sm transition hover:bg-secondary disabled:opacity-50" disabled={care.isSaving} onClick={care.save} type="button"><FiSave aria-hidden="true" /> {care.isSaving ? 'Guardando' : 'Guardar recomendaciones'}</button></footer>
+      <footer className="flex flex-wrap justify-end gap-3">{care.success && <Link className="inline-flex min-h-12 items-center rounded-xl border border-surface-hover bg-surface px-6 text-sm font-semibold text-primary" to={`/dashboard/clinical/finalizar/${clientId}/${appointmentId}`}>Revisar cierre de atención</Link>}<button className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-sm transition hover:bg-secondary disabled:opacity-50" disabled={care.isSaving} onClick={care.save} type="button"><FiSave aria-hidden="true" /> {care.isSaving ? 'Guardando' : 'Guardar recomendaciones'}</button></footer>
     </div>
   );
 }

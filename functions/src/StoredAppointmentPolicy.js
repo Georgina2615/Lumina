@@ -29,10 +29,8 @@ const sumDepositParts = (parts) => parts.reduce((total, part) => {
   if (!isValidDepositPart(part)) {
     return Number.NaN;
   }
-
   // Calcula el siguiente acumulado
   const nextTotal = total + part.montoCentavos;
-
   // Detiene acumulados inseguros
   return Number.isSafeInteger(nextTotal) ? nextTotal : Number.NaN;
 }, 0);
@@ -41,7 +39,6 @@ const sumDepositParts = (parts) => parts.reduce((total, part) => {
 const resolveDepositMethod = (parts) => {
   // Reúne los métodos financieros únicos
   const methods = new Set(parts.map(({ metodo }) => metodo));
-
   // Devuelve el método único o mixto
   return methods.size === 1 ? parts[0].metodo : 'mixto';
 };
@@ -50,10 +47,8 @@ const resolveDepositMethod = (parts) => {
 const normalizeStoredEmail = (value) => {
   // Limpia el correo persistido
   const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
-
   // Separa el dominio del correo
   const separatorIndex = normalized.lastIndexOf('@');
-
   // Omite correos incompletos sin bloquear la venta
   if (
     normalized.length > 254
@@ -75,10 +70,8 @@ export const requireAuthorizedActor = (snapshot) => {
   if (!snapshot.exists) {
     fail('permission-denied', 'No tienes permisos para registrar ventas');
   }
-
   // Obtiene los permisos vigentes
   const data = snapshot.data();
-
   // Detiene usuarios inactivos o ajenos al cobro
   if (
     data.activo !== true
@@ -132,6 +125,7 @@ export const requireCheckoutAppointment = (snapshot) => {
     || data.anticipoMontoCentavos < storedRequiredDepositCents
     || data.anticipoMontoCentavos > data.precioServicioCentavos
     || !isSafeDocumentId(data.clienteId)
+    || !isSafeDocumentId(data.cupoId)
     || !isSafeDocumentId(data.servicioId)
     || typeof data.servicio !== 'string'
     || !data.servicio.trim()
@@ -156,6 +150,14 @@ export const requireCheckoutAppointment = (snapshot) => {
 
   // Devuelve la cita validada
   return data;
+};
+
+// Verifica el horario reservado antes de cobrar
+export const requireCheckoutSlot = ({ appointmentId, snapshot }) => {
+  // Detiene horarios inexistentes o ajenos a la cita
+  if (!snapshot?.exists || snapshot.data().citaId !== appointmentId) {
+    fail('failed-precondition', 'El horario reservado de la cita no coincide');
+  }
 };
 
 // Verifica un cliente vigente

@@ -65,13 +65,6 @@ export const useReceptionAppointmentActions = () => {
     })
   ), [runAppointmentAction]);
 
-  // Envía la cita atendida al cobro
-  const moveAppointmentToCheckout = useCallback((appointmentId) => (
-    runAppointmentAction(appointmentId, {
-      action: appointmentAction.moveToCheckout
-    })
-  ), [runAppointmentAction]);
-
   // Cancela una cita con origen y motivo
   const cancelReceptionAppointment = useCallback((
     appointmentId,
@@ -109,7 +102,6 @@ export const useReceptionAppointmentActions = () => {
     isProcessingAppointment,
     confirmAppointment,
     moveAppointmentToCabin,
-    moveAppointmentToCheckout,
     cancelReceptionAppointment,
     markAppointmentNoShow,
     clearActionError

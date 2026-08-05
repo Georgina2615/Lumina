@@ -214,6 +214,20 @@ const mapAppointment = (snapshot) => {
   };
 };
 
+// Convierte recomendaciones persistidas al contrato de cobro
+const mapCareRecommendation = (snapshot) => {
+  if (!snapshot.exists()) return null;
+  const data = snapshot.data();
+  return {
+    careInstructions: String(data.careInstructions ?? ''),
+    nextVisitDate: String(data.nextVisitDate ?? ''),
+    productIds: Array.isArray(data.products)
+      ? data.products.map(({ id }) => id).filter(Boolean)
+      : [],
+    serviceName: String(data.recommendedService?.name ?? '')
+  };
+};
+
 // Escucha el catálogo comercial activo
 export const subscribeRetailProducts = ({ onData, onError }) => (
   onSnapshot(
@@ -253,3 +267,12 @@ export const subscribePOSAppointment = ({
     onError
   );
 };
+
+// Escucha recomendaciones vinculadas con la cita
+export const subscribePOSRecommendation = ({ appointmentId, onData, onError }) => (
+  onSnapshot(
+    doc(db, 'recomendacionesCuidado', appointmentId),
+    (snapshot) => onData(mapCareRecommendation(snapshot)),
+    onError
+  )
+);
