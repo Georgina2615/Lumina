@@ -2,6 +2,7 @@ import { FiCheckCircle, FiPhone, FiX } from 'react-icons/fi';
 import { useAccessibleDialog } from '../../../../shared/hooks';
 import { createClinicalRecordForm } from '../services/ClinicalRecordPolicy';
 import ClinicalRecordForm from './ClinicalRecordForm';
+import ClinicalSessionHistory from '../../sessions/components/ClinicalSessionHistory';
 
 // Presenta una ficha completa sin permitir cambios fuera de cabina
 export default function ClinicalRecordPreview({ entry, onClose }) {
@@ -57,6 +58,7 @@ export default function ClinicalRecordPreview({ entry, onClose }) {
               readOnly
             />
           )}
+          <ClinicalSessionHistory sessions={entry.sessions} />
         </div>
       </section>
     </div>

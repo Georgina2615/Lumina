@@ -1,5 +1,5 @@
 import { FiRefreshCw } from 'react-icons/fi';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../../auth/context';
 import ClinicalRecordForm from '../components/ClinicalRecordForm';
 import ClinicalRecordHeader from '../components/ClinicalRecordHeader';
@@ -34,6 +34,13 @@ export default function ClinicalRecord() {
 
       {clinicalRecord.success && <div className="rounded-xl border border-status-confirmed/30 bg-status-confirmed/10 px-4 py-3 text-sm font-medium text-status-confirmed" role="status">{clinicalRecord.success}</div>}
       {clinicalRecord.error && <div className="rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm font-medium text-error" role="alert">{clinicalRecord.error}</div>}
+      {clinicalRecord.data.status === 'completed' && (
+        <div className="flex justify-end">
+          <Link className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition hover:bg-secondary" to={`/dashboard/clinical/seguimiento/${clientId}/${appointmentId}`}>
+            Continuar al seguimiento
+          </Link>
+        </div>
+      )}
 
       <ClinicalRecordForm
         busy={clinicalRecord.isSaving}

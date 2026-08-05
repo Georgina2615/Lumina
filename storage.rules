@@ -13,12 +13,45 @@ service firebase.storage {
         ).data.rol == 'admin';
     }
 
+    // Comprueba la identidad clínica vigente
+    function isActiveClinical() {
+      return request.auth != null
+        && firestore.get(
+          /databases/(default)/documents/usuarios/$(request.auth.uid)
+        ).data.activo == true
+        && firestore.get(
+          /databases/(default)/documents/usuarios/$(request.auth.uid)
+        ).data.rol == 'cosmetologa';
+    }
+
+    // Comprueba que la cita corresponde con la ruta privada
+    function isActiveClientAppointment(clientId, appointmentId) {
+      return firestore.get(
+        /databases/(default)/documents/citas/$(appointmentId)
+      ).data.clienteId == clientId
+        && firestore.get(
+          /databases/(default)/documents/citas/$(appointmentId)
+        ).data.estado == 'en_cabina';
+    }
+
     match /productos/{productId}/catalogo.webp {
       allow read: if true;
       allow create, update: if isActiveAdmin()
         && request.resource.size <= 1024 * 1024
         && request.resource.contentType == 'image/webp';
       allow delete: if isActiveAdmin();
+    }
+
+    match /sesiones-clinicas/{clientId}/{appointmentId}/{photoName} {
+      allow read: if isActiveClinical();
+      allow create, update: if isActiveClinical()
+        && isActiveClientAppointment(clientId, appointmentId)
+        && photoName in ['before.webp', 'after.webp']
+        && request.resource.size <= 750 * 1024
+        && request.resource.contentType == 'image/webp';
+      allow delete: if isActiveClinical()
+        && isActiveClientAppointment(clientId, appointmentId)
+        && photoName in ['before.webp', 'after.webp'];
     }
 
     match /{allPaths=**} {

@@ -44,7 +44,8 @@ import {
   ClinicalAgenda,
   ClinicalDirectory,
   ClinicalLayout,
-  ClinicalRecord
+  ClinicalRecord,
+  ClinicalSession
 } from './modules/clinical';
 
 // Dirige cada rol hacia su área principal
@@ -159,6 +160,10 @@ export default function App() {
                 <Route
                   path="expediente/:clientId/:appointmentId"
                   element={<ClinicalRecord />}
+                />
+                <Route
+                  path="seguimiento/:clientId/:appointmentId"
+                  element={<ClinicalSession />}
                 />
               </Route>
             </Route>

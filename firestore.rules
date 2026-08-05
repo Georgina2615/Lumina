@@ -366,6 +366,12 @@ service cloud.firestore {
       allow read: if isClinical();
       allow create, update, delete: if false;
     }
+    // Seguimientos privados por cita
+    // Las funciones seguras administran los cambios
+    match /sesionesClinicas/{appointmentId} {
+      allow read: if isClinical();
+      allow create, update, delete: if false;
+    }
     // Pagos registrados
     match /pagos/{paymentId} {
       allow read: if isReceptionOrAdmin();

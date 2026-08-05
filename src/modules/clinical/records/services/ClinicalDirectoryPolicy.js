@@ -12,7 +12,11 @@ export const getClinicalDateValue = (value) => {
 };
 
 // Une la identidad de la clienta con su ficha válida
-export const mapClinicalDirectoryEntry = (clientSnapshot, recordsByClient) => {
+export const mapClinicalDirectoryEntry = (
+  clientSnapshot,
+  recordsByClient,
+  sessionsByClient = new Map()
+) => {
   const client = clientSnapshot.data();
   const record = recordsByClient.get(clientSnapshot.id);
   const validRecord = record?.clientId === clientSnapshot.id
@@ -33,6 +37,7 @@ export const mapClinicalDirectoryEntry = (clientSnapshot, recordsByClient) => {
     },
     record: validRecord,
     revision: validRecord?.revision ?? 0,
+    sessions: sessionsByClient.get(clientSnapshot.id) ?? [],
     status: validRecord?.status === 'completed'
       ? 'completed'
       : validRecord ? 'draft' : 'missing',

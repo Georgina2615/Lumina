@@ -55,12 +55,20 @@ export default function ClinicalAppointmentCard({ appointment, featured = false 
         </span>
       </div>
       {featured && appointment.clientId && (
-        <Link
-          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-surface transition hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-          to={`/dashboard/clinical/expediente/${appointment.clientId}/${appointment.id}`}
-        >
-          Abrir ficha técnica
-        </Link>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <Link
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-surface-hover bg-background px-4 text-sm font-semibold text-primary transition hover:border-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+            to={`/dashboard/clinical/expediente/${appointment.clientId}/${appointment.id}`}
+          >
+            Ficha técnica
+          </Link>
+          <Link
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-surface transition hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+            to={`/dashboard/clinical/seguimiento/${appointment.clientId}/${appointment.id}`}
+          >
+            Seguimiento
+          </Link>
+        </div>
       )}
     </article>
   );

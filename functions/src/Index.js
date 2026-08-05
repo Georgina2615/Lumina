@@ -17,6 +17,7 @@ import {
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageCashCloseHandler } from './ManageCashClose.js';
 import { manageClinicalRecordHandler } from './ManageClinicalRecord.js';
+import { manageClinicalSessionHandler } from './ManageClinicalSession.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import {
   manageScheduleAvailabilityHandler
@@ -169,6 +170,17 @@ export const manageClinicalRecord = onCall({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()
+}));
+
+// Guarda la hoja de seguimiento de una sesión
+export const manageClinicalSession = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageClinicalSessionHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore(),
+  storage: getStorage()
 }));
 
 // Administra el catalogo real de servicios

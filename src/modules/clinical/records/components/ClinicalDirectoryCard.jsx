@@ -1,4 +1,4 @@
-import { FiFileText, FiMail, FiPhone } from 'react-icons/fi';
+import { FiActivity, FiFileText, FiMail, FiPhone } from 'react-icons/fi';
 import { formatClinicalUpdateDate } from '../services/ClinicalDirectoryPolicy';
 
 const statusStyles = {
@@ -15,7 +15,7 @@ const statusLabels = {
 
 // Presenta una clienta y el estado real de su ficha
 export default function ClinicalDirectoryCard({ entry, onOpen }) {
-  const { client, status, updatedAt } = entry;
+  const { client, sessions, status, updatedAt } = entry;
 
   return (
     <article className="flex h-full flex-col rounded-2xl border border-surface-hover bg-surface p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none sm:p-5">
@@ -34,6 +34,10 @@ export default function ClinicalDirectoryCard({ entry, onOpen }) {
       </div>
 
       <dl className="mt-5 grid gap-3 text-sm">
+        <div className="flex items-center gap-3">
+          <FiActivity aria-hidden="true" className="shrink-0 text-secondary" />
+          <div><dt className="sr-only">Sesiones</dt><dd className="text-muted">{sessions.length} {sessions.length === 1 ? 'sesión registrada' : 'sesiones registradas'}</dd></div>
+        </div>
         <div className="flex items-center gap-3">
           <FiPhone aria-hidden="true" className="shrink-0 text-secondary" />
           <div><dt className="sr-only">Teléfono</dt><dd className="text-muted">{client.phone || 'Sin teléfono'}</dd></div>
