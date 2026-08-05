@@ -94,10 +94,16 @@ export const useAdminCashClose = () => {
   }), [day?.paymentTotals, form]);
 
   const changeDate = (nextDate) => {
+    setSuccess('');
+
+    if (nextDate === dateKey) {
+      loadData(nextDate);
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     setDateKey(nextDate);
-    setSuccess('');
   };
 
   const changeField = (field, value) => {
