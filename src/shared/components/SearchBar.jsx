@@ -14,7 +14,7 @@ export default function SearchBar({
         <FiSearch aria-hidden="true" className="text-muted" />
       </div>
       <input
-        type="text"
+        type="search"
         aria-label={ariaLabel}
         placeholder={placeholder}
         value={value}

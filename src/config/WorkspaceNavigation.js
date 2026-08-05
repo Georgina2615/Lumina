@@ -4,6 +4,7 @@ import {
   FaCashRegister,
   FaChartPie,
   FaExchangeAlt,
+  FaFolderOpen,
   FaFlask,
   FaHome,
   FaMoneyBillWave,
@@ -129,6 +130,14 @@ const clinicalWorkspaceItems = [
     label: 'Mi Agenda',
     mobileLabel: 'Agenda',
     path: '/dashboard/clinical',
+    roles: ['cosmetologa']
+  },
+  {
+    icon: FaFolderOpen,
+    id: 'clinical-records',
+    label: 'Expedientes',
+    mobileLabel: 'Expedientes',
+    path: '/dashboard/clinical/expedientes',
     roles: ['cosmetologa']
   }
 ];

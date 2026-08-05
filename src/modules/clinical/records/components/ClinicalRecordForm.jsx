@@ -9,7 +9,13 @@ import ClinicalSkinStep from './ClinicalSkinStep';
 const lastStep = 3;
 
 // Presenta y coordina las secciones de la ficha
-export default function ClinicalRecordForm({ busy, initialRecord, initialStatus, onSave }) {
+export default function ClinicalRecordForm({
+  busy = false,
+  initialRecord,
+  initialStatus,
+  onSave,
+  readOnly = false
+}) {
   const form = useClinicalRecordForm({ initialRecord, initialStatus, onSave });
   const changeSectionField = (section) => (field, value) => (
     form.changeField(section, field, value)
@@ -23,22 +29,24 @@ export default function ClinicalRecordForm({ busy, initialRecord, initialStatus,
       <ClinicalRecordStepper currentStep={form.step} onChange={form.setStep} />
 
       <form className="rounded-2xl border border-surface-hover bg-surface p-4 shadow-sm sm:p-6" onSubmit={(event) => event.preventDefault()}>
-        {form.step === 0 && <ClinicalPersonalStep onChange={changeSectionField('personalDetails')} values={form.record.personalDetails} />}
-        {form.step === 1 && <ClinicalHistoryStep onChange={changeSectionField('history')} values={form.record.history} />}
-        {form.step === 2 && (
-          <ClinicalPrecautionsStep
-            onChange={changeSectionField('precautions')}
-            onToggle={(value) => form.toggleOption('precautions', 'conditions', value)}
-            values={form.record.precautions}
-          />
-        )}
-        {form.step === 3 && (
-          <ClinicalSkinStep
-            onChange={changeSectionField('skinAnalysis')}
-            onToggle={toggleSectionOption('skinAnalysis')}
-            values={form.record.skinAnalysis}
-          />
-        )}
+        <fieldset disabled={readOnly}>
+          {form.step === 0 && <ClinicalPersonalStep onChange={changeSectionField('personalDetails')} values={form.record.personalDetails} />}
+          {form.step === 1 && <ClinicalHistoryStep onChange={changeSectionField('history')} values={form.record.history} />}
+          {form.step === 2 && (
+            <ClinicalPrecautionsStep
+              onChange={changeSectionField('precautions')}
+              onToggle={(value) => form.toggleOption('precautions', 'conditions', value)}
+              values={form.record.precautions}
+            />
+          )}
+          {form.step === 3 && (
+            <ClinicalSkinStep
+              onChange={changeSectionField('skinAnalysis')}
+              onToggle={toggleSectionOption('skinAnalysis')}
+              values={form.record.skinAnalysis}
+            />
+          )}
+        </fieldset>
 
         {form.validationError && (
           <div className="mt-6 rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm font-medium text-error" role="alert">
@@ -55,16 +63,18 @@ export default function ClinicalRecordForm({ busy, initialRecord, initialStatus,
               Siguiente <FiArrowRight aria-hidden="true" />
             </button>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-surface-hover bg-background px-4 text-sm font-semibold text-primary disabled:opacity-50" disabled={busy} onClick={form.saveDraft} type="button">
-              <FiSave aria-hidden="true" /> {initialStatus === 'completed' ? 'Guardar cambios' : 'Guardar borrador'}
-            </button>
-            {initialStatus !== 'completed' && (
-              <button className="min-h-11 rounded-xl bg-primary px-5 text-sm font-semibold text-surface shadow-sm transition hover:bg-secondary disabled:opacity-50" disabled={busy} onClick={form.completeRecord} type="button">
-                Completar ficha
+          {!readOnly && (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-surface-hover bg-background px-4 text-sm font-semibold text-primary disabled:opacity-50" disabled={busy} onClick={form.saveDraft} type="button">
+                <FiSave aria-hidden="true" /> {initialStatus === 'completed' ? 'Guardar cambios' : 'Guardar borrador'}
               </button>
-            )}
-          </div>
+              {initialStatus !== 'completed' && (
+                <button className="min-h-11 rounded-xl bg-primary px-5 text-sm font-semibold text-surface shadow-sm transition hover:bg-secondary disabled:opacity-50" disabled={busy} onClick={form.completeRecord} type="button">
+                  Completar ficha
+                </button>
+              )}
+            </div>
+          )}
         </footer>
       </form>
     </div>

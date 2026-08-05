@@ -42,6 +42,7 @@ import {
 // Expone las capacidades clínicas
 import {
   ClinicalAgenda,
+  ClinicalDirectory,
   ClinicalLayout,
   ClinicalRecord
 } from './modules/clinical';
@@ -154,6 +155,7 @@ export default function App() {
             <Route element={<ProtectedRoute allowedRoles={['cosmetologa']} />}>
               <Route path="clinical" element={<ClinicalLayout />}>
                 <Route index element={<ClinicalAgenda />} />
+                <Route path="expedientes" element={<ClinicalDirectory />} />
                 <Route
                   path="expediente/:clientId/:appointmentId"
                   element={<ClinicalRecord />}
