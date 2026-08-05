@@ -359,6 +359,13 @@ service cloud.firestore {
         allow create, update, delete: if false;
       }
     }
+
+    // Expedientes privados de la cosmetologa
+    // Las funciones seguras administran los cambios
+    match /expedientesClinicos/{clientId} {
+      allow read: if isClinical();
+      allow create, update, delete: if false;
+    }
     // Pagos registrados
     match /pagos/{paymentId} {
       allow read: if isReceptionOrAdmin();

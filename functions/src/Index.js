@@ -16,6 +16,7 @@ import {
 } from './ManageReceptionAppointment.js';
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageCashCloseHandler } from './ManageCashClose.js';
+import { manageClinicalRecordHandler } from './ManageClinicalRecord.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import {
   manageScheduleAvailabilityHandler
@@ -155,6 +156,16 @@ export const manageCashClose = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => manageCashCloseHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Guarda la ficha técnica facial de forma protegida
+export const manageClinicalRecord = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageClinicalRecordHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

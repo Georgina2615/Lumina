@@ -1,4 +1,5 @@
 import { FiCheck, FiClock, FiUser } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import {
   clinicalAppointmentStatus,
   getClinicalScheduleLabel
@@ -53,6 +54,14 @@ export default function ClinicalAppointmentCard({ appointment, featured = false 
           {presentation.label}
         </span>
       </div>
+      {featured && appointment.clientId && (
+        <Link
+          className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-surface transition hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+          to={`/dashboard/clinical/expediente/${appointment.clientId}/${appointment.id}`}
+        >
+          Abrir ficha técnica
+        </Link>
+      )}
     </article>
   );
 }
