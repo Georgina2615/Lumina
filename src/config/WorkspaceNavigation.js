@@ -130,14 +130,6 @@ const clinicalWorkspaceItems = [
     mobileLabel: 'Agenda',
     path: '/dashboard/clinical',
     roles: ['cosmetologa']
-  },
-  {
-    icon: FaUsers,
-    id: 'clinical-patients',
-    label: 'Pacientes',
-    mobileLabel: 'Pacientes',
-    path: '/dashboard/pacientes-clinicos',
-    roles: ['cosmetologa']
   }
 ];
 

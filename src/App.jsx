@@ -39,6 +39,9 @@ import {
   AdminSettingsLayout
 } from './modules/admin';
 
+// Expone las capacidades clínicas
+import { ClinicalAgenda, ClinicalLayout } from './modules/clinical';
+
 // Dirige cada rol hacia su área principal
 const DashboardIndex = () => {
   const { rol: role } = useAuth();
@@ -141,6 +144,12 @@ export default function App() {
                     )}
                   />
                 </Route>
+              </Route>
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={['cosmetologa']} />}>
+              <Route path="clinical" element={<ClinicalLayout />}>
+                <Route index element={<ClinicalAgenda />} />
               </Route>
             </Route>
           </Route>
