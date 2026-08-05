@@ -1,6 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { FiLogOut, FiMenu, FiUser } from 'react-icons/fi';
+import { FiLogOut, FiMenu } from 'react-icons/fi';
+
+// Obtiene iniciales reconocibles para cuentas sin fotografía
+const getUserInitials = (user) => {
+  const displayName = user?.displayName?.trim();
+  const emailName = user?.email?.split('@')[0]?.trim();
+  const source = displayName || emailName || 'Lumina Skin';
+  const words = source.split(/[\s._-]+/).filter(Boolean);
+  const selectedWords = words.length > 1
+    ? [words[0], words.at(-1)]
+    : [words[0]];
+
+  // Devuelve un máximo de dos iniciales
+  return selectedWords
+    .map((word) => word.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+};
 
 // Presenta la navegación principal en escritorio
 export default function Sidebar({
@@ -129,10 +147,11 @@ export default function Sidebar({
             />
           ) : (
             <span
-              aria-hidden="true"
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-surface-hover bg-background text-muted"
+              aria-label={`Perfil de ${user?.displayName || user?.email || 'usuario'}`}
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-surface-hover bg-primary/10 text-sm font-bold text-primary"
+              role="img"
             >
-              <FiUser size={20} />
+              {getUserInitials(user)}
             </span>
           )}
           {isExpanded && (
