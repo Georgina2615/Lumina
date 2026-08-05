@@ -1,27 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../context';
-import { useNavigate } from "react-router-dom";
 
 export const useLogin = () => {
-  const [errorLocal, setErrorLocal] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { login } = useAuth();
+  const [connectionError, setConnectionError] = useState('');
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isWaitingForSession, setIsWaitingForSession] = useState(false);
+  const {
+    usuario: user,
+    rol: role,
+    cargando: isResolvingSession,
+    login
+  } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!isWaitingForSession || isResolvingSession) return;
+
+    if (user && role) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isResolvingSession, isWaitingForSession, navigate, role, user]);
+
+  const hasAccessError = isWaitingForSession
+    && !isResolvingSession
+    && (!user || !role);
+  const errorLocal = connectionError
+    || (hasAccessError ? 'Esta cuenta no tiene acceso al sistema' : '');
+  const isSubmitting = isConnecting
+    || (isWaitingForSession && isResolvingSession);
+
   const manejarIngresoGoogle = async () => {
-    setErrorLocal(null);
-    setIsSubmitting(true);
+    if (isSubmitting) return;
+    setConnectionError('');
+    setIsWaitingForSession(false);
+    setIsConnecting(true);
 
     try {
       await login();
-      // Redirige automáticamente al área de trabajo
-      navigate("/dashboard");
+      setIsWaitingForSession(true);
     } catch (error) {
-      console.error("Error al ingresar con Google:", error);
-      setErrorLocal("Hubo un problema al conectar con Google. Intenta nuevamente.");
+      console.error('No se pudo iniciar sesion con Google', error);
+      setConnectionError('No pudimos conectar con Google Intenta nuevamente');
     } finally {
-      setIsSubmitting(false);
+      setIsConnecting(false);
     }
   };
 
