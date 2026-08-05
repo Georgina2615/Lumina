@@ -29,9 +29,11 @@ import {
 import {
   AdminAvailability,
   AdminCabinInventory,
+  AdminCashClose,
   AdminDashboard,
   AdminLayout,
   AdminPaymentsReport,
+  AdminReportsLayout,
   AdminRetailInventory,
   AdminServices,
   AdminSettingsLayout
@@ -118,7 +120,10 @@ export default function App() {
                   path="inventario-cabina"
                   element={<AdminCabinInventory />}
                 />
-                <Route path="cobros" element={<AdminPaymentsReport />} />
+                <Route element={<AdminReportsLayout />}>
+                  <Route path="cobros" element={<AdminPaymentsReport />} />
+                  <Route path="corte-diario" element={<AdminCashClose />} />
+                </Route>
                 <Route path="configuracion" element={<AdminSettingsLayout />}>
                   <Route index element={<Navigate to="servicios" replace />} />
                   <Route path="servicios" element={<AdminServices />} />

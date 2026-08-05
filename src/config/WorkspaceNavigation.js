@@ -31,6 +31,15 @@ const adminWorkspaceItems = [
     roles: ['admin']
   },
   {
+    icon: FaCashRegister,
+    id: 'admin-cash-close',
+    label: 'Corte diario',
+    mobileHidden: true,
+    mobileLabel: 'Corte',
+    path: '/dashboard/admin/corte-diario',
+    roles: ['admin']
+  },
+  {
     icon: FaBoxOpen,
     id: 'admin-retail-inventory',
     label: 'Productos para venta',

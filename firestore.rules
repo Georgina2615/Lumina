@@ -365,6 +365,16 @@ service cloud.firestore {
       allow create: if false;
       allow update, delete: if false;
     }
+    // Cortes diarios protegidos
+    match /cortesCaja/{dateKey} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+    // Historial privado de correcciones
+    match /cambiosCortesCaja/{changeId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
     // Catalogo de productos de venta
     match /productos/{productId} {
       allow read: if isReceptionOrAdmin();

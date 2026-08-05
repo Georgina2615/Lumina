@@ -15,6 +15,7 @@ import {
   manageReceptionAppointmentHandler
 } from './ManageReceptionAppointment.js';
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
+import { manageCashCloseHandler } from './ManageCashClose.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import {
   manageScheduleAvailabilityHandler
@@ -144,6 +145,16 @@ export const manageCabinSupply = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => manageCabinSupplyHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Guarda y corrige cortes de dias terminados
+export const manageCashClose = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageCashCloseHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()
