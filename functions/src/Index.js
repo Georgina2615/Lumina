@@ -16,9 +16,7 @@ import {
 } from './ManageReceptionAppointment.js';
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageCashCloseHandler } from './ManageCashClose.js';
-import { manageClinicalRecordHandler } from './ManageClinicalRecord.js';
-import { manageClinicalConsentHandler } from './ManageClinicalConsent.js';
-import { manageClinicalSessionHandler } from './ManageClinicalSession.js';
+import { createClinicalFunctions } from './ClinicalFunctions.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import {
   manageScheduleAvailabilityHandler
@@ -163,37 +161,13 @@ export const manageCashClose = onCall({
   firestore: getFirestore()
 }));
 
-// Guarda la ficha técnica facial de forma protegida
-export const manageClinicalRecord = onCall({
-  ...runtimeOptions,
-  enforceAppCheck
-}, (request) => manageClinicalRecordHandler({
-  auth: request.auth,
-  data: request.data,
-  firestore: getFirestore()
-}));
-
-// Gestiona el consentimiento clínico por cita
-export const manageClinicalConsent = onCall({
-  ...runtimeOptions,
-  enforceAppCheck
-}, (request) => manageClinicalConsentHandler({
-  auth: request.auth,
-  data: request.data,
-  firestore: getFirestore(),
-  storage: getStorage()
-}));
-
-// Guarda la hoja de seguimiento de una sesión
-export const manageClinicalSession = onCall({
-  ...runtimeOptions,
-  enforceAppCheck
-}, (request) => manageClinicalSessionHandler({
-  auth: request.auth,
-  data: request.data,
-  firestore: getFirestore(),
-  storage: getStorage()
-}));
+// Expone las funciones del flujo clínico
+export const {
+  manageClinicalConsent,
+  manageClinicalRecord,
+  manageClinicalSession,
+  recordCabinConsumption
+} = createClinicalFunctions({ enforceAppCheck, runtimeOptions });
 
 // Administra el catalogo real de servicios
 export const manageServiceCatalog = onCall({

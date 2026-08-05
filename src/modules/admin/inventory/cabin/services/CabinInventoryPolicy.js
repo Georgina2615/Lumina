@@ -1,7 +1,7 @@
 import {
   getCabinQuantityInputValue,
   parseCabinQuantity
-} from './CabinQuantityService';
+} from '../../../../../shared/services/CabinQuantityService';
 
 const currencyFormatter = new Intl.NumberFormat('es-MX', {
   currency: 'MXN',

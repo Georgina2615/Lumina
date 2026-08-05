@@ -372,6 +372,11 @@ service cloud.firestore {
       allow read: if isClinical();
       allow create, update, delete: if false;
     }
+    // Consumos de inventario vinculados con una cita
+    match /consumosCabina/{appointmentId} {
+      allow read: if isAdmin() || isClinical();
+      allow create, update, delete: if false;
+    }
     // Plantillas versionadas de consentimiento clínico
     match /plantillasConsentimientoClinico/{templateId} {
       allow read: if isClinical();

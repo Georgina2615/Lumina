@@ -1,6 +1,6 @@
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../../../config/firebase';
-import { getCabinQuantityScale } from './CabinQuantityService';
+import { getCabinQuantityScale } from '../../../../../shared/services/CabinQuantityService';
 
 // Reconoce texto obligatorio del contrato
 const hasValidRequiredText = (value, minimum, maximum) => (

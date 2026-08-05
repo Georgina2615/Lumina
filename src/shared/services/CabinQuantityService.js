@@ -15,13 +15,9 @@ export const getCabinQuantityScale = (unit) => quantityScales[unit] ?? null;
 export const parseCabinQuantity = (value, unit, allowZero = false) => {
   const scale = getCabinQuantityScale(unit);
   const normalizedValue = String(value ?? '').trim().replace(',', '.');
-  const pattern = unit === 'pieza'
-    ? /^\d+$/
-    : /^\d+(?:\.\d{1,3})?$/;
+  const pattern = unit === 'pieza' ? /^\d+$/ : /^\d+(?:\.\d{1,3})?$/;
 
-  if (!scale || !pattern.test(normalizedValue)) {
-    return null;
-  }
+  if (!scale || !pattern.test(normalizedValue)) return null;
 
   const [wholePart, decimalPart = ''] = normalizedValue.split('.');
   const fraction = unit === 'pieza'
@@ -34,9 +30,7 @@ export const parseCabinQuantity = (value, unit, allowZero = false) => {
     || scaledQuantity < 0
     || scaledQuantity > 999999999
     || (!allowZero && scaledQuantity === 0)
-  ) {
-    return null;
-  }
+  ) return null;
 
   return scaledQuantity;
 };
@@ -44,26 +38,18 @@ export const parseCabinQuantity = (value, unit, allowZero = false) => {
 // Formatea una cantidad canónica para lectura humana
 export const formatCabinQuantity = (scaledQuantity, unit) => {
   const scale = getCabinQuantityScale(unit);
-
-  if (!scale || !Number.isSafeInteger(scaledQuantity)) {
-    return 'Sin configurar';
-  }
-
+  if (!scale || !Number.isSafeInteger(scaledQuantity)) return 'Sin configurar';
   const visibleQuantity = scaledQuantity / scale;
   const visibleUnit = unit === 'pieza' && visibleQuantity !== 1
     ? 'piezas'
     : unit;
-
   return `${quantityFormatter.format(visibleQuantity)} ${visibleUnit}`;
 };
 
 // Devuelve una cantidad canónica como valor editable
 export const getCabinQuantityInputValue = (scaledQuantity, unit) => {
   const scale = getCabinQuantityScale(unit);
-
-  if (!scale || !Number.isSafeInteger(scaledQuantity)) {
-    return '';
-  }
-
-  return String(scaledQuantity / scale);
+  return scale && Number.isSafeInteger(scaledQuantity)
+    ? String(scaledQuantity / scale)
+    : '';
 };

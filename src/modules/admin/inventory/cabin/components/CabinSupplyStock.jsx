@@ -1,4 +1,4 @@
-import { formatCabinQuantity } from '../services/CabinQuantityService';
+import { formatCabinQuantity } from '../../../../../shared/services/CabinQuantityService';
 
 // Presenta existencias y nivel de atención
 export default function CabinSupplyStock({ detailed = false, supply }) {

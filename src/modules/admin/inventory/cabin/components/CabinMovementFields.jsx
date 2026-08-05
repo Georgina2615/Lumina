@@ -7,7 +7,7 @@ import {
 import {
   formatCabinQuantity,
   parseCabinQuantity
-} from '../services/CabinQuantityService';
+} from '../../../../../shared/services/CabinQuantityService';
 
 const inputClassName = 'mt-1.5 min-h-11 w-full rounded-xl border border-surface-hover bg-background px-3 text-sm text-primary outline-none transition placeholder:text-muted/60 focus:border-secondary focus:ring-2 focus:ring-secondary/15';
 const labelClassName = 'text-xs font-semibold text-muted';

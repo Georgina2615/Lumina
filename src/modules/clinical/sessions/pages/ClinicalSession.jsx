@@ -38,6 +38,7 @@ export default function ClinicalSession() {
     <div className="mx-auto w-full max-w-7xl space-y-5 pb-6">
       <ClinicalSessionHeader appointment={clinicalSession.data.appointment} client={clinicalSession.data.client} status={clinicalSession.data.status} />
       {clinicalSession.success && <div className="rounded-xl border border-status-confirmed/30 bg-status-confirmed/10 px-4 py-3 text-sm font-medium text-status-confirmed" role="status">{clinicalSession.success}</div>}
+      {clinicalSession.data.status === 'completed' && <div className="flex justify-end"><Link className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition hover:bg-secondary" to={`/dashboard/clinical/insumos/${clientId}/${appointmentId}`}>Registrar insumos utilizados</Link></div>}
       {clinicalSession.error && <div className="rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm font-medium text-error" role="alert">{clinicalSession.error}</div>}
       <ClinicalSessionForm
         busy={clinicalSession.isSaving}
