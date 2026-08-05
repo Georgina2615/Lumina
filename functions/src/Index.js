@@ -163,6 +163,7 @@ export const manageCashClose = onCall({
 
 // Expone las funciones del flujo clínico
 export const {
+  manageCareRecommendation,
   manageClinicalConsent,
   manageClinicalRecord,
   manageClinicalSession,

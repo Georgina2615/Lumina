@@ -42,6 +42,7 @@ import {
 // Expone las capacidades clínicas
 import {
   CabinConsumption,
+  CareRecommendations,
   ClinicalAgenda,
   ClinicalConsent,
   ClinicalDirectory,
@@ -170,6 +171,10 @@ export default function App() {
                 <Route
                   path="insumos/:clientId/:appointmentId"
                   element={<CabinConsumption />}
+                />
+                <Route
+                  path="recomendaciones/:clientId/:appointmentId"
+                  element={<CareRecommendations />}
                 />
                 <Route
                   path="seguimiento/:clientId/:appointmentId"

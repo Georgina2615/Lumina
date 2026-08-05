@@ -80,6 +80,12 @@ export default function ClinicalAppointmentCard({ appointment, featured = false 
           >
             Insumos utilizados
           </Link>
+          <Link
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-surface-hover bg-background px-4 text-sm font-semibold text-primary transition hover:border-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:col-span-2"
+            to={`/dashboard/clinical/recomendaciones/${appointment.clientId}/${appointment.id}`}
+          >
+            Recomendaciones de cuidado
+          </Link>
         </div>
       )}
     </article>
