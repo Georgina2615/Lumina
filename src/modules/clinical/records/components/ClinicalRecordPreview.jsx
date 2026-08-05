@@ -3,6 +3,7 @@ import { useAccessibleDialog } from '../../../../shared/hooks';
 import { createClinicalRecordForm } from '../services/ClinicalRecordPolicy';
 import ClinicalRecordForm from './ClinicalRecordForm';
 import ClinicalSessionHistory from '../../sessions/components/ClinicalSessionHistory';
+import ClinicalConsentHistory from '../../consents/components/ClinicalConsentHistory';
 
 // Presenta una ficha completa sin permitir cambios fuera de cabina
 export default function ClinicalRecordPreview({ entry, onClose }) {
@@ -59,6 +60,7 @@ export default function ClinicalRecordPreview({ entry, onClose }) {
             />
           )}
           <ClinicalSessionHistory sessions={entry.sessions} />
+          <ClinicalConsentHistory consents={entry.consents ?? []} />
         </div>
       </section>
     </div>

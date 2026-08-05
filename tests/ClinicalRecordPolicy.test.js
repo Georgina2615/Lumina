@@ -18,12 +18,13 @@ test('explica el primer requisito pendiente', () => {
 
   assert.equal(
     getClinicalCompletionError(record),
-    'Selecciona el estado general de salud'
+    'Escribe la fecha de nacimiento'
   );
 });
 
 test('acepta una ficha con respuestas indispensables', () => {
   const record = createEmptyClinicalRecord();
+  record.personalDetails.birthDate = '2000-05-20';
   record.history.generalHealth = 'good';
   record.history.pregnancyStatus = 'none';
   record.history.allergies = 'Ninguna';

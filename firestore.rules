@@ -372,6 +372,16 @@ service cloud.firestore {
       allow read: if isClinical();
       allow create, update, delete: if false;
     }
+    // Plantillas versionadas de consentimiento clínico
+    match /plantillasConsentimientoClinico/{templateId} {
+      allow read: if isClinical();
+      allow create, update, delete: if false;
+    }
+    // Consentimientos privados e inmutables por cita
+    match /consentimientosClinicos/{appointmentId} {
+      allow read: if isClinical();
+      allow create, update, delete: if false;
+    }
     // Pagos registrados
     match /pagos/{paymentId} {
       allow read: if isReceptionOrAdmin();

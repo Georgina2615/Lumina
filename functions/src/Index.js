@@ -17,6 +17,7 @@ import {
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageCashCloseHandler } from './ManageCashClose.js';
 import { manageClinicalRecordHandler } from './ManageClinicalRecord.js';
+import { manageClinicalConsentHandler } from './ManageClinicalConsent.js';
 import { manageClinicalSessionHandler } from './ManageClinicalSession.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import {
@@ -170,6 +171,17 @@ export const manageClinicalRecord = onCall({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()
+}));
+
+// Gestiona el consentimiento clínico por cita
+export const manageClinicalConsent = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageClinicalConsentHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore(),
+  storage: getStorage()
 }));
 
 // Guarda la hoja de seguimiento de una sesión

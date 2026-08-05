@@ -9,6 +9,7 @@ import {
   requireClinicalSessionActor,
   requireClinicalSessionAppointment,
   requireClinicalSessionClient,
+  requireConsentForSession,
   requireClinicalSessionStatusTransition,
   requireStoredClinicalSession
 } from './ClinicalSessionStoredPolicy.js';
@@ -26,6 +27,7 @@ export const runManageClinicalSessionTransaction = async ({
   const appointmentReference = firestore.collection('citas').doc(request.appointmentId);
   const clientReference = firestore.collection('clientes').doc(request.clientId);
   const recordReference = firestore.collection('expedientesClinicos').doc(request.clientId);
+  const consentReference = firestore.collection('consentimientosClinicos').doc(request.appointmentId);
   const sessionReference = firestore.collection('sesionesClinicas').doc(request.appointmentId);
 
   return firestore.runTransaction(async (transaction) => {
@@ -34,6 +36,7 @@ export const runManageClinicalSessionTransaction = async ({
       appointmentReference,
       clientReference,
       recordReference,
+      consentReference,
       sessionReference
     );
     const [
@@ -41,6 +44,7 @@ export const runManageClinicalSessionTransaction = async ({
       appointmentSnapshot,
       clientSnapshot,
       recordSnapshot,
+      consentSnapshot,
       sessionSnapshot
     ] = snapshots;
 
@@ -55,6 +59,12 @@ export const runManageClinicalSessionTransaction = async ({
       clientId: request.clientId,
       sessionStatus: request.status,
       snapshot: recordSnapshot
+    });
+    requireConsentForSession({
+      appointmentId: request.appointmentId,
+      clientId: request.clientId,
+      session: request.session,
+      snapshot: consentSnapshot
     });
     const storedSession = requireStoredClinicalSession({
       appointmentId: request.appointmentId,

@@ -14,13 +14,17 @@ export default function ClinicalSession() {
   }
 
   if (!clinicalSession.data) {
+    const needsConsent = clinicalSession.error.includes('consentimiento');
+    const recoveryPath = needsConsent
+      ? `/dashboard/clinical/consentimiento/${clientId}/${appointmentId}`
+      : `/dashboard/clinical/expediente/${clientId}/${appointmentId}`;
     return (
       <div className="mx-auto flex min-h-80 w-full max-w-3xl flex-col items-center justify-center rounded-2xl border border-error/20 bg-error/5 p-6 text-center">
         <h1 className="text-2xl text-primary">No pudimos abrir el seguimiento</h1>
         <p className="mt-2 text-sm text-error">{clinicalSession.error}</p>
         <div className="mt-5 flex flex-wrap justify-center gap-3">
-          <Link className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-surface-hover bg-surface px-4 text-sm font-semibold text-primary" to={`/dashboard/clinical/expediente/${clientId}/${appointmentId}`}>
-            <FiFileText aria-hidden="true" /> Abrir ficha técnica
+          <Link className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-surface-hover bg-surface px-4 text-sm font-semibold text-primary" to={recoveryPath}>
+            <FiFileText aria-hidden="true" /> {needsConsent ? 'Abrir consentimiento' : 'Abrir ficha técnica'}
           </Link>
           <button className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-surface" onClick={clinicalSession.reload} type="button">
             <FiRefreshCw aria-hidden="true" /> Reintentar
@@ -41,6 +45,7 @@ export default function ClinicalSession() {
         initialStatus={clinicalSession.data.status}
         key={clinicalSession.data.revision}
         onSave={clinicalSession.save}
+        photoAllowed={clinicalSession.data.photoAllowed}
         previousTreatment={clinicalSession.data.previousTreatment}
         recordStatus={clinicalSession.data.recordStatus}
       />

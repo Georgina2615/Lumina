@@ -19,12 +19,14 @@ export const loadClinicalSession = async ({ appointmentId, clientId }) => {
     clientSnapshot,
     appointmentSnapshot,
     recordSnapshot,
+    consentSnapshot,
     sessionSnapshot,
     clientSessionsSnapshot
   ] = await Promise.all([
     getDoc(doc(db, 'clientes', clientId)),
     getDoc(doc(db, 'citas', appointmentId)),
     getDoc(doc(db, 'expedientesClinicos', clientId)),
+    getDoc(doc(db, 'consentimientosClinicos', appointmentId)),
     getDoc(doc(db, 'sesionesClinicas', appointmentId)),
     getDocs(query(
       collection(db, 'sesionesClinicas'),
@@ -62,6 +64,19 @@ export const loadClinicalSession = async ({ appointmentId, clientId }) => {
     throw new Error('Crea la ficha técnica antes de abrir el seguimiento');
   }
 
+  const consent = consentSnapshot.exists() ? consentSnapshot.data() : null;
+  if (
+    !consent
+    || consent.clientId !== clientId
+    || consent.appointmentId !== appointmentId
+    || consent.status !== 'signed'
+  ) {
+    throw new Error('Firma el consentimiento antes de abrir el seguimiento');
+  }
+
+  const session = createClinicalSessionForm(storedSession, appointment.servicio);
+  session.photoConsentGranted = consent.clinicalPhotosAllowed === true;
+
   return {
     appointment: {
       date: String(appointment.fecha ?? ''),
@@ -78,7 +93,8 @@ export const loadClinicalSession = async ({ appointmentId, clientId }) => {
       ?? '',
     recordStatus: record.status === 'completed' ? 'completed' : 'draft',
     revision: storedSession?.revision ?? 0,
-    session: createClinicalSessionForm(storedSession, appointment.servicio),
+    photoAllowed: consent.clinicalPhotosAllowed === true,
+    session,
     status: storedSession?.status ?? 'draft'
   };
 };

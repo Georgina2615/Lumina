@@ -64,6 +64,24 @@ export const requireClinicalRecordForSession = ({ clientId, sessionStatus, snaps
   return data;
 };
 
+// Exige el consentimiento firmado y aplica su decisión de fotografías
+export const requireConsentForSession = ({ appointmentId, clientId, session, snapshot }) => {
+  const data = snapshot.exists ? snapshot.data() : null;
+  if (
+    !data
+    || data.appointmentId !== appointmentId
+    || data.clientId !== clientId
+    || data.status !== 'signed'
+    || data.schemaVersion !== 1
+  ) {
+    failClinicalSession('failed-precondition', 'Firma el consentimiento antes del seguimiento');
+  }
+  if (session.photoConsentGranted !== (data.clinicalPhotosAllowed === true)) {
+    failClinicalSession('failed-precondition', 'La autorización de fotografías cambió y debe volver a cargarse');
+  }
+  return data;
+};
+
 // Valida el seguimiento almacenado y su revisión
 export const requireStoredClinicalSession = ({
   appointmentId,

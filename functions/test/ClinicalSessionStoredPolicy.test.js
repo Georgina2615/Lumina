@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   findPreviousClinicalSession,
+  requireConsentForSession,
   requireClinicalRecordForSession,
   requireClinicalSessionAppointment,
   requireStoredClinicalSession
@@ -42,6 +43,29 @@ test('requires a completed technical record for completion', () => {
       status: 'draft'
     })
   }), /Completa la ficha técnica/);
+});
+
+// Exige consentimiento y respeta su decisión de fotografías
+test('requires a signed consent with matching photo choice', () => {
+  const signedConsent = snapshot('appointment-1', {
+    appointmentId: 'appointment-1',
+    clientId: 'client-1',
+    clinicalPhotosAllowed: false,
+    schemaVersion: 1,
+    status: 'signed'
+  });
+  assert.doesNotThrow(() => requireConsentForSession({
+    appointmentId: 'appointment-1',
+    clientId: 'client-1',
+    session: { photoConsentGranted: false },
+    snapshot: signedConsent
+  }));
+  assert.throws(() => requireConsentForSession({
+    appointmentId: 'appointment-1',
+    clientId: 'client-1',
+    session: { photoConsentGranted: true },
+    snapshot: signedConsent
+  }), /autorización de fotografías cambió/);
 });
 
 // Detecta revisiones desactualizadas

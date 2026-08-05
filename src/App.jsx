@@ -42,6 +42,7 @@ import {
 // Expone las capacidades clínicas
 import {
   ClinicalAgenda,
+  ClinicalConsent,
   ClinicalDirectory,
   ClinicalLayout,
   ClinicalRecord,
@@ -160,6 +161,10 @@ export default function App() {
                 <Route
                   path="expediente/:clientId/:appointmentId"
                   element={<ClinicalRecord />}
+                />
+                <Route
+                  path="consentimiento/:clientId/:appointmentId"
+                  element={<ClinicalConsent />}
                 />
                 <Route
                   path="seguimiento/:clientId/:appointmentId"

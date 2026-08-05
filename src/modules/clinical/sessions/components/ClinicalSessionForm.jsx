@@ -9,6 +9,7 @@ export default function ClinicalSessionForm({
   initialSession,
   initialStatus,
   onSave,
+  photoAllowed,
   previousTreatment,
   recordStatus
 }) {
@@ -63,19 +64,14 @@ export default function ClinicalSessionForm({
           <h2 className="text-xl text-primary">Fotografías de seguimiento</h2>
           <p className="mt-1 text-sm text-muted">Las imágenes son privadas y solo puede consultarlas la cosmetóloga</p>
         </div>
-        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-surface-hover bg-background p-4 text-sm text-primary">
-          <input
-            checked={form.session.photoConsentGranted}
-            className="mt-0.5 size-4 accent-primary"
-            onChange={(event) => form.changeField('photoConsentGranted', event.target.checked)}
-            type="checkbox"
-          />
-          <span><strong className="block">Autorización para fotografías</strong><span className="mt-1 block text-xs text-muted">La clienta autorizó guardar imágenes para comparar su evolución</span></span>
-        </label>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <ClinicalSessionPhotoField existingPath={form.session.photos.beforePath} kind="before" label="Fotografía anterior" onSelect={form.selectPhoto} preview={form.previews.before} />
-          <ClinicalSessionPhotoField existingPath={form.session.photos.afterPath} kind="after" label="Fotografía posterior" onSelect={form.selectPhoto} preview={form.previews.after} />
-        </div>
+        {photoAllowed ? (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <ClinicalSessionPhotoField existingPath={form.session.photos.beforePath} kind="before" label="Fotografía anterior" onSelect={form.selectPhoto} preview={form.previews.before} />
+            <ClinicalSessionPhotoField existingPath={form.session.photos.afterPath} kind="after" label="Fotografía posterior" onSelect={form.selectPhoto} preview={form.previews.after} />
+          </div>
+        ) : (
+          <div className="mt-4 rounded-xl border border-surface-hover bg-background px-4 py-3 text-sm text-muted">La clienta no autorizó fotografías clínicas</div>
+        )}
       </section>
 
       {recordStatus !== 'completed' && (

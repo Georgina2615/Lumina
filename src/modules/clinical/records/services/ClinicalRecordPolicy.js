@@ -82,6 +82,7 @@ export const createClinicalRecordForm = (storedRecord) => {
 
 // Devuelve el primer requisito pendiente para completar
 export const getClinicalCompletionError = (record) => {
+  if (!record.personalDetails.birthDate) return 'Escribe la fecha de nacimiento';
   if (!record.history.generalHealth) return 'Selecciona el estado general de salud';
   if (!record.history.pregnancyStatus) return 'Indica si existe embarazo o lactancia';
   if (!record.history.allergies.trim()) return 'Escribe las alergias o indica Ninguna';

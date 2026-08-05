@@ -225,7 +225,8 @@ export const normalizeSkinAnalysis = (source) => {
 // Comprueba los campos mínimos de una ficha completa
 export const requireCompletedRecord = (record) => {
   if (
-    !record.history.generalHealth
+    !record.personalDetails.birthDate
+    || !record.history.generalHealth
     || !record.history.pregnancyStatus
     || !record.history.allergies
     || !record.history.medications

@@ -34,6 +34,19 @@ service firebase.storage {
         ).data.estado == 'en_cabina';
     }
 
+    // Comprueba la autorización clínica de fotografías
+    function allowsClinicalPhotos(clientId, appointmentId) {
+      return firestore.get(
+        /databases/(default)/documents/consentimientosClinicos/$(appointmentId)
+      ).data.clientId == clientId
+        && firestore.get(
+          /databases/(default)/documents/consentimientosClinicos/$(appointmentId)
+        ).data.status == 'signed'
+        && firestore.get(
+          /databases/(default)/documents/consentimientosClinicos/$(appointmentId)
+        ).data.clinicalPhotosAllowed == true;
+    }
+
     match /productos/{productId}/catalogo.webp {
       allow read: if true;
       allow create, update: if isActiveAdmin()
@@ -46,12 +59,22 @@ service firebase.storage {
       allow read: if isActiveClinical();
       allow create, update: if isActiveClinical()
         && isActiveClientAppointment(clientId, appointmentId)
+        && allowsClinicalPhotos(clientId, appointmentId)
         && photoName in ['before.webp', 'after.webp']
         && request.resource.size <= 750 * 1024
         && request.resource.contentType == 'image/webp';
       allow delete: if isActiveClinical()
         && isActiveClientAppointment(clientId, appointmentId)
         && photoName in ['before.webp', 'after.webp'];
+    }
+
+    match /consentimientos-clinicos/{clientId}/{appointmentId}/firma.webp {
+      allow read: if isActiveClinical();
+      allow create, update: if isActiveClinical()
+        && isActiveClientAppointment(clientId, appointmentId)
+        && request.resource.size <= 250 * 1024
+        && request.resource.contentType == 'image/webp';
+      allow delete: if false;
     }
 
     match /{allPaths=**} {
