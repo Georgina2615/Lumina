@@ -6,7 +6,8 @@ import { Link } from 'react-router-dom';
 const publicNavigation = [
   { href: '/#servicios', label: 'Servicios' },
   { href: '/#contacto', label: 'Contacto' },
-  { href: '/agendar', label: 'Agendar' }
+  { href: '/agendar', label: 'Agendar' },
+  { href: '/mi-cuenta', label: 'Mi cuenta' }
 ];
 
 // Presenta la navegacion publica disponible

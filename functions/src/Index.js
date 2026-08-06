@@ -169,6 +169,7 @@ export const {
 
 // Expone las funciones del sitio publico
 export const {
+  getClientAccount,
   getPublicAvailability,
   submitPublicAppointmentRequest
 } = createPublicFunctions({
