@@ -2,43 +2,35 @@ import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { logger } from 'firebase-functions';
-import { defineJsonSecret } from 'firebase-functions/params';
+import { defineJsonSecret, defineSecret } from 'firebase-functions/params';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { onCall } from 'firebase-functions/v2/https';
 import { adjustRetailStockHandler } from './AdjustRetailStock.js';
-import {
-  createReceptionAppointmentHandler
-} from './CreateReceptionAppointment.js';
+import { createReceptionAppointmentHandler } from './CreateReceptionAppointment.js';
 import { sendEmailJsTemplate } from './EmailJsTransport.js';
 import { finalizeReceptionSaleHandler } from './FinalizeReceptionSale.js';
-import {
-  manageReceptionAppointmentHandler
-} from './ManageReceptionAppointment.js';
+import { manageReceptionAppointmentHandler } from './ManageReceptionAppointment.js';
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageCashCloseHandler } from './ManageCashClose.js';
 import { createClinicalFunctions } from './ClinicalFunctions.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
-import {
-  manageScheduleAvailabilityHandler
-} from './ManageScheduleAvailability.js';
+import { manageScheduleAvailabilityHandler } from './ManageScheduleAvailability.js';
 import { manageServiceCatalogHandler } from './ManageServiceCatalog.js';
 import { createPublicFunctions } from './PublicFunctions.js';
-import {
-  reviewPublicAppointmentRequestHandler
-} from './ReviewPublicAppointmentRequest.js';
-import {
-  reprogramReceptionAppointmentHandler
-} from './ReprogramReceptionAppointment.js';
-import {
-  resolveUnconfirmedSaleTicketHandler
-} from './ResolveUnconfirmedSaleTicket.js';
+import { reviewPublicAppointmentRequestHandler } from './ReviewPublicAppointmentRequest.js';
+import { reprogramReceptionAppointmentHandler } from './ReprogramReceptionAppointment.js';
+import { resolveUnconfirmedSaleTicketHandler } from './ResolveUnconfirmedSaleTicket.js';
 import { retrySaleTicketHandler } from './RetrySaleTicket.js';
 import { sendSaleTicketHandler } from './SendSaleTicket.js';
+import { createAppointmentEmailFunction } from './AppointmentEmailFunction.js';
 
 initializeApp();
 
 // Declara la configuración protegida de EmailJS
 const emailJsConfig = defineJsonSecret('EMAILJS_CONFIG');
+
+// Declara la plantilla protegida de citas
+const appointmentTemplateId = defineSecret('EMAILJS_APPOINTMENT_TEMPLATE_ID');
 
 // Obtiene la configuración del proceso
 const environment = globalThis.process?.env ?? {};
@@ -195,6 +187,16 @@ export const reviewPublicAppointmentRequest = onCall({
   data: request.data,
   firestore: getFirestore()
 }));
+
+// Expone el correo automático de citas
+export const sendAppointmentRegistrationEmail = createAppointmentEmailFunction({
+  appointmentTemplateId,
+  emailJsConfig,
+  enableEmulatorEmail,
+  firestore: getFirestore,
+  isEmulator,
+  runtimeOptions
+});
 
 // Administra el catalogo real de servicios
 export const manageServiceCatalog = onCall({

@@ -67,6 +67,13 @@ export default function AppointmentCard({
             Recomendaciones listas
           </span>
         )}
+        {['fallido', 'no_confirmado'].includes(
+          appointment.notificacionRegistro?.estado
+        ) && (
+          <span className="mt-2 w-fit rounded-full bg-error/10 px-3 py-1 text-xs font-semibold text-error">
+            Correo no enviado
+          </span>
+        )}
         {appointment.contactoConfirmacion?.requiereLlamada && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-status-pending/20 px-3 py-1 text-xs font-semibold text-primary">

@@ -126,7 +126,7 @@ export const createEmailJsTransport = ({
     if (!isRecord(templateParameters)) {
       throw new EmailJsTransportError(
         'configuration',
-        'Las variables del ticket no son válidas'
+        'Las variables del correo no son válidas'
       );
     }
 
