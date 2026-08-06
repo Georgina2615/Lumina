@@ -52,7 +52,7 @@ service cloud.firestore {
     // Catalogo de servicios
     // Las funciones seguras administran los cambios
     match /servicios/{serviceId} {
-      allow read: if canReadOperations();
+      allow read: if canReadOperations() || resource.data.activo == true;
       allow create, update, delete: if false;
     }
     // Historial privado de cambios en servicios

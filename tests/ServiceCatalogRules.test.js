@@ -11,8 +11,10 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
   setDoc,
-  updateDoc
+  updateDoc,
+  where
 } from 'firebase/firestore';
 
 const adminUserId = 'admin_reglas_servicios';
@@ -66,6 +68,11 @@ beforeEach(async () => {
         nombre: 'Limpieza facial profunda',
         precioCentavos: 45_000
       }),
+      setDoc(doc(database, 'servicios', 'oculto'), {
+        activo: false,
+        nombre: 'Servicio en preparación',
+        precioCentavos: 35_000
+      }),
       setDoc(doc(database, 'cambiosServicios', 'cambio_1'), {
         accion: 'update',
         actorUid: adminUserId,
@@ -80,7 +87,7 @@ after(async () => {
   await testEnvironment.cleanup();
 });
 
-// Permite consultar el catalogo al personal activo
+// Permite consultar el catalogo completo al personal activo
 test('permite leer servicios a los tres roles', async () => {
   const userIds = [adminUserId, receptionUserId, clinicalUserId];
 
@@ -90,21 +97,20 @@ test('permite leer servicios a los tres roles', async () => {
     await assertSucceeds(getDocs(collection(database, 'servicios')));
   }
 
-  const inactiveDatabase = testEnvironment
-    .authenticatedContext(inactiveUserId)
-    .firestore();
-  const anonymousDatabase = testEnvironment.unauthenticatedContext().firestore();
+});
 
-  await assertFails(getDoc(doc(
-    inactiveDatabase,
-    'servicios',
-    'limpieza'
-  )));
-  await assertFails(getDoc(doc(
-    anonymousDatabase,
-    'servicios',
-    'limpieza'
-  )));
+// Limita la lectura publica a servicios activos
+test('permite al publico consultar solo servicios activos', async () => {
+  const database = testEnvironment.unauthenticatedContext().firestore();
+  const activeServices = query(
+    collection(database, 'servicios'),
+    where('activo', '==', true)
+  );
+
+  await assertSucceeds(getDocs(activeServices));
+  await assertSucceeds(getDoc(doc(database, 'servicios', 'limpieza')));
+  await assertFails(getDoc(doc(database, 'servicios', 'oculto')));
+  await assertFails(getDocs(collection(database, 'servicios')));
 });
 
 // Bloquea cambios directos aunque la sesion sea administrativa
