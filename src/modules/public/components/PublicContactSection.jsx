@@ -32,7 +32,7 @@ export default function PublicContactSection() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-status-pending">Estamos para orientarte</p>
             <h2 className="mt-4 text-4xl leading-tight sm:text-5xl">Da el primer paso hacia el cuidado de tu piel</h2>
-            <p className="mt-4 max-w-lg text-sm leading-6 text-surface/70">Escríbenos para resolver tus dudas y conocer el tratamiento más adecuado para tu próxima visita</p>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-surface/70">Escríbenos para resolver tus dudas y conocer el tratamiento más adecuado para tu próxima visita.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {contactOptions.map(({ href, icon: Icon, label, value }) => (

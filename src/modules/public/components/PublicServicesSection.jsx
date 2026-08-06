@@ -25,7 +25,7 @@ function PublicServiceCard({ service, index }) {
         </div>
         <h3 className="mt-6 text-2xl leading-tight text-primary">{service.name}</h3>
         <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted">
-          {service.description || 'Atención estética adaptada a las necesidades de tu piel'}
+          {service.description || 'Atención estética adaptada a las necesidades de tu piel.'}
         </p>
       </div>
       <div className="mt-8 flex items-end justify-between gap-4 border-t border-surface-hover pt-5">
@@ -48,7 +48,7 @@ export default function PublicServicesSection({ error, loading, onRetry, service
         <div className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-secondary">Nuestros tratamientos</p>
           <h2 className="mt-4 text-4xl leading-tight text-primary sm:text-5xl">Un cuidado pensado para cada piel</h2>
-          <p className="mt-4 text-base leading-7 text-muted">Consulta precios actuales y elige el tratamiento que deseas conocer</p>
+          <p className="mt-4 text-base leading-7 text-muted">Consulta precios actuales y elige el tratamiento que deseas conocer.</p>
         </div>
 
         {loading && (
@@ -68,7 +68,7 @@ export default function PublicServicesSection({ error, loading, onRetry, service
         )}
 
         {!loading && !error && services.length === 0 && (
-          <p className="mt-10 rounded-3xl border border-surface-hover bg-background px-6 py-10 text-center text-muted">Próximamente publicaremos nuestros tratamientos disponibles</p>
+          <p className="mt-10 rounded-3xl border border-surface-hover bg-background px-6 py-10 text-center text-muted">Próximamente publicaremos nuestros tratamientos disponibles.</p>
         )}
 
         {!loading && !error && services.length > 0 && (

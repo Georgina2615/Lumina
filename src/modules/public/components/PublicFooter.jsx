@@ -21,8 +21,8 @@ export default function PublicFooter() {
           <Link aria-label="Ir al inicio" className="inline-block rounded-2xl bg-background px-4 py-3" to="/">
             <img alt="Lumina Skin" className="w-48" src="/LuminaLogo.svg" />
           </Link>
-          <p className="mt-5 max-w-md text-sm leading-6 text-surface/70">Cuidado estético facial con atención cercana y tratamientos personalizados</p>
-          <p className="mt-5 text-xs text-status-pending">Proyecto académico desarrollado por Joely Balam Reyes</p>
+          <p className="mt-5 max-w-md text-sm leading-6 text-surface/70">Cuidado estético facial con atención cercana y tratamientos personalizados.</p>
+          <p className="mt-5 text-xs text-status-pending">Proyecto académico desarrollado por Joely Balam Reyes.</p>
         </div>
 
         <div>

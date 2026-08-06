@@ -15,7 +15,7 @@ export default function PublicHero() {
             Tu piel merece atención con intención
           </h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-muted sm:text-lg">
-            Tratamientos estéticos pensados para acompañar las necesidades de tu piel en un espacio sereno y profesional
+            Tratamientos estéticos pensados para acompañar las necesidades de tu piel, en un espacio sereno y profesional.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-surface shadow-lg shadow-primary/15 transition duration-300 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none" href="#servicios">

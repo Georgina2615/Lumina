@@ -41,7 +41,7 @@ export default function PresentationPage() {
 
             <div className="relative mt-10">
               <p className="max-w-sm text-sm leading-6 text-surface/75">
-                Un sistema integral que conecta la atención de cada clienta con la operación diaria de Lumina Skin
+                Un sistema integral que conecta la atención de cada clienta con la operación diaria de Lumina Skin.
               </p>
               <ul className="mt-6 space-y-3">
                 {presentationHighlights.map((highlight) => (
@@ -64,7 +64,7 @@ export default function PresentationPage() {
               Descubre el proyecto a tu manera
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-6 text-muted sm:text-base">
-              Explora directamente el sistema o acompáñanos en un recorrido breve por sus funciones principales
+              Explora directamente el sistema o acompáñanos en un recorrido breve por sus funciones principales.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
