@@ -1,25 +1,11 @@
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useLocation
-} from 'react-router-dom';
-
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 // Conecta autenticación y autorización
 import { AuthProvider, useAuth } from './modules/auth/context';
 import { ProtectedRoute } from './modules/auth/components';
-
 // Compone las estructuras globales
 import { PublicLayout, DashboardLayout } from './app/layouts';
-
 // Expone las capacidades públicas
-import {
-  LandingPage,
-  PresentationPage,
-  PrivacyNoticePage
-} from './modules/public/pages';
-
+import { LandingPage, PresentationPage, PrivacyNoticePage, TermsConditionsPage } from './modules/public/pages';
 // Expone las capacidades de recepción
 import {
   ReceptionCalendar,
@@ -28,7 +14,6 @@ import {
   ReceptionLayout,
   ReceptionPOS
 } from './modules/reception';
-
 // Expone las capacidades administrativas
 import {
   AdminAvailability,
@@ -42,7 +27,6 @@ import {
   AdminServices,
   AdminSettingsLayout
 } from './modules/admin';
-
 // Expone las capacidades clínicas
 import {
   CabinConsumption,
@@ -94,6 +78,7 @@ export default function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/aviso-privacidad" element={<PrivacyNoticePage />} />
+            <Route path="/terminos-condiciones" element={<TermsConditionsPage />} />
           </Route>
 
           <Route
