@@ -10,13 +10,29 @@ const snapshot = (id, data, exists = true) => ({ data: () => data, exists, id })
 test('exige mayoría de edad en una ficha completa', () => {
   assert.throws(() => requireAdultCompletedRecord({
     appointmentDate: '2026-08-05',
+    appointmentId: 'appointment-1',
     clientId: 'client-1',
     snapshot: snapshot('client-1', {
       clientId: 'client-1',
+      lastAppointmentId: 'appointment-1',
       personalDetails: { birthDate: '2010-01-01' },
       status: 'completed'
     })
   }), /mayores de edad/);
+});
+
+test('exige confirmar la ficha para la cita actual', () => {
+  assert.throws(() => requireAdultCompletedRecord({
+    appointmentDate: '2026-08-05',
+    appointmentId: 'appointment-2',
+    clientId: 'client-1',
+    snapshot: snapshot('client-1', {
+      clientId: 'client-1',
+      lastAppointmentId: 'appointment-1',
+      personalDetails: { birthDate: '1990-01-01' },
+      status: 'completed'
+    })
+  }), /Confirma la ficha/);
 });
 
 test('acepta el consentimiento firmado de la misma cita', () => {

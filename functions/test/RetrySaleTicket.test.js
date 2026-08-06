@@ -118,3 +118,57 @@ test('limita cada ticket a tres intentos', async () => {
     (error) => error.code === 'resource-exhausted'
   );
 });
+
+test('administración habilita tres intentos nuevos con motivo', async () => {
+  // Prepara un comprobante agotado y una administradora activa
+  const environment = createTicketFirestore({
+    'usuarios/admin_1': { activo: true, rol: 'admin' },
+    'ventas/sale_5': buildTicketSale({
+      ticket: buildFailedTicket({ intentos: 3 })
+    })
+  });
+
+  // Reactiva el envío después de corregir su configuración
+  const result = await retrySaleTicketHandler({
+    auth: { uid: 'admin_1' },
+    data: {
+      reason: 'Se corrigió la autorización del servicio de correo',
+      restart: true,
+      saleId: 'sale_5'
+    },
+    firestore: environment.firestore,
+    serverTimestamp: () => retryDate
+  });
+
+  // Comprueba el nuevo grupo de intentos y su registro
+  const ticket = environment.read('ventas/sale_5').ticket;
+  const event = environment.read(
+    'eventosComprobantes/sale_5_reactivacion_1'
+  );
+  assert.equal(result.action, 'restart');
+  assert.equal(ticket.estado, 'pendiente');
+  assert.equal(ticket.intentos, 0);
+  assert.equal(ticket.reactivaciones, 1);
+  assert.equal(event.actorUid, 'admin_1');
+  assert.equal(event.intentosAnteriores, 3);
+});
+
+test('recepción no puede habilitar un comprobante agotado', async () => {
+  // Prepara un comprobante agotado y una recepcionista activa
+  const environment = createTicketFirestore({
+    'usuarios/reception_1': { activo: true, rol: 'recepcion' },
+    'ventas/sale_6': buildTicketSale({
+      ticket: buildFailedTicket({ intentos: 3 })
+    })
+  });
+
+  await assert.rejects(() => retrySaleTicketHandler({
+    auth: { uid: 'reception_1' },
+    data: {
+      reason: 'Se corrigió la autorización del servicio de correo',
+      restart: true,
+      saleId: 'sale_6'
+    },
+    firestore: environment.firestore
+  }), (error) => error.code === 'permission-denied');
+});

@@ -24,7 +24,7 @@ export const loadClinicalCompletion = async ({ appointmentId, clientId }) => {
     throw new Error('La cita debe estar en cabina para terminar la atención');
   }
   const requirements = [
-    { complete: recordSnapshot.data()?.status === 'completed', id: 'record', label: 'Ficha técnica completa' },
+    { complete: recordSnapshot.data()?.status === 'completed' && recordSnapshot.data()?.lastAppointmentId === appointmentId, id: 'record', label: 'Ficha revisada para esta cita' },
     { complete: consentSnapshot.data()?.status === 'signed', id: 'consent', label: 'Consentimiento firmado' },
     { complete: sessionSnapshot.data()?.status === 'completed', id: 'session', label: 'Seguimiento terminado' },
     { complete: consumptionSnapshot.data()?.status === 'recorded', id: 'consumption', label: 'Insumos utilizados registrados' },

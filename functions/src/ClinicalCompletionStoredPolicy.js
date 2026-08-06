@@ -51,8 +51,8 @@ export const requireCompletedClinicalDocuments = ({
   const session = sessionSnapshot.exists ? sessionSnapshot.data() : null;
   const consumption = consumptionSnapshot.exists ? consumptionSnapshot.data() : null;
   const recommendation = recommendationSnapshot.exists ? recommendationSnapshot.data() : null;
-  if (record?.clientId !== clientId || record?.status !== 'completed') {
-    fail('failed-precondition', 'Completa la ficha técnica antes de terminar la atención');
+  if (record?.clientId !== clientId || record?.status !== 'completed' || record?.lastAppointmentId !== appointmentId) {
+    fail('failed-precondition', 'Confirma la ficha técnica para esta cita antes de terminar la atención');
   }
   if (consent?.appointmentId !== appointmentId || consent?.clientId !== clientId || consent?.status !== 'signed') {
     fail('failed-precondition', 'Firma el consentimiento antes de terminar la atención');

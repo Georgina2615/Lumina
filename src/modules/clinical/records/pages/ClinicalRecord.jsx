@@ -34,11 +34,19 @@ export default function ClinicalRecord() {
 
       {clinicalRecord.success && <div className="rounded-xl border border-status-confirmed/30 bg-status-confirmed/10 px-4 py-3 text-sm font-medium text-status-confirmed" role="status">{clinicalRecord.success}</div>}
       {clinicalRecord.error && <div className="rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm font-medium text-error" role="alert">{clinicalRecord.error}</div>}
-      {clinicalRecord.data.status === 'completed' && (
-        <div className="flex justify-end">
-          <Link className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition hover:bg-secondary" to={`/dashboard/clinical/consentimiento/${clientId}/${appointmentId}`}>
-            Continuar al consentimiento
-          </Link>
+      {clinicalRecord.data.status === 'completed' && !clinicalRecord.data.reviewedForAppointment && (
+        <section className="rounded-2xl border border-status-pending/30 bg-status-pending/10 p-5">
+          <h2 className="text-xl text-primary">Confirma la ficha para esta cita</h2>
+          <p className="mt-1 text-sm text-muted">Pregunta si cambiaron sus alergias medicamentos o estado de salud</p>
+          <button className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition hover:bg-secondary disabled:opacity-50" disabled={clinicalRecord.isSaving} onClick={clinicalRecord.confirmCurrentRecord} type="button">
+            {clinicalRecord.isSaving ? 'Confirmando' : 'Los datos siguen iguales'}
+          </button>
+        </section>
+      )}
+      {clinicalRecord.data.status === 'completed' && clinicalRecord.data.reviewedForAppointment && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-status-confirmed/30 bg-status-confirmed/10 px-5 py-4">
+          <p className="text-sm font-semibold text-primary">Ficha revisada para esta cita</p>
+          <Link className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition hover:bg-secondary" to={`/dashboard/clinical/consentimiento/${clientId}/${appointmentId}`}>Continuar al consentimiento</Link>
         </div>
       )}
 

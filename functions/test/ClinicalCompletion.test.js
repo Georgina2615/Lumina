@@ -16,7 +16,7 @@ const buildFirestore = (overrides = {}) => new FakeAppointmentFirestore({
     schemaVersion: 3
   },
   [`cupos/${slotId}`]: { citaId: appointmentId },
-  [`expedientesClinicos/${clientId}`]: { clientId, revision: 2, status: 'completed' },
+  [`expedientesClinicos/${clientId}`]: { clientId, lastAppointmentId: appointmentId, revision: 2, status: 'completed' },
   [`consentimientosClinicos/${appointmentId}`]: { appointmentId, clientId, status: 'signed' },
   [`sesionesClinicas/${appointmentId}`]: { appointmentId, clientId, revision: 3, status: 'completed' },
   [`consumosCabina/${appointmentId}`]: { appointmentId, clientId, status: 'recorded' },
@@ -50,5 +50,25 @@ test('impide terminar cuando faltan las recomendaciones', async () => {
     request: { appointmentId, operationId: 'operation_completion_2' },
     serverTimestamp: () => 'timestamp'
   }), /Guarda las recomendaciones/);
+  assert.equal(firestore.get(`citas/${appointmentId}`).estado, 'en_cabina');
+});
+
+test('impide terminar con una ficha no confirmada para la cita', async () => {
+  // Prepara una ficha revisada durante una cita anterior
+  const firestore = buildFirestore({
+    [`expedientesClinicos/${clientId}`]: {
+      clientId,
+      lastAppointmentId: 'appointment_previous',
+      revision: 2,
+      status: 'completed'
+    }
+  });
+
+  await assert.rejects(runCompleteClinicalAttentionTransaction({
+    actorUid: 'clinical_actor',
+    firestore,
+    request: { appointmentId, operationId: 'operation_completion_3' },
+    serverTimestamp: () => 'timestamp'
+  }), /Confirma la ficha/);
   assert.equal(firestore.get(`citas/${appointmentId}`).estado, 'en_cabina');
 });

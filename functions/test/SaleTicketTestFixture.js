@@ -94,6 +94,15 @@ export const createTicketFirestore = (
 
         // Persiste la actualización superficial
         documents.set(reference.path, { ...current, ...values });
+      },
+      create: (reference, values) => {
+        // Impide sobrescribir registros existentes
+        if (documents.has(reference.path)) {
+          throw new Error('El documento ya existe');
+        }
+
+        // Persiste el registro nuevo
+        documents.set(reference.path, structuredClone(values));
       }
     });
   };

@@ -45,6 +45,7 @@ export const runManageClinicalConsentTransaction = async ({
     const client = requireClinicalConsentClient(clientSnapshot, request.clientId);
     const adult = requireAdultCompletedRecord({
       appointmentDate: appointment.fecha,
+      appointmentId: request.appointmentId,
       clientId: request.clientId,
       snapshot: recordSnapshot
     });

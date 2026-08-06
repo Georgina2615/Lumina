@@ -20,6 +20,10 @@ export default function CabinConsumption() {
   if (consumption.data.consumption) return (
     <div className="mx-auto w-full max-w-3xl rounded-3xl border border-status-confirmed/30 bg-status-confirmed/10 p-8 text-center shadow-sm">
       <FiCheck aria-hidden="true" className="mx-auto size-8 text-status-confirmed" /><h1 className="mt-4 text-3xl text-primary">Insumos registrados</h1><p className="mt-2 text-sm text-muted">El inventario interno ya refleja lo utilizado en esta atención</p>
+      <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+        <Link className="inline-flex min-h-11 items-center justify-center rounded-xl border border-surface-hover bg-surface px-5 text-sm font-semibold text-primary transition hover:border-secondary/30" to={`/dashboard/clinical/seguimiento/${clientId}/${appointmentId}`}>Volver al seguimiento</Link>
+        <Link className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition hover:bg-secondary" to={`/dashboard/clinical/recomendaciones/${clientId}/${appointmentId}`}>Continuar a recomendaciones</Link>
+      </div>
     </div>
   );
 

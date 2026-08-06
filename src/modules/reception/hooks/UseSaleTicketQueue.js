@@ -5,8 +5,10 @@ import {
   useRef,
   useState
 } from 'react';
+import { useAuth } from '../../auth/context';
 import {
   resolveSaleTicket,
+  restartSaleTicket,
   retrySaleTicket
 } from '../services/SaleTicketActionService';
 import {
@@ -43,6 +45,8 @@ const pruneActionStates = (current, tickets) => {
 
 // Controla la cola persistente de tickets
 export const useSaleTicketQueue = () => {
+  // Obtiene el rol vigente sin duplicar permisos
+  const { rol: role } = useAuth();
   // Conserva las ventas accionables
   const [queueState, setQueueState] = useState(initialQueueState);
   // Conserva acciones aisladas por venta
@@ -101,12 +105,15 @@ export const useSaleTicketQueue = () => {
       retryAvailability: getTicketRetryAvailability(
         ticket,
         nowMillis
-      )
+      ),
+      canRestart: role === 'admin'
+        && ticket.ticketStatus === 'fallido'
+        && ticket.attempts >= maxTicketAttempts
     }))
-  ), [actionStates, nowMillis, queueState.tickets]);
+  ), [actionStates, nowMillis, queueState.tickets, role]);
 
   // Ejecuta una acción sobre la venta vigente
-  const runAction = useCallback(async (saleId, action) => {
+  const runAction = useCallback(async (saleId, action, reason = '') => {
     // Localiza el ticket autoritativo
     const ticket = queueState.tickets.find(
       (item) => item.saleId === saleId
@@ -127,6 +134,19 @@ export const useSaleTicketQueue = () => {
     // Protege reintentos bloqueados
     if (action === 'retry' && !retryAvailability.canRetry) {
       // Detiene el reintento local
+      return;
+    }
+
+    // Protege reactivaciones fuera de administración
+    if (
+      action === 'restart'
+      && (
+        role !== 'admin'
+        || ticket.ticketStatus !== 'fallido'
+        || !retryAvailability.exhausted
+      )
+    ) {
+      // Detiene la reactivación inválida
       return;
     }
 
@@ -151,7 +171,9 @@ export const useSaleTicketQueue = () => {
 
     try {
       // Selecciona el contrato correcto
-      if (ticket.ticketStatus === 'fallido') {
+      if (action === 'restart') {
+        await restartSaleTicket(saleId, reason);
+      } else if (ticket.ticketStatus === 'fallido') {
         await retrySaleTicket(saleId);
       } else {
         await resolveSaleTicket(saleId, action);
@@ -177,7 +199,7 @@ export const useSaleTicketQueue = () => {
     } finally {
       actionLocksRef.current.delete(saleId);
     }
-  }, [queueState.tickets]);
+  }, [queueState.tickets, role]);
 
   // Confirma una entrega verificada
   const confirmDelivery = useCallback((saleId) => (
@@ -189,11 +211,17 @@ export const useSaleTicketQueue = () => {
     runAction(saleId, 'retry')
   ), [runAction]);
 
+  // Solicita tres intentos nuevos con autorización administrativa
+  const restart = useCallback((saleId, reason) => (
+    runAction(saleId, 'restart', reason)
+  ), [runAction]);
+
   // Devuelve el contrato de la cola
   return {
     confirmDelivery,
     error: queueState.error,
     loading: queueState.loading,
+    restart,
     retry,
     tickets
   };

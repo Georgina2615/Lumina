@@ -19,7 +19,7 @@ export const useClinicalRecord = ({ appointmentId, clientId }) => {
   useEffect(() => {
     let active = true;
 
-    loadClinicalRecord(clientId)
+    loadClinicalRecord({ appointmentId, clientId })
       .then((data) => {
         if (active) setState((current) => ({ ...current, data, error: null, isLoading: false }));
       })
@@ -31,7 +31,7 @@ export const useClinicalRecord = ({ appointmentId, clientId }) => {
     return () => {
       active = false;
     };
-  }, [clientId, loadVersion]);
+  }, [appointmentId, clientId, loadVersion]);
 
   // Vuelve a cargar el documento vigente
   const reload = useCallback(() => {
@@ -56,10 +56,16 @@ export const useClinicalRecord = ({ appointmentId, clientId }) => {
       });
       setState((current) => ({
         ...current,
-        data: { ...current.data, record, revision: result.revision, status: result.status },
+        data: {
+          ...current.data,
+          record,
+          reviewedForAppointment: result.status === 'completed',
+          revision: result.revision,
+          status: result.status
+        },
         isSaving: false,
         success: result.status === 'completed'
-          ? 'Ficha técnica completada'
+          ? 'Ficha técnica lista para esta cita'
           : 'Borrador guardado'
       }));
       return result;
@@ -69,5 +75,11 @@ export const useClinicalRecord = ({ appointmentId, clientId }) => {
     }
   }, [appointmentId, clientId, state.data, state.isSaving]);
 
-  return { ...state, reload, save };
+  // Confirma la ficha vigente sin duplicar sus respuestas
+  const confirmCurrentRecord = useCallback(() => {
+    if (!state.data) return null;
+    return save({ record: state.data.record, status: 'completed' });
+  }, [save, state.data]);
+
+  return { ...state, confirmCurrentRecord, reload, save };
 };

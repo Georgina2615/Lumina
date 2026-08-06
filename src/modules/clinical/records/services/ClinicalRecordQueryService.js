@@ -3,7 +3,7 @@ import { db } from '../../../../config/firebase';
 import { createClinicalRecordForm } from './ClinicalRecordPolicy';
 
 // Carga la clienta y su única ficha técnica
-export const loadClinicalRecord = async (clientId) => {
+export const loadClinicalRecord = async ({ appointmentId, clientId }) => {
   const [clientSnapshot, recordSnapshot] = await Promise.all([
     getDoc(doc(db, 'clientes', clientId)),
     getDoc(doc(db, 'expedientesClinicos', clientId))
@@ -32,6 +32,7 @@ export const loadClinicalRecord = async (clientId) => {
       phone: typeof clientData.telefono === 'string' ? clientData.telefono : ''
     },
     record: createClinicalRecordForm(validRecord),
+    reviewedForAppointment: validRecord?.lastAppointmentId === appointmentId,
     revision: validRecord?.revision ?? 0,
     status: validRecord?.status === 'completed' ? 'completed' : 'draft'
   };

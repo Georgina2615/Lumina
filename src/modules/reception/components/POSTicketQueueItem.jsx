@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fi';
 import { maxTicketAttempts } from '../services/SaleTicketPolicy';
 import POSTicketActions from './POSTicketActions';
+import POSTicketRestartForm from './POSTicketRestartForm';
 
 // Define el formato temporal operativo
 const dateTimeFormatter = new Intl.DateTimeFormat('es-MX', {
@@ -24,6 +25,7 @@ const formatLastAttempt = (lastAttemptAt) => (
 export default function POSTicketQueueItem({
   ticket,
   onConfirm,
+  onRestart,
   onRetry
 }) {
   // Detecta un envío ambiguo
@@ -110,6 +112,13 @@ export default function POSTicketQueueItem({
             onConfirm={() => onConfirm(ticket.saleId)}
             onRetry={() => onRetry(ticket.saleId)}
           />
+          {ticket.canRestart && (
+            <POSTicketRestartForm
+              processing={ticket.actionState.processing}
+              saleId={ticket.saleId}
+              onRestart={(reason) => onRestart(ticket.saleId, reason)}
+            />
+          )}
         </div>
       </div>
     </article>

@@ -33,10 +33,10 @@ export const requireClinicalConsentClient = (snapshot, clientId) => {
 };
 
 // Exige una ficha completa y una clienta adulta
-export const requireAdultCompletedRecord = ({ appointmentDate, clientId, snapshot }) => {
+export const requireAdultCompletedRecord = ({ appointmentDate, appointmentId, clientId, snapshot }) => {
   const data = snapshot.exists ? snapshot.data() : null;
-  if (!data || data.clientId !== clientId || data.status !== 'completed') {
-    failClinicalConsent('failed-precondition', 'Completa la ficha técnica antes del consentimiento');
+  if (!data || data.clientId !== clientId || data.status !== 'completed' || data.lastAppointmentId !== appointmentId) {
+    failClinicalConsent('failed-precondition', 'Confirma la ficha técnica para esta cita antes del consentimiento');
   }
   const birthDate = data.personalDetails?.birthDate;
   const age = calculateAgeOnDate(birthDate, appointmentDate);

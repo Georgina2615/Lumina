@@ -81,6 +81,7 @@ function ReceptionPOSContent({ appointmentId }) {
         loading={ticketQueue.loading}
         tickets={ticketQueue.tickets}
         onConfirm={ticketQueue.confirmDelivery}
+        onRestart={ticketQueue.restart}
         onRetry={ticketQueue.retry}
       />
 

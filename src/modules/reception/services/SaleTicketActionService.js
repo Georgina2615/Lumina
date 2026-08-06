@@ -134,6 +134,30 @@ export const retrySaleTicket = async (saleId) => {
   });
 };
 
+// Habilita tres intentos nuevos mediante administración
+export const restartSaleTicket = async (saleId, reason) => {
+  // Valida la venta solicitada
+  const normalizedSaleId = requireSaleId(saleId);
+  // Limpia el motivo administrativo
+  const normalizedReason = normalizeSafeText(reason, 300);
+
+  // Detiene motivos insuficientes antes de conectar
+  if (normalizedReason.length < 10) {
+    throw new Error('Explica por qué se habilitará nuevamente el comprobante');
+  }
+
+  // Reutiliza la función protegida con una acción explícita
+  return runTicketAction({
+    callable: retrySaleTicketCallable,
+    payload: {
+      reason: normalizedReason,
+      restart: true,
+      saleId: normalizedSaleId
+    },
+    saleId: normalizedSaleId
+  });
+};
+
 // Resuelve un envío que requiere verificación
 export const resolveSaleTicket = async (saleId, action) => {
   // Valida la venta solicitada

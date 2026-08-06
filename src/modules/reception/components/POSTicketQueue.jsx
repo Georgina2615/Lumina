@@ -10,6 +10,7 @@ export default function POSTicketQueue({
   loading,
   tickets,
   onConfirm,
+  onRestart,
   onRetry
 }) {
   // Omite una cola vacía sin errores
@@ -60,6 +61,7 @@ export default function POSTicketQueue({
               key={ticket.saleId}
               ticket={ticket}
               onConfirm={onConfirm}
+              onRestart={onRestart}
               onRetry={onRetry}
             />
           ))}
