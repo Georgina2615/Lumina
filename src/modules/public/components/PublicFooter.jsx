@@ -30,6 +30,7 @@ export default function PublicFooter() {
           <nav aria-label="Navegación del pie" className="mt-5 flex flex-col items-start gap-3">
             <a className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" href="/#servicios">Servicios</a>
             <a className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" href="/#contacto">Contacto</a>
+            <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/aviso-privacidad">Aviso de privacidad</Link>
             <button className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" onClick={() => window.scrollTo({ behavior: 'smooth', top: 0 })} type="button">Volver al inicio</button>
           </nav>
         </div>
