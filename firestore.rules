@@ -62,7 +62,7 @@ service cloud.firestore {
     }
     // Solicitudes recibidas desde el sitio publico
     match /solicitudesCitaPublica/{requestId} {
-      allow read: if isReceptionOrAdmin() && requestId != 'control';
+      allow read: if isReceptionOrAdmin();
       allow create, update, delete: if false;
 
       // Bloqueos privados para evitar solicitudes repetidas

@@ -3,5 +3,6 @@ export {
   ReceptionCalendar,
   ReceptionClientDirectory,
   ReceptionDashboard,
-  ReceptionPOS
+  ReceptionPOS,
+  ReceptionPublicRequests
 } from './pages';

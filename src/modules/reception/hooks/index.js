@@ -5,3 +5,4 @@ export * from './useClients';
 export * from './useSignature';
 export * from './UsePos';
 export * from './UseSaleTicketQueue';
+export * from './UsePublicAppointmentRequests';

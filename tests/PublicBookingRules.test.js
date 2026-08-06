@@ -5,7 +5,16 @@ import {
   assertSucceeds,
   initializeTestEnvironment
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where
+} from 'firebase/firestore';
 
 // Conserva el entorno aislado de reglas
 let testEnvironment;
@@ -99,6 +108,10 @@ test('limita la revision de solicitudes a recepcion', async () => {
     receptionDatabase,
     'solicitudesCitaPublica',
     'solicitud_1'
+  )));
+  await assertSucceeds(getDocs(query(
+    collection(receptionDatabase, 'solicitudesCitaPublica'),
+    where('status', '==', 'pending_review')
   )));
   await assertSucceeds(getDoc(doc(
     receptionDatabase,

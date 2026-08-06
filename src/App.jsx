@@ -12,7 +12,8 @@ import {
   ReceptionClientDirectory,
   ReceptionDashboard,
   ReceptionLayout,
-  ReceptionPOS
+  ReceptionPOS,
+  ReceptionPublicRequests
 } from './modules/reception';
 // Expone las capacidades administrativas
 import {
@@ -100,6 +101,10 @@ export default function App() {
                 <Route path="agenda" element={<ReceptionCalendar />} />
                 <Route path="clientes" element={<ReceptionClientDirectory />} />
                 <Route path="venta" element={<ReceptionPOS />} />
+                <Route
+                  path="solicitudes"
+                  element={<ReceptionPublicRequests />}
+                />
               </Route>
               <Route
                 path="calendar"

@@ -7,6 +7,7 @@ import {
   FaFolderOpen,
   FaFlask,
   FaHome,
+  FaInbox,
   FaMoneyBillWave,
   FaNotesMedical,
   FaCog,
@@ -108,6 +109,15 @@ const receptionWorkspaceItems = [
     label: 'Punto de Venta',
     mobileLabel: 'Venta',
     path: '/dashboard/reception/venta',
+    roles: ['admin', 'recepcion']
+  },
+  {
+    icon: FaInbox,
+    id: 'reception-public-requests',
+    label: 'Solicitudes por internet',
+    mobileHidden: true,
+    mobileLabel: 'Solicitudes',
+    path: '/dashboard/reception/solicitudes',
     roles: ['admin', 'recepcion']
   }
 ];

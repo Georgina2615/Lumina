@@ -24,6 +24,9 @@ import {
 import { manageServiceCatalogHandler } from './ManageServiceCatalog.js';
 import { createPublicFunctions } from './PublicFunctions.js';
 import {
+  reviewPublicAppointmentRequestHandler
+} from './ReviewPublicAppointmentRequest.js';
+import {
   reprogramReceptionAppointmentHandler
 } from './ReprogramReceptionAppointment.js';
 import {
@@ -182,6 +185,16 @@ export const {
   runtimeOptions,
   storage: getStorage
 });
+
+// Revisa solicitudes publicas desde recepcion
+export const reviewPublicAppointmentRequest = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => reviewPublicAppointmentRequestHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
 
 // Administra el catalogo real de servicios
 export const manageServiceCatalog = onCall({

@@ -4,14 +4,19 @@ import {
   CancelAppointmentModal,
   ConfirmAppointmentModal,
   NoShowAppointmentModal,
+  PublicRequestNotice,
   ReceptionKanbanBoard
 } from '../components';
-import { useReceptionKanban } from '../hooks';
+import {
+  usePublicAppointmentRequestCount,
+  useReceptionKanban
+} from '../hooks';
 
 // Controla el panel operativo de recepción
 export default function ReceptionDashboard() {
   const navigate = useNavigate();
   const [activeDialog, setActiveDialog] = useState(null);
+  const publicRequestCount = usePublicAppointmentRequestCount();
 
   // Obtiene datos acciones y contactos del tablero
   const {
@@ -95,6 +100,11 @@ export default function ReceptionDashboard() {
           Panel de Recepción
         </h1>
       </header>
+
+      <PublicRequestNotice
+        count={publicRequestCount}
+        onOpen={() => navigate('/dashboard/reception/solicitudes')}
+      />
 
       {error && !activeDialog && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error"
