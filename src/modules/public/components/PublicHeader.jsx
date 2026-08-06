@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { FiLogIn, FiMenu, FiMessageCircle, FiX } from 'react-icons/fi';
+import { FiCalendar, FiLogIn, FiMenu, FiX } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 // Define los destinos disponibles en la portada
 const publicNavigation = [
   { href: '/#servicios', label: 'Servicios' },
-  { href: '/#contacto', label: 'Contacto' }
+  { href: '/#contacto', label: 'Contacto' },
+  { href: '/agendar', label: 'Agendar' }
 ];
 
 // Presenta la navegacion publica disponible
@@ -52,10 +53,10 @@ export default function PublicHeader({ onOpenLoginModal }) {
             <FiLogIn aria-hidden="true" />
             Personal
           </button>
-          <a aria-label="Contactar por WhatsApp" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-status-pending px-4 text-sm font-semibold text-primary shadow-md shadow-status-pending/20 transition duration-300 hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none sm:px-5" href="https://wa.me/529811017687" rel="noreferrer" target="_blank">
-            <FiMessageCircle aria-hidden="true" />
-            <span className="hidden sm:inline">Contactar</span>
-          </a>
+          <Link aria-label="Agendar una cita" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-status-pending px-4 text-sm font-semibold text-primary shadow-md shadow-status-pending/20 transition duration-300 hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none sm:px-5" to="/agendar">
+            <FiCalendar aria-hidden="true" />
+            <span className="hidden sm:inline">Agendar cita</span>
+          </Link>
           <button aria-controls="public-mobile-navigation" aria-expanded={mobileNavigationOpen} aria-label={mobileNavigationOpen ? 'Cerrar menú' : 'Abrir menú'} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-hover bg-surface text-primary transition hover:border-secondary/40 md:hidden" onClick={() => setMobileNavigationOpen((currentValue) => !currentValue)} type="button">
             {mobileNavigationOpen ? <FiX aria-hidden="true" /> : <FiMenu aria-hidden="true" />}
           </button>

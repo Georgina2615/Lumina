@@ -4,3 +4,8 @@ export { default as PublicContactSection } from './PublicContactSection';
 export { default as PublicHero } from './PublicHero';
 export { default as PublicLegalPage } from './PublicLegalPage';
 export { default as PublicServicesSection } from './PublicServicesSection';
+export { default as PublicBookingDetailsStep } from './PublicBookingDetailsStep';
+export { default as PublicBookingPaymentStep } from './PublicBookingPaymentStep';
+export { default as PublicBookingProgress } from './PublicBookingProgress';
+export { default as PublicBookingServiceStep } from './PublicBookingServiceStep';
+export { default as PublicBookingSuccess } from './PublicBookingSuccess';

@@ -47,6 +47,7 @@ const buildTransactionReferences = ({ firestore, request }) => {
     newClient,
     slotId,
     slot: firestore.collection('cupos').doc(slotId),
+    publicReservation: firestore.collection('reservasPublicas').doc(slotId),
     service: firestore.collection('servicios').doc(request.serviceId),
     identities: identities.map((identity) => ({
       identity,
@@ -83,6 +84,7 @@ export const runAppointmentTransaction = async ({
       actorReference,
       references.service,
       references.slot,
+      references.publicReservation,
       ...references.identities.map(({ reference }) => reference)
     ];
 
@@ -91,6 +93,7 @@ export const runAppointmentTransaction = async ({
       actorSnapshot,
       serviceSnapshot,
       slotSnapshot,
+      publicReservationSnapshot,
       ...identitySnapshots
     ] = await transaction.getAll(...initialReferences);
 
@@ -100,6 +103,7 @@ export const runAppointmentTransaction = async ({
     const service = requireAppointmentService(serviceSnapshot);
 
     requireAvailableSlot(slotSnapshot);
+    requireAvailableSlot(publicReservationSnapshot);
 
     // Verifica cada identidad persistida
     const identityOwners = identitySnapshots.map(

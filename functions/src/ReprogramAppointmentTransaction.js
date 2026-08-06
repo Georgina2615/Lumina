@@ -52,6 +52,7 @@ const buildReferences = ({
       .doc(request.sourceAppointmentId),
     slotId,
     slot: firestore.collection('cupos').doc(slotId),
+    publicReservation: firestore.collection('reservasPublicas').doc(slotId),
     service: firestore.collection('servicios').doc(request.serviceId),
     additionalPayment: firestore
       .collection('pagos')
@@ -149,12 +150,14 @@ export const runReprogramAppointmentTransaction = async ({
     const remainingSnapshots = await transaction.getAll(
       references.service,
       references.slot,
+      references.publicReservation,
       clientReference,
       ...paymentReferences
     );
     const [
       serviceSnapshot,
       slotSnapshot,
+      publicReservationSnapshot,
       clientSnapshot,
       ...paymentSnapshots
     ] = remainingSnapshots;
@@ -162,6 +165,7 @@ export const runReprogramAppointmentTransaction = async ({
     // Verifica el nuevo destino
     const service = requireAppointmentService(serviceSnapshot);
     requireAvailableSlot(slotSnapshot);
+    requireAvailableSlot(publicReservationSnapshot);
     const client = requireReprogramClient({
       snapshot: clientSnapshot
     });

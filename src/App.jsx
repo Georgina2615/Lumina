@@ -5,7 +5,7 @@ import { ProtectedRoute } from './modules/auth/components';
 // Compone las estructuras globales
 import { PublicLayout, DashboardLayout } from './app/layouts';
 // Expone las capacidades públicas
-import { AboutProjectPage, CancellationPolicyPage, LandingPage, PresentationPage, PrivacyNoticePage, TermsConditionsPage } from './modules/public/pages';
+import { AboutProjectPage, CancellationPolicyPage, LandingPage, PresentationPage, PrivacyNoticePage, PublicBookingPage, TermsConditionsPage } from './modules/public/pages';
 // Expone las capacidades de recepción
 import {
   ReceptionCalendar,
@@ -79,6 +79,7 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/aviso-privacidad" element={<PrivacyNoticePage />} />
             <Route path="/politica-cancelacion" element={<CancellationPolicyPage />} />
+            <Route path="/agendar" element={<PublicBookingPage />} />
             <Route path="/sobre-el-proyecto" element={<AboutProjectPage />} />
             <Route path="/terminos-condiciones" element={<TermsConditionsPage />} />
           </Route>

@@ -13,6 +13,17 @@ service firebase.storage {
         ).data.rol == 'admin';
     }
 
+    // Comprueba la identidad de recepcion o administracion
+    function isActiveReceptionOrAdmin() {
+      return request.auth != null
+        && firestore.get(
+          /databases/(default)/documents/usuarios/$(request.auth.uid)
+        ).data.activo == true
+        && firestore.get(
+          /databases/(default)/documents/usuarios/$(request.auth.uid)
+        ).data.rol in ['recepcion', 'admin'];
+    }
+
     // Comprueba la identidad clínica vigente
     function isActiveClinical() {
       return request.auth != null
@@ -75,6 +86,11 @@ service firebase.storage {
         && request.resource.size <= 250 * 1024
         && request.resource.contentType == 'image/webp';
       allow delete: if false;
+    }
+
+    match /comprobantes-anticipos-publicos/{requestId}/comprobante.webp {
+      allow read: if isActiveReceptionOrAdmin();
+      allow write: if false;
     }
 
     match /{allPaths=**} {

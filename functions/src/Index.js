@@ -22,6 +22,7 @@ import {
   manageScheduleAvailabilityHandler
 } from './ManageScheduleAvailability.js';
 import { manageServiceCatalogHandler } from './ManageServiceCatalog.js';
+import { createPublicFunctions } from './PublicFunctions.js';
 import {
   reprogramReceptionAppointmentHandler
 } from './ReprogramReceptionAppointment.js';
@@ -170,6 +171,17 @@ export const {
   manageClinicalSession,
   recordCabinConsumption
 } = createClinicalFunctions({ enforceAppCheck, runtimeOptions });
+
+// Expone las funciones del sitio publico
+export const {
+  getPublicAvailability,
+  submitPublicAppointmentRequest
+} = createPublicFunctions({
+  enforceAppCheck,
+  firestore: getFirestore,
+  runtimeOptions,
+  storage: getStorage
+});
 
 // Administra el catalogo real de servicios
 export const manageServiceCatalog = onCall({

@@ -214,3 +214,16 @@ test('reprograma de A a B y luego de B a C sin duplicar pagos', async () => {
     'citas_2'
   );
 });
+
+// Detiene destinos apartados desde el sitio publico
+test('rechaza reprogramar sobre una solicitud publica pendiente', async () => {
+  const firestore = buildReprogramFirestore();
+  firestore.set('reservasPublicas/2026-08-04_10:00', {
+    requestId: 'solicitud-publica'
+  });
+
+  await assert.rejects(
+    reprogramAppointment({ firestore }),
+    /acaba de ser ocupado/
+  );
+});

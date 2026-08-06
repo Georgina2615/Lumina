@@ -108,6 +108,27 @@ test('rechaza un horario ocupado sin crear documentos', async () => {
   assert.equal(firestore.lastTransaction.creations.length, 0);
 });
 
+// Detiene horarios apartados desde el sitio publico
+test('rechaza un horario con solicitud publica pendiente', async () => {
+  const firestore = new FakeAppointmentFirestore(buildAppointmentSeed({
+    'reservasPublicas/2026-08-04_10:00': {
+      requestId: 'solicitud-publica'
+    }
+  }));
+
+  await assert.rejects(
+    runAppointmentTransaction({
+      actorUid: 'actor',
+      firestore,
+      request: buildCanonicalAppointmentRequest(),
+      ...documentOptions
+    }),
+    /acaba de ser ocupado/
+  );
+
+  assert.equal(firestore.lastTransaction.creations.length, 0);
+});
+
 // Detiene actores sin rol operativo
 test('rechaza usuarios sin permisos de recepción', async () => {
   const firestore = new FakeAppointmentFirestore(buildAppointmentSeed({
