@@ -6,6 +6,10 @@ import { getClientAccountHandler } from './GetClientAccount.js';
 import {
   submitPublicAppointmentRequestHandler
 } from './SubmitPublicAppointmentRequest.js';
+import {
+  evaluatePublicSkinTestHandler,
+  getPublicSkinTestHandler
+} from './PublicSkinTest.js';
 
 // Expone las funciones protegidas del sitio publico
 export const createPublicFunctions = ({
@@ -14,6 +18,14 @@ export const createPublicFunctions = ({
   runtimeOptions,
   storage
 }) => ({
+  evaluatePublicSkinTest: onCall({
+    ...runtimeOptions,
+    enforceAppCheck,
+    invoker: 'public'
+  }, (request) => evaluatePublicSkinTestHandler({
+    data: request.data,
+    firestore: firestore()
+  })),
   getClientAccount: onCall({
     ...runtimeOptions,
     enforceAppCheck
@@ -26,6 +38,13 @@ export const createPublicFunctions = ({
     enforceAppCheck
   }, (request) => getPublicAvailabilityHandler({
     data: request.data,
+    firestore: firestore()
+  })),
+  getPublicSkinTest: onCall({
+    ...runtimeOptions,
+    enforceAppCheck,
+    invoker: 'public'
+  }, () => getPublicSkinTestHandler({
     firestore: firestore()
   })),
   submitPublicAppointmentRequest: onCall({

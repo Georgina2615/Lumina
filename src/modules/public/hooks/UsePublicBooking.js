@@ -15,9 +15,15 @@ import {
   submitPublicBooking
 } from '../services/PublicBookingService';
 
+// Obtiene una recomendación segura desde la dirección
+const getRecommendedServiceId = () => {
+  const serviceId = new URLSearchParams(globalThis.location.search).get('servicio') ?? '';
+  return /^[A-Za-z0-9_-]{3,128}$/.test(serviceId) ? serviceId : '';
+};
+
 // Define el estado inicial del formulario
 const buildInitialFields = () => ({
-  serviceId: '',
+  serviceId: getRecommendedServiceId(),
   fullName: '',
   phone: '',
   email: '',
@@ -120,7 +126,9 @@ export const usePublicBooking = () => {
   // Avanza solo cuando el paso actual es valido
   const goNext = () => {
     try {
-      if (step === 1) validatePublicServiceStep(fields);
+      if (step === 1) {
+        validatePublicServiceStep({ serviceId: selectedService?.id ?? '' });
+      }
       if (step === 2) validatePublicDetailsStep({ ...fields, availability });
       setError('');
       setStep((current) => Math.min(current + 1, 3));

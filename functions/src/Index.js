@@ -29,10 +29,8 @@ initializeApp();
 
 // Declara la configuración protegida de EmailJS
 const emailJsConfig = defineJsonSecret('EMAILJS_CONFIG');
-
 // Declara la plantilla protegida de citas
 const appointmentTemplateId = defineSecret('EMAILJS_APPOINTMENT_TEMPLATE_ID');
-
 // Obtiene la configuración del proceso
 const environment = globalThis.process?.env ?? {};
 
@@ -159,6 +157,7 @@ export const manageCashClose = onCall({
 }));
 
 // Expone las funciones del flujo clínico
+// Expone las funciones del sitio publico
 export const {
   completeClinicalAttention,
   manageCareRecommendation,
@@ -168,10 +167,11 @@ export const {
   recordCabinConsumption
 } = createClinicalFunctions({ enforceAppCheck, runtimeOptions });
 
-// Expone las funciones del sitio publico
 export const {
+  evaluatePublicSkinTest,
   getClientAccount,
   getPublicAvailability,
+  getPublicSkinTest,
   submitPublicAppointmentRequest
 } = createPublicFunctions({
   enforceAppCheck,

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 const publicNavigation = [
   { href: '/#servicios', label: 'Servicios' },
   { href: '/#contacto', label: 'Contacto' },
+  { href: '/test-de-piel', label: 'Test de piel' },
   { href: '/agendar', label: 'Agendar' },
   { href: '/mi-cuenta', label: 'Mi cuenta' }
 ];

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" role="img" aria-labelledby="title description">
+  <title id="title">Lumina Skin</title>
+  <desc id="description">Logotipo claro para comunicaciones digitales</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F0DCA5"/>
+      <stop offset="0.55" stop-color="#D3B66F"/>
+      <stop offset="1" stop-color="#E6CE8C"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(24 10)">
+    <path d="M54 32C112 1 181 33 187 101C191 149 162 184 126 198" fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-width="6"/>
+    <path d="M18 164C55 141 80 153 106 174C126 190 145 196 169 181" fill="none" stroke="#A9B5A4" stroke-linecap="round" stroke-width="8"/>
+    <text x="39" y="156" fill="#FFFDFC" font-family="Georgia, serif" font-size="132" font-weight="600">L</text>
+    <text x="88" y="168" fill="#FFFDFC" font-family="Georgia, serif" font-size="116" font-style="italic">S</text>
+  </g>
+  <text x="242" y="128" fill="#FFFDFC" font-family="Georgia, serif" font-size="58" letter-spacing="9">LUMINA SKIN</text>
+  <path d="M247 151H704" stroke="#E6CE8C" stroke-linecap="round" stroke-width="2"/>
+  <text x="248" y="178" fill="#EADDBE" font-family="Arial, sans-serif" font-size="14" letter-spacing="7">ESTÉTICA CLÍNICA</text>
+</svg>
