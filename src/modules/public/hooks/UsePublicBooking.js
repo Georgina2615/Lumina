@@ -1,18 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { usePublicServices } from './UsePublicServices';
+import { usePublicPaymentReturn } from './UsePublicPaymentReturn';
 import {
   buildPublicTimeOptions,
-  createPublicPaymentReference,
   normalizePublicClient,
   validatePublicDetailsStep,
   validatePublicPaymentStep,
   validatePublicServiceStep
 } from '../services/PublicBookingPolicy';
 import {
-  loadPublicAvailability,
-  loadPublicPaymentConfig,
-  preparePublicPaymentProof,
-  submitPublicBooking
+  createPublicBookingPayment,
+  loadPublicAvailability
 } from '../services/PublicBookingService';
 
 // Obtiene una recomendación segura desde la dirección
@@ -29,9 +27,6 @@ const buildInitialFields = () => ({
   email: '',
   dateKey: '',
   time: '',
-  proofDataUrl: '',
-  proofName: '',
-  paymentReference: createPublicPaymentReference(),
   privacyAccepted: false,
   termsAccepted: false,
   cancellationAccepted: false
@@ -40,26 +35,17 @@ const buildInitialFields = () => ({
 // Controla el recorrido completo del agendamiento publico
 export const usePublicBooking = () => {
   const catalog = usePublicServices();
-  const [fields, setFields] = useState(buildInitialFields);
-  const [step, setStep] = useState(1);
+  const paymentReturn = usePublicPaymentReturn();
+  const [fields, setFields] = useState(() => ({
+    ...buildInitialFields(),
+    ...paymentReturn.fields
+  }));
+  const [step, setStep] = useState(paymentReturn.returning ? 4 : 1);
   const [availability, setAvailability] = useState([]);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
-  const [paymentConfig, setPaymentConfig] = useState(null);
-  const [configError, setConfigError] = useState('');
-  const [processingProof, setProcessingProof] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState(null);
   const availabilityRequest = useRef(0);
-
-  // Obtiene la configuracion publica una sola vez
-  useEffect(() => {
-    let active = true;
-    loadPublicPaymentConfig()
-      .then((config) => active && setPaymentConfig(config))
-      .catch((loadError) => active && setConfigError(loadError.message));
-    return () => { active = false; };
-  }, []);
 
   const selectedService = useMemo(
     () => catalog.services.find(({ id }) => id === fields.serviceId) ?? null,
@@ -104,25 +90,6 @@ export const usePublicBooking = () => {
     }
   };
 
-  // Prepara una imagen local seleccionada
-  const selectProof = async (file) => {
-    if (!file) return;
-    setProcessingProof(true);
-    setError('');
-    try {
-      const proofDataUrl = await preparePublicPaymentProof(file);
-      setFields((current) => ({
-        ...current,
-        proofDataUrl,
-        proofName: file.name
-      }));
-    } catch (proofError) {
-      setError(proofError.message);
-    } finally {
-      setProcessingProof(false);
-    }
-  };
-
   // Avanza solo cuando el paso actual es valido
   const goNext = () => {
     try {
@@ -144,27 +111,31 @@ export const usePublicBooking = () => {
     setStep((current) => Math.max(current - 1, 1));
   };
 
-  // Envia la solicitud completa una sola vez
+  // Crea el pago y dirige al sitio seguro
   const submit = async () => {
     try {
       validatePublicPaymentStep(fields);
       const client = normalizePublicClient(fields);
       setSubmitting(true);
       setError('');
-      const response = await submitPublicBooking({
+      const response = await createPublicBookingPayment({
         client,
         serviceId: fields.serviceId,
         dateKey: fields.dateKey,
         time: fields.time,
-        proofDataUrl: fields.proofDataUrl,
-        paymentReference: fields.paymentReference,
         privacyAccepted: fields.privacyAccepted,
         termsAccepted: fields.termsAccepted,
-        cancellationAccepted: fields.cancellationAccepted
+        cancellationAccepted: fields.cancellationAccepted,
+        returnOrigin: globalThis.location.origin
       });
-      setResult(response);
-      setStep(4);
-      window.scrollTo({ behavior: 'smooth', top: 0 });
+      sessionStorage.setItem(`lumina-payment-${response.sessionId}`, JSON.stringify({
+        fields: {
+          serviceId: fields.serviceId,
+          dateKey: fields.dateKey,
+          time: fields.time
+        }
+      }));
+      globalThis.location.assign(response.checkoutUrl);
     } catch (submitError) {
       setError(submitError.message);
     } finally {
@@ -176,16 +147,12 @@ export const usePublicBooking = () => {
   return {
     availabilityLoading,
     catalog,
-    configError,
     depositAmountCents,
     error,
     fields,
     goBack,
     goNext,
-    paymentConfig,
-    processingProof,
-    result,
-    selectProof,
+    result: paymentReturn.result,
     selectedService,
     step,
     submit,

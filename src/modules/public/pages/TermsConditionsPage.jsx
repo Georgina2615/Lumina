@@ -31,7 +31,7 @@ const termsSections = [
     title: 'Reservación y anticipo',
     paragraphs: [
       'La reservación requiere un anticipo equivalente al treinta por ciento del precio del servicio elegido.',
-      'En las citas solicitadas por internet, el pago se realizará mediante transferencia. El horario quedará confirmado cuando recepción revise el comprobante.',
+      'En las citas solicitadas por internet, el anticipo se procesará mediante Mercado Pago. La reservación se registrará cuando el pago sea aprobado.',
       'El anticipo forma parte del pago total del servicio y no se considera un descuento.'
     ]
   },
@@ -40,7 +40,7 @@ const termsSections = [
     title: 'Precios y comprobantes',
     paragraphs: [
       'Los precios se muestran en pesos mexicanos e incluyen IVA.',
-      'Antes de confirmar una operación, se mostrará el importe correspondiente. Lumina Skin entregará un comprobante digital cuando exista un correo registrado.'
+      'Antes de confirmar una operación, se mostrará el importe correspondiente. Lumina Skin enviará al correo registrado la información de la cita.'
     ]
   },
   {

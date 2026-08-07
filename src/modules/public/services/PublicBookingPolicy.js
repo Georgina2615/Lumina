@@ -11,11 +11,6 @@ import {
 // Define la anticipacion publica vigente
 export const publicNoticeMinutes = 120;
 
-// Genera un folio visible para la transferencia
-export const createPublicPaymentReference = () => (
-  `LS-WEB-${crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`
-);
-
 // Formatea importes publicos en pesos
 export const formatPublicPrice = (priceCents) => new Intl.NumberFormat('es-MX', {
   currency: 'MXN',
@@ -71,7 +66,6 @@ export const validatePublicDetailsStep = (fields) => {
 
 // Valida el pago y las autorizaciones
 export const validatePublicPaymentStep = (fields) => {
-  if (!fields.proofDataUrl) throw new Error('Adjunta el comprobante de transferencia');
   if (!fields.privacyAccepted || !fields.termsAccepted || !fields.cancellationAccepted) {
     throw new Error('Acepta los documentos informativos para continuar');
   }

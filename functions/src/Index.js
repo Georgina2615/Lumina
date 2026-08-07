@@ -31,6 +31,10 @@ initializeApp();
 const emailJsConfig = defineJsonSecret('EMAILJS_CONFIG');
 // Declara la plantilla protegida de citas
 const appointmentTemplateId = defineSecret('EMAILJS_APPOINTMENT_TEMPLATE_ID');
+// Declara la credencial privada de Mercado Pago
+const mercadoPagoAccessToken = defineSecret('MERCADOPAGO_ACCESS_TOKEN');
+// Declara la firma privada de notificaciones
+const mercadoPagoWebhookSecret = defineSecret('MERCADOPAGO_WEBHOOK_SECRET');
 // Obtiene la configuración del proceso
 const environment = globalThis.process?.env ?? {};
 
@@ -168,14 +172,19 @@ export const {
 } = createClinicalFunctions({ enforceAppCheck, runtimeOptions });
 
 export const {
+  confirmPublicPayment,
+  createPublicPaymentPreference,
   evaluatePublicSkinTest,
   getClientAccount,
   getPublicAvailability,
   getPublicSkinTest,
+  mercadoPagoWebhook,
   submitPublicAppointmentRequest
 } = createPublicFunctions({
   enforceAppCheck,
   firestore: getFirestore,
+  mercadoPagoAccessToken,
+  mercadoPagoWebhookSecret,
   runtimeOptions,
   storage: getStorage
 });

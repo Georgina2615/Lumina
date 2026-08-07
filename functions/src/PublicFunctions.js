@@ -1,4 +1,10 @@
-import { onCall } from 'firebase-functions/v2/https';
+import { onCall, onRequest } from 'firebase-functions/v2/https';
+import {
+  confirmPublicPaymentHandler
+} from './ConfirmPublicPayment.js';
+import {
+  createPublicPaymentPreferenceHandler
+} from './CreatePublicPaymentPreference.js';
 import {
   getPublicAvailabilityHandler
 } from './GetPublicAvailability.js';
@@ -10,14 +16,37 @@ import {
   evaluatePublicSkinTestHandler,
   getPublicSkinTestHandler
 } from './PublicSkinTest.js';
+import { mercadoPagoWebhookHandler } from './MercadoPagoWebhook.js';
 
 // Expone las funciones protegidas del sitio publico
 export const createPublicFunctions = ({
   enforceAppCheck,
   firestore,
+  mercadoPagoAccessToken,
+  mercadoPagoWebhookSecret,
   runtimeOptions,
   storage
 }) => ({
+  confirmPublicPayment: onCall({
+    ...runtimeOptions,
+    enforceAppCheck,
+    invoker: 'public',
+    secrets: [mercadoPagoAccessToken]
+  }, (request) => confirmPublicPaymentHandler({
+    accessToken: mercadoPagoAccessToken.value(),
+    data: request.data,
+    firestore: firestore()
+  })),
+  createPublicPaymentPreference: onCall({
+    ...runtimeOptions,
+    enforceAppCheck,
+    invoker: 'public',
+    secrets: [mercadoPagoAccessToken]
+  }, (request) => createPublicPaymentPreferenceHandler({
+    accessToken: mercadoPagoAccessToken.value(),
+    data: request.data,
+    firestore: firestore()
+  })),
   evaluatePublicSkinTest: onCall({
     ...runtimeOptions,
     enforceAppCheck,
@@ -46,6 +75,17 @@ export const createPublicFunctions = ({
     invoker: 'public'
   }, () => getPublicSkinTestHandler({
     firestore: firestore()
+  })),
+  mercadoPagoWebhook: onRequest({
+    ...runtimeOptions,
+    invoker: 'public',
+    secrets: [mercadoPagoAccessToken, mercadoPagoWebhookSecret]
+  }, (request, response) => mercadoPagoWebhookHandler({
+    accessToken: mercadoPagoAccessToken.value(),
+    firestore: firestore(),
+    request,
+    response,
+    webhookSecret: mercadoPagoWebhookSecret.value()
   })),
   submitPublicAppointmentRequest: onCall({
     ...runtimeOptions,

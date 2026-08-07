@@ -19,7 +19,7 @@ export default function PublicBookingPage() {
         <div className="mb-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-secondary">Agenda en línea</p>
           <h1 className="mt-3 text-4xl sm:text-5xl">Reserva un momento para tu piel</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted">Selecciona tu tratamiento, envía el anticipo y recepción verificará tu solicitud.</p>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted">Selecciona tu tratamiento y paga el anticipo para reservar tu horario.</p>
         </div>
 
         <div className="overflow-hidden rounded-[2rem] border border-surface-hover bg-surface shadow-xl shadow-primary/5">
@@ -27,14 +27,14 @@ export default function PublicBookingPage() {
           <div className="px-6 py-8 sm:px-10 sm:py-10">
             {booking.step === 1 && <PublicBookingServiceStep error={booking.catalog.error} loading={booking.catalog.loading} onSelect={(value) => booking.updateField('serviceId', value)} selectedId={booking.fields.serviceId} services={booking.catalog.services} />}
             {booking.step === 2 && <PublicBookingDetailsStep availabilityLoading={booking.availabilityLoading} fields={booking.fields} onChange={booking.updateField} timeOptions={booking.timeOptions} />}
-            {booking.step === 3 && <PublicBookingPaymentStep config={booking.paymentConfig} configError={booking.configError} depositAmountCents={booking.depositAmountCents} fields={booking.fields} onChange={booking.updateField} onProof={booking.selectProof} processingProof={booking.processingProof} service={booking.selectedService} />}
+            {booking.step === 3 && <PublicBookingPaymentStep depositAmountCents={booking.depositAmountCents} fields={booking.fields} onChange={booking.updateField} service={booking.selectedService} />}
             {booking.step === 4 && <PublicBookingSuccess fields={booking.fields} result={booking.result} service={booking.selectedService} />}
 
             {booking.error && booking.step < 4 && <p className="mt-6 rounded-2xl bg-error/10 px-4 py-3 text-sm text-error" role="alert">{booking.error}</p>}
             {booking.step < 4 && (
               <div className="mt-8 flex flex-col-reverse justify-between gap-3 border-t border-surface-hover pt-6 sm:flex-row">
                 {booking.step > 1 ? <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-surface-hover px-6 text-sm font-semibold transition hover:bg-background" onClick={booking.goBack} type="button"><FiArrowLeft aria-hidden="true" />Regresar</button> : <span />}
-                {booking.step < 3 ? <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-surface transition hover:bg-secondary" onClick={booking.goNext} type="button">Continuar<FiArrowRight aria-hidden="true" /></button> : <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-surface transition enabled:hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50" disabled={booking.submitting || booking.processingProof || !booking.paymentConfig} onClick={booking.submit} type="button"><FiLock aria-hidden="true" />{booking.submitting ? 'Enviando solicitud' : 'Enviar para revisión'}</button>}
+                {booking.step < 3 ? <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-surface transition hover:bg-secondary" onClick={booking.goNext} type="button">Continuar<FiArrowRight aria-hidden="true" /></button> : <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-surface transition enabled:hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50" disabled={booking.submitting} onClick={booking.submit} type="button"><FiLock aria-hidden="true" />{booking.submitting ? 'Preparando pago' : 'Pagar con Mercado Pago'}</button>}
               </div>
             )}
           </div>

@@ -1,7 +1,7 @@
 import { FiCheck } from 'react-icons/fi';
 
 // Define las etapas visibles del formulario
-const steps = ['Servicio', 'Datos y horario', 'Transferencia'];
+const steps = ['Servicio', 'Datos y horario', 'Pago seguro'];
 
 // Presenta el avance sin controlar el formulario
 export default function PublicBookingProgress({ currentStep }) {
