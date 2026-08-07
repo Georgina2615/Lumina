@@ -16,6 +16,7 @@ import { createClinicalFunctions } from './ClinicalFunctions.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import { manageScheduleAvailabilityHandler } from './ManageScheduleAvailability.js';
 import { manageServiceCatalogHandler } from './ManageServiceCatalog.js';
+import { createSkinTestConfigFunction } from './SkinTestConfigFunction.js';
 import { createPublicFunctions } from './PublicFunctions.js';
 import { reviewPublicAppointmentRequestHandler } from './ReviewPublicAppointmentRequest.js';
 import { reprogramReceptionAppointmentHandler } from './ReprogramReceptionAppointment.js';
@@ -208,6 +209,9 @@ export const manageServiceCatalog = onCall({
   data: request.data,
   firestore: getFirestore()
 }));
+
+// Administra el contenido del test de piel
+export const manageSkinTestConfig = createSkinTestConfigFunction({ enforceAppCheck, firestore: getFirestore, runtimeOptions });
 
 // Administra los bloqueos reales de la agenda
 export const manageScheduleAvailability = onCall({

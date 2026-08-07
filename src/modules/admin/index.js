@@ -16,3 +16,6 @@ export {
   default as AdminAvailability
 } from './settings/availability/pages/AdminAvailability';
 export { default as AdminServices } from './settings/catalog/pages/AdminServices';
+export {
+  default as AdminSkinTest
+} from './settings/skin-test/pages/AdminSkinTest';

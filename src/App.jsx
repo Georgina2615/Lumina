@@ -25,6 +25,7 @@ import {
   AdminPaymentsReport,
   AdminReportsLayout,
   AdminRetailInventory,
+  AdminSkinTest,
   AdminServices,
   AdminSettingsLayout
 } from './modules/admin';
@@ -140,9 +141,10 @@ export default function App() {
                   <Route index element={<Navigate to="servicios" replace />} />
                   <Route path="servicios" element={<AdminServices />} />
                   <Route
-                    path="disponibilidad"
-                    element={<AdminAvailability />}
-                  />
+                  path="disponibilidad"
+                  element={<AdminAvailability />}
+                />
+                <Route path="test-piel" element={<AdminSkinTest />} />
                   <Route
                     path="*"
                     element={(

@@ -1,4 +1,4 @@
-import { FiCalendar, FiSliders } from 'react-icons/fi';
+import { FiCalendar, FiClipboard, FiSliders } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 
 const settingsItems = [
@@ -11,6 +11,11 @@ const settingsItems = [
     icon: FiCalendar,
     label: 'Disponibilidad',
     path: '/dashboard/admin/configuracion/disponibilidad'
+  },
+  {
+    icon: FiClipboard,
+    label: 'Test de piel',
+    path: '/dashboard/admin/configuracion/test-piel'
   }
 ];
 

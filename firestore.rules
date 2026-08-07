@@ -60,6 +60,16 @@ service cloud.firestore {
       allow read: if configId == 'pagos' && resource.data.active == true;
       allow create, update, delete: if false;
     }
+    // Configuracion privada del test de piel
+    match /configuracionTestPiel/{configId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+    // Historial privado del test de piel
+    match /cambiosTestPiel/{changeId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
     // Solicitudes recibidas desde el sitio publico
     match /solicitudesCitaPublica/{requestId} {
       allow read: if isReceptionOrAdmin();
