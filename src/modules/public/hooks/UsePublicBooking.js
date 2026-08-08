@@ -109,6 +109,7 @@ export const usePublicBooking = () => {
   const goBack = () => {
     setError('');
     setStep((current) => Math.max(current - 1, 1));
+    window.scrollTo({ behavior: 'smooth', top: 0 });
   };
 
   // Crea el pago y dirige al sitio seguro

@@ -1,23 +1,35 @@
 import { getBusinessDateKey } from '../../../shared/services/AppointmentSchedulePolicy';
+import { formatPublicPrice } from '../services/PublicBookingPolicy';
 
 // Comparte los estilos de captura del formulario
-const inputClassName = 'mt-2 min-h-12 w-full rounded-xl border border-surface-hover bg-background px-4 text-sm text-primary outline-none transition placeholder:text-muted/55 focus:border-secondary focus:ring-2 focus:ring-secondary/15';
+const inputClassName = 'mt-2 min-h-12 w-full rounded-xl border border-surface-hover bg-background px-4 text-base text-primary outline-none transition placeholder:text-muted/55 focus:border-secondary focus:ring-2 focus:ring-secondary/15 sm:text-sm';
 
 // Presenta los datos y horarios disponibles
 export default function PublicBookingDetailsStep({
   availabilityLoading,
   fields,
   onChange,
+  service,
   timeOptions
 }) {
   // Devuelve la captura publica obligatoria
   return (
     <section aria-labelledby="booking-details-title">
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">Paso dos</p>
-      <h2 className="mt-2 text-3xl" id="booking-details-title">Datos y horario</h2>
+      <h2 className="mt-2 text-2xl sm:text-3xl" id="booking-details-title">Datos y horario</h2>
       <p className="mt-3 text-sm leading-6 text-muted">Usaremos estos datos para identificar tu solicitud y comunicarnos contigo.</p>
 
-      <div className="mt-7 grid gap-5 sm:grid-cols-2">
+      {service && (
+        <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-status-pending/30 bg-status-pending/10 px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary">Tratamiento elegido</p>
+            <p className="mt-1 truncate text-sm font-semibold text-primary">{service.name}</p>
+          </div>
+          <p className="shrink-0 font-title text-lg font-semibold text-primary">{formatPublicPrice(service.priceCents)}</p>
+        </div>
+      )}
+
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
         <label className="text-xs font-semibold text-muted sm:col-span-2">Nombre completo
           <input autoComplete="name" className={inputClassName} maxLength="150" onChange={(event) => onChange('fullName', event.target.value)} placeholder="Nombre y apellidos" value={fields.fullName} />
         </label>
