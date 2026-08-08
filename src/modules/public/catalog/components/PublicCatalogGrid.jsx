@@ -5,7 +5,7 @@ import PublicProductCard from './PublicProductCard';
 export default function PublicCatalogGrid({ error, loading, onRetry, products }) {
   if (loading) {
     return (
-      <div aria-label="Cargando productos" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div aria-label="Cargando productos" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {[1, 2, 3, 4].map((item) => <div className="aspect-[0.72] animate-pulse rounded-[1.75rem] bg-surface-hover/60" key={item} />)}
       </div>
     );
@@ -30,5 +30,5 @@ export default function PublicCatalogGrid({ error, loading, onRetry, products })
     );
   }
 
-  return <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{products.map((product) => <PublicProductCard key={product.id} product={product} />)}</div>;
+  return <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{products.map((product) => <PublicProductCard key={product.id} product={product} />)}</div>;
 }
