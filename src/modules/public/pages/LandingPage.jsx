@@ -1,5 +1,4 @@
 import {
-  PublicContactSection,
   PublicExperienceSection,
   PublicHero,
   PublicServicesSection
@@ -19,9 +18,9 @@ export default function LandingPage() {
         error={catalog.error}
         loading={catalog.loading}
         onRetry={catalog.reload}
-        services={catalog.services}
+        services={catalog.services.slice(0, 3)}
+        showAllLink
       />
-      <PublicContactSection />
     </>
   );
 }

@@ -1,16 +1,41 @@
 import { useState } from 'react';
 import { FiCalendar, FiLogIn, FiMenu, FiX } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
-// Define los destinos disponibles en la portada
-const publicNavigation = [
-  { href: '/#servicios', label: 'Servicios' },
-  { href: '/productos', label: 'Productos' },
-  { href: '/#contacto', label: 'Contacto' },
-  { href: '/test-de-piel', label: 'Test de piel' },
-  { href: '/agendar', label: 'Agendar' },
-  { href: '/mi-cuenta', label: 'Mi cuenta' }
+// Define los destinos informativos de escritorio
+const desktopNavigation = [
+  { end: true, label: 'Inicio', to: '/' },
+  { label: 'Servicios', to: '/servicios' },
+  { label: 'Productos', to: '/productos' },
+  { label: 'Test de piel', to: '/test-de-piel' },
+  { label: 'Contacto', to: '/contacto' },
+  { label: 'Mi cuenta', to: '/mi-cuenta' }
 ];
+
+// Agrupa los destinos para lectura movil
+const mobileNavigationGroups = [
+  {
+    items: desktopNavigation.slice(0, 4),
+    label: 'Explorar'
+  },
+  {
+    items: [
+      { label: 'Agendar cita', to: '/agendar' },
+      desktopNavigation[5]
+    ],
+    label: 'Tu visita'
+  },
+  {
+    items: [desktopNavigation[4]],
+    label: 'Ayuda'
+  }
+];
+
+// Resalta el destino vigente en escritorio
+const getDesktopLinkClassName = ({ isActive }) => `relative py-2 text-sm font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:origin-left after:rounded-full after:bg-status-pending after:transition-transform after:duration-300 ${isActive ? 'text-primary after:scale-x-100' : 'text-muted after:scale-x-0 hover:text-primary hover:after:scale-x-100'}`;
+
+// Resalta el destino vigente en movil
+const getMobileLinkClassName = ({ isActive }) => `rounded-xl px-4 py-3 text-sm font-semibold transition active:scale-[0.99] ${isActive ? 'bg-primary text-surface' : 'text-primary hover:bg-surface'}`;
 
 // Presenta la navegacion publica disponible
 export default function PublicHeader({ onOpenLoginModal }) {
@@ -38,21 +63,20 @@ export default function PublicHeader({ onOpenLoginModal }) {
     <header className="sticky top-0 z-50 border-b border-surface-hover bg-background/92 shadow-sm shadow-primary/5 backdrop-blur-xl" onKeyDown={handleHeaderKeyDown}>
       <div aria-hidden="true" className="h-1 bg-gradient-to-r from-status-confirmed via-status-pending to-secondary" />
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-12">
-        <Link aria-label="Ir al inicio de Lumina Skin" className="group shrink-0" to="/">
+        <a aria-label="Reiniciar la experiencia de Lumina Skin" className="group shrink-0" href="/">
           <img alt="Lumina Skin" className="h-auto w-36 transition-transform duration-300 group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transform-none sm:w-44" src="/LuminaLogo.svg" />
-        </Link>
+        </a>
 
-        <nav aria-label="Navegación principal" className="hidden items-center gap-8 md:flex">
-          {publicNavigation.map(({ href, label }) => (
-            <a className="group relative py-2 text-sm font-medium text-muted transition-colors hover:text-primary" href={href} key={href}>
+        <nav aria-label="Navegación principal" className="hidden items-center gap-5 xl:flex">
+          {desktopNavigation.map(({ end, label, to }) => (
+            <NavLink className={getDesktopLinkClassName} end={end} key={to} to={to}>
               {label}
-              <span aria-hidden="true" className="absolute inset-x-0 -bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-status-pending transition-transform duration-300 group-hover:scale-x-100" />
-            </a>
+            </NavLink>
           ))}
         </nav>
 
         <div className="flex items-center gap-2">
-          <button aria-label="Abrir acceso para el personal" className="hidden min-h-10 items-center gap-2 rounded-full border border-transparent px-4 text-sm font-semibold text-secondary transition duration-300 hover:border-surface-hover hover:bg-surface hover:text-primary md:inline-flex" onClick={onOpenLoginModal} type="button">
+          <button aria-label="Abrir acceso para el personal" className="hidden min-h-10 items-center gap-2 rounded-full border border-transparent px-4 text-sm font-semibold text-secondary transition duration-300 hover:border-surface-hover hover:bg-surface hover:text-primary xl:inline-flex" onClick={onOpenLoginModal} type="button">
             <FiLogIn aria-hidden="true" />
             Personal
           </button>
@@ -60,7 +84,7 @@ export default function PublicHeader({ onOpenLoginModal }) {
             <FiCalendar aria-hidden="true" />
             <span className="hidden sm:inline">Agendar cita</span>
           </Link>
-          <button aria-controls="public-mobile-navigation" aria-expanded={mobileNavigationOpen} aria-label={mobileNavigationOpen ? 'Cerrar menú' : 'Abrir menú'} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-hover bg-surface text-primary transition hover:border-secondary/40 md:hidden" onClick={() => setMobileNavigationOpen((currentValue) => !currentValue)} type="button">
+          <button aria-controls="public-mobile-navigation" aria-expanded={mobileNavigationOpen} aria-label={mobileNavigationOpen ? 'Cerrar menú' : 'Abrir menú'} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-surface-hover bg-surface text-primary transition hover:border-secondary/40 xl:hidden" onClick={() => setMobileNavigationOpen((currentValue) => !currentValue)} type="button">
             {mobileNavigationOpen ? <FiX aria-hidden="true" /> : <FiMenu aria-hidden="true" />}
           </button>
         </div>
@@ -68,7 +92,7 @@ export default function PublicHeader({ onOpenLoginModal }) {
 
       <button
         aria-label="Cerrar menú"
-        className={`fixed inset-0 top-[5.25rem] bg-primary/20 backdrop-blur-[2px] transition-opacity duration-300 md:hidden ${mobileNavigationOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}
+        className={`fixed inset-0 top-[5.25rem] bg-primary/20 backdrop-blur-[2px] transition-opacity duration-300 xl:hidden ${mobileNavigationOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}
         onClick={closeMobileNavigation}
         tabIndex="-1"
         type="button"
@@ -76,15 +100,20 @@ export default function PublicHeader({ onOpenLoginModal }) {
       <nav
         aria-hidden={!mobileNavigationOpen}
         aria-label="Navegación móvil"
-        className={`absolute inset-x-0 top-full origin-top border-b border-surface-hover bg-background px-5 py-4 shadow-xl shadow-primary/10 transition duration-300 ease-out md:hidden ${mobileNavigationOpen ? 'visible translate-y-0 scale-y-100 opacity-100' : 'invisible -translate-y-3 scale-y-95 opacity-0'}`}
+        className={`absolute inset-x-0 top-full max-h-[calc(100dvh-5rem)] origin-top overflow-y-auto border-b border-surface-hover bg-background px-5 py-5 shadow-xl shadow-primary/10 transition duration-300 ease-out xl:hidden ${mobileNavigationOpen ? 'visible translate-y-0 scale-y-100 opacity-100' : 'invisible -translate-y-3 scale-y-95 opacity-0'}`}
         id="public-mobile-navigation"
         inert={!mobileNavigationOpen ? '' : undefined}
       >
-          <div className="mx-auto flex max-w-7xl flex-col gap-2">
-            {publicNavigation.map(({ href, label }) => (
-              <a className="rounded-xl px-4 py-3 text-sm font-semibold text-primary transition hover:bg-surface active:scale-[0.99]" href={href} key={href} onClick={closeMobileNavigation}>{label}</a>
+          <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-3">
+            {mobileNavigationGroups.map(({ items, label }) => (
+              <div key={label}>
+                <p className="px-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-secondary">{label}</p>
+                <div className="mt-2 flex flex-col gap-1">
+                  {items.map(({ end, label: itemLabel, to }) => <NavLink className={getMobileLinkClassName} end={end} key={to} onClick={closeMobileNavigation} to={to}>{itemLabel}</NavLink>)}
+                </div>
+              </div>
             ))}
-            <button className="flex items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold text-secondary transition hover:bg-surface active:scale-[0.99]" onClick={openMobileLogin} type="button">
+            <button className="flex items-center gap-2 rounded-xl border-t border-surface-hover px-4 py-3 text-left text-sm font-semibold text-secondary transition hover:bg-surface active:scale-[0.99] sm:col-span-3" onClick={openMobileLogin} type="button">
               <FiLogIn aria-hidden="true" />
               Acceso del personal
             </button>

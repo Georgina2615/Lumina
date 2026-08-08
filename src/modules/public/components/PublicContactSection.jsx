@@ -27,7 +27,7 @@ const contactOptions = [
 export default function PublicContactSection() {
   // Devuelve una seccion sin datos simulados
   return (
-    <section className="px-5 py-20 sm:px-8 lg:px-12 lg:py-28" id="contacto">
+    <section className="px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
       <Reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-primary px-6 py-10 text-surface shadow-2xl shadow-primary/10 sm:px-10 lg:px-14 lg:py-14" variant="scale">
         <div aria-hidden="true" className="absolute -right-20 -top-24 h-60 w-60 rounded-full border border-status-pending/20" />
         <div aria-hidden="true" className="absolute -bottom-28 right-16 h-52 w-52 rounded-full bg-status-confirmed/10 blur-2xl" />

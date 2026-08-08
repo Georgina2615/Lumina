@@ -6,6 +6,8 @@ export { default as NotFoundPage } from './NotFoundPage';
 export { default as PrivacyNoticePage } from './PrivacyNoticePage';
 export { default as PresentationPage } from './PresentationPage';
 export { default as PublicBookingPage } from './PublicBookingPage';
+export { default as PublicContactPage } from './PublicContactPage';
 export { default as PublicProductsPage } from '../catalog/pages/PublicProductsPage';
+export { default as PublicServicesPage } from './PublicServicesPage';
 export { default as TermsConditionsPage } from './TermsConditionsPage';
 export { default as PublicSkinTestPage } from '../skin-test/pages/PublicSkinTestPage';

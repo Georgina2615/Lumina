@@ -27,7 +27,7 @@ const experienceSteps = [
 export default function PublicExperienceSection() {
   // Devuelve una explicacion clara sin promesas simuladas
   return (
-    <section className="relative overflow-hidden px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+    <section className="relative overflow-hidden px-5 py-12 sm:px-8 lg:px-12 lg:py-16">
       <div aria-hidden="true" className="absolute left-1/2 top-12 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-status-confirmed/10 blur-3xl" />
       <div className="mx-auto max-w-7xl">
         <Reveal className="mx-auto max-w-2xl text-center">

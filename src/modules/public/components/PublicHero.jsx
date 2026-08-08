@@ -1,4 +1,5 @@
-import { FiArrowDown, FiCalendar, FiMapPin, FiMessageCircle } from 'react-icons/fi';
+import { FiArrowRight, FiCalendar, FiMapPin, FiMessageCircle } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import { Reveal } from '../../../shared/components';
 import heroImage from '../assets/LuminaHero.jpg';
 
@@ -12,7 +13,7 @@ const trustItems = [
 export default function PublicHero() {
   // Devuelve la portada publica
   return (
-    <section className="relative isolate overflow-hidden px-5 pb-20 pt-10 sm:px-8 lg:px-12 lg:pb-28 lg:pt-16">
+    <section className="relative isolate overflow-hidden px-5 pb-12 pt-8 sm:px-8 lg:px-12 lg:pb-16 lg:pt-12">
       <div aria-hidden="true" className="absolute -left-20 top-16 -z-10 h-72 w-72 rounded-full bg-status-pending/15 blur-3xl motion-safe:animate-pulse" />
       <div aria-hidden="true" className="absolute -right-24 bottom-0 -z-10 h-80 w-80 rounded-full bg-status-confirmed/10 blur-3xl" />
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
@@ -26,7 +27,7 @@ export default function PublicHero() {
           </Reveal>
           <Reveal delay={150} variant="left">
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-surface shadow-lg shadow-primary/15 transition duration-300 hover:-translate-y-0.5 hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none" href="#servicios">Conocer servicios<FiArrowDown aria-hidden="true" /></a>
+              <Link className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-surface shadow-lg shadow-primary/15 transition duration-300 hover:-translate-y-0.5 hover:bg-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none" to="/servicios">Conocer servicios<FiArrowRight aria-hidden="true" /></Link>
               <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-surface-hover bg-surface px-6 text-sm font-semibold text-primary transition duration-300 hover:-translate-y-0.5 hover:border-secondary/40 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none" href="https://wa.me/529811017687" rel="noreferrer" target="_blank"><FiMessageCircle aria-hidden="true" />Escribir por WhatsApp</a>
             </div>
           </Reveal>

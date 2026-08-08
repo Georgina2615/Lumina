@@ -19,9 +19,9 @@ export default function PublicFooter() {
       <div aria-hidden="true" className="absolute -right-10 -top-20 h-52 w-52 rounded-full border border-status-pending/10" />
       <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.7fr_1fr]">
         <Reveal>
-          <Link aria-label="Ir al inicio" className="inline-block rounded-2xl bg-background px-4 py-3" to="/">
+          <a aria-label="Reiniciar la experiencia de Lumina Skin" className="inline-block rounded-2xl bg-background px-4 py-3" href="/">
             <img alt="Lumina Skin" className="w-48" src="/LuminaLogo.svg" />
-          </Link>
+          </a>
           <p className="mt-5 max-w-md text-sm leading-6 text-surface/70">Cuidado estético facial con atención cercana y tratamientos personalizados.</p>
           <p className="mt-5 text-xs text-status-pending">Proyecto académico desarrollado por Joely Balam Reyes.</p>
         </Reveal>
@@ -29,9 +29,9 @@ export default function PublicFooter() {
         <Reveal delay={100}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-status-pending">Explora</p>
           <nav aria-label="Navegación del pie" className="mt-5 flex flex-col items-start gap-3">
-            <a className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" href="/#servicios">Servicios</a>
+            <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/servicios">Servicios</Link>
             <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/productos">Productos</Link>
-            <a className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" href="/#contacto">Contacto</a>
+            <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/contacto">Contacto</Link>
             <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/sobre-el-proyecto">Sobre el proyecto</Link>
             <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/aviso-privacidad">Aviso de privacidad</Link>
             <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/terminos-condiciones">Términos y condiciones</Link>

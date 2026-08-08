@@ -42,14 +42,17 @@ function PublicServiceCard({ service, index }) {
 }
 
 // Presenta el catalogo real de tratamientos
-export default function PublicServicesSection({ error, loading, onRetry, services }) {
+export default function PublicServicesSection({ error, loading, onRetry, services, showAllLink = false }) {
+  // Conserva un solo titulo principal por pantalla
+  const TitleTag = showAllLink ? 'h2' : 'h1';
+
   // Devuelve la seccion con sus estados completos
   return (
-    <section className="scroll-mt-24 bg-surface px-5 py-20 sm:px-8 lg:px-12 lg:py-28" id="servicios">
+    <section className="bg-surface px-5 py-14 sm:px-8 lg:px-12 lg:py-16">
       <div className="mx-auto max-w-7xl">
         <Reveal className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-secondary">Nuestros tratamientos</p>
-          <h2 className="mt-4 text-4xl leading-tight text-primary sm:text-5xl">Un cuidado pensado para cada piel</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-secondary">{showAllLink ? 'Una mirada a nuestros tratamientos' : 'Nuestros tratamientos'}</p>
+          <TitleTag className="mt-4 text-4xl leading-tight text-primary sm:text-5xl">Un cuidado pensado para cada piel</TitleTag>
           <p className="mt-4 text-base leading-7 text-muted">Consulta precios actuales y elige el tratamiento que deseas conocer.</p>
         </Reveal>
 
@@ -74,13 +77,20 @@ export default function PublicServicesSection({ error, loading, onRetry, service
         )}
 
         {!loading && !error && services.length > 0 && (
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {services.map((service, index) => (
-              <Reveal className="h-full" delay={[0, 100, 200][index % 3]} key={service.id}>
-                <PublicServiceCard index={index} service={service} />
+          <>
+            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {services.map((service, index) => (
+                <Reveal className="h-full" delay={[0, 100, 200][index % 3]} key={service.id}>
+                  <PublicServiceCard index={index} service={service} />
+                </Reveal>
+              ))}
+            </div>
+            {showAllLink && (
+              <Reveal className="mt-8 flex justify-center">
+                <Link className="inline-flex min-h-12 items-center gap-2 rounded-full border border-secondary/25 bg-background px-6 text-sm font-semibold text-primary transition hover:-translate-y-0.5 hover:border-secondary hover:shadow-md active:scale-[0.98] motion-reduce:transform-none" to="/servicios">Ver todos los servicios<FiArrowRight aria-hidden="true" /></Link>
               </Reveal>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </section>
