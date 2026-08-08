@@ -13,6 +13,7 @@ import { manageReceptionAppointmentHandler } from './ManageReceptionAppointment.
 import { manageCabinSupplyHandler } from './ManageCabinSupply.js';
 import { manageCashCloseHandler } from './ManageCashClose.js';
 import { createClinicalFunctions } from './ClinicalFunctions.js';
+import { createAdminInvoiceFunctions } from './AdminInvoiceFunctions.js';
 import { manageRetailProductHandler } from './ManageRetailProduct.js';
 import { manageScheduleAvailabilityHandler } from './ManageScheduleAvailability.js';
 import { manageServiceCatalogHandler } from './ManageServiceCatalog.js';
@@ -188,6 +189,16 @@ export const {
   mercadoPagoWebhookSecret,
   runtimeOptions,
   storage: getStorage
+});
+
+// Expone las funciones privadas de facturación
+export const {
+  getAdminInvoiceRequests,
+  manageAdminInvoiceRequest
+} = createAdminInvoiceFunctions({
+  enforceAppCheck,
+  firestore: getFirestore,
+  runtimeOptions
 });
 
 // Revisa solicitudes publicas desde recepcion

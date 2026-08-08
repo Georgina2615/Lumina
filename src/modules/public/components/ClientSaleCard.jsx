@@ -6,8 +6,10 @@ import {
 
 const invoiceStates = {
   pendiente: { label: 'Solicitud recibida', tone: 'bg-status-pending/20 text-secondary' },
+  preparada: { label: 'Factura preparada', tone: 'bg-status-active/15 text-status-active' },
+  entregada: { label: 'Solicitud atendida', tone: 'bg-status-confirmed/15 text-status-confirmed' },
   en_preparacion: { label: 'Preparando factura', tone: 'bg-status-active/15 text-status-active' },
-  enviada: { label: 'Factura enviada', tone: 'bg-status-confirmed/15 text-status-confirmed' },
+  enviada: { label: 'Solicitud atendida', tone: 'bg-status-confirmed/15 text-status-confirmed' },
   rechazada: { label: 'Revisión necesaria', tone: 'bg-error/10 text-error' }
 };
 

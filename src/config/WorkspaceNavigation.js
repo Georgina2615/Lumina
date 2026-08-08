@@ -25,20 +25,16 @@ const adminWorkspaceItems = [
     roles: ['admin']
   },
   {
+    activePaths: [
+      '/dashboard/admin/cobros',
+      '/dashboard/admin/corte-diario',
+      '/dashboard/admin/facturas'
+    ],
     icon: FaMoneyBillWave,
-    id: 'admin-payments-report',
-    label: 'Cobros y ventas',
-    mobileLabel: 'Cobros',
+    id: 'admin-finance',
+    label: 'Finanzas',
+    mobileLabel: 'Finanzas',
     path: '/dashboard/admin/cobros',
-    roles: ['admin']
-  },
-  {
-    icon: FaCashRegister,
-    id: 'admin-cash-close',
-    label: 'Corte diario',
-    mobileHidden: true,
-    mobileLabel: 'Corte',
-    path: '/dashboard/admin/corte-diario',
     roles: ['admin']
   },
   {

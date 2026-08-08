@@ -1,8 +1,9 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
 
 // Presenta la navegación principal en dispositivos móviles
 export default function MobileTabBar({ allowedMenu, onLogout }) {
+  const { pathname } = useLocation();
   // Evita duplicar el cambio de espacio en la barra inferior
   const mobileMenu = allowedMenu.filter((item) => !item.mobileHidden);
 
@@ -15,18 +16,21 @@ export default function MobileTabBar({ allowedMenu, onLogout }) {
       {mobileMenu.map((item) => (
         <NavLink
           aria-label={item.label}
+          aria-current={item.activePaths?.includes(pathname) ? 'page' : undefined}
           end={item.end}
           key={item.id}
           to={item.path}
-          className={({ isActive }) =>
-            `flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-1 py-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
-              isActive
+          className={({ isActive }) => {
+            const isSectionActive = isActive
+              || item.activePaths?.includes(pathname);
+            return `flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-1 py-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+              isSectionActive
                 ? 'bg-surface-hover/70 text-primary'
                 : item.intent === 'switch'
                   ? 'bg-background/70 text-secondary hover:text-primary'
                   : 'text-muted hover:text-primary'
-            }`
-          }
+            }`;
+          }}
         >
           <item.icon aria-hidden="true" className="mb-1 text-2xl" />
           <span className="w-full truncate text-center text-[10px] font-semibold tracking-wide">

@@ -5,6 +5,7 @@ export {
 export { default as AdminRetailInventory } from './inventory/pages/AdminRetailInventory';
 export { default as AdminLayout } from './layouts/AdminLayout';
 export { default as AdminPaymentsReport } from './reports/pages/AdminPaymentsReport';
+export { default as AdminInvoices } from './reports/invoices/pages/AdminInvoices';
 export { default as AdminReportsLayout } from './reports/layouts/AdminReportsLayout';
 export {
   default as AdminCashClose

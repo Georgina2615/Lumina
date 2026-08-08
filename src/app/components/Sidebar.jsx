@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { FiLogOut, FiMenu } from 'react-icons/fi';
 
 // Obtiene iniciales reconocibles para cuentas sin fotografía
@@ -29,6 +29,7 @@ export default function Sidebar({
   // Conserva el estado visual del menú
   const [isExpanded, setIsExpanded] = useState(false);
   const sidebarRef = useRef(null);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     // Cierra el menú al interactuar fuera de su espacio
@@ -112,15 +113,18 @@ export default function Sidebar({
             >
               <NavLink
                 aria-label={isExpanded ? undefined : item.label}
-                className={({ isActive }) =>
-                  `flex w-full items-center gap-4 rounded-xl px-3 py-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
-                    isActive
+                aria-current={item.activePaths?.includes(pathname) ? 'page' : undefined}
+                className={({ isActive }) => {
+                  const isSectionActive = isActive
+                    || item.activePaths?.includes(pathname);
+                  return `flex w-full items-center gap-4 rounded-xl px-3 py-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary ${
+                    isSectionActive
                       ? 'bg-primary text-surface shadow-md'
                       : item.intent === 'switch'
                         ? 'text-secondary hover:bg-surface-hover hover:text-primary'
                         : 'text-muted hover:bg-surface-hover hover:text-primary'
-                  }`
-                }
+                  }`;
+                }}
                 end={item.end}
                 title={isExpanded ? undefined : item.label}
                 to={item.path}

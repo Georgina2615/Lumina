@@ -1,4 +1,4 @@
-import { FiClipboard, FiDollarSign } from 'react-icons/fi';
+import { FiClipboard, FiDollarSign, FiFileText } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 
 const reportItems = [
@@ -11,6 +11,11 @@ const reportItems = [
     icon: FiClipboard,
     label: 'Corte diario',
     path: '/dashboard/admin/corte-diario'
+  },
+  {
+    icon: FiFileText,
+    label: 'Facturas',
+    path: '/dashboard/admin/facturas'
   }
 ];
 
