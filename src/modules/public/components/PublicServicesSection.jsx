@@ -1,4 +1,6 @@
 import { FiArrowRight, FiClock, FiRefreshCw } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { Reveal } from '../../../shared/components';
 
 // Formatea precios mexicanos con IVA incluido
 const formatPrice = (priceCents) => new Intl.NumberFormat('es-MX', {
@@ -10,7 +12,7 @@ const formatPrice = (priceCents) => new Intl.NumberFormat('es-MX', {
 function PublicServiceCard({ service, index }) {
   // Devuelve los datos reales del servicio
   return (
-    <article className="group flex min-h-64 flex-col justify-between rounded-3xl border border-surface-hover bg-background p-6 transition duration-300 hover:-translate-y-1 hover:border-secondary/30 hover:shadow-xl hover:shadow-primary/5 motion-reduce:transform-none">
+    <article className="group flex h-full min-h-64 flex-col justify-between rounded-3xl border border-surface-hover bg-background p-6 transition duration-300 hover:-translate-y-1 hover:border-secondary/30 hover:shadow-xl hover:shadow-primary/5 active:scale-[0.99] motion-reduce:transform-none">
       <div>
         <div className="flex items-start justify-between gap-4">
           <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-secondary">
@@ -33,7 +35,7 @@ function PublicServiceCard({ service, index }) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Precio con IVA</p>
           <p className="mt-1 font-title text-2xl font-semibold text-primary">{formatPrice(service.priceCents)}</p>
         </div>
-        <FiArrowRight aria-hidden="true" className="text-secondary transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transform-none" size={20} />
+        <Link aria-label={`Agendar ${service.name}`} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-surface px-4 text-xs font-semibold text-secondary transition duration-300 hover:bg-primary hover:text-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary" to={`/agendar?servicio=${encodeURIComponent(service.id)}`}>Agendar<FiArrowRight aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transform-none" /></Link>
       </div>
     </article>
   );
@@ -45,11 +47,11 @@ export default function PublicServicesSection({ error, loading, onRetry, service
   return (
     <section className="scroll-mt-24 bg-surface px-5 py-20 sm:px-8 lg:px-12 lg:py-28" id="servicios">
       <div className="mx-auto max-w-7xl">
-        <div className="max-w-2xl">
+        <Reveal className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-secondary">Nuestros tratamientos</p>
           <h2 className="mt-4 text-4xl leading-tight text-primary sm:text-5xl">Un cuidado pensado para cada piel</h2>
           <p className="mt-4 text-base leading-7 text-muted">Consulta precios actuales y elige el tratamiento que deseas conocer.</p>
-        </div>
+        </Reveal>
 
         {loading && (
           <div aria-label="Cargando servicios" className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -73,7 +75,11 @@ export default function PublicServicesSection({ error, loading, onRetry, service
 
         {!loading && !error && services.length > 0 && (
           <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {services.map((service, index) => <PublicServiceCard index={index} key={service.id} service={service} />)}
+            {services.map((service, index) => (
+              <Reveal className="h-full" delay={[0, 100, 200][index % 3]} key={service.id}>
+                <PublicServiceCard index={index} service={service} />
+              </Reveal>
+            ))}
           </div>
         )}
       </div>

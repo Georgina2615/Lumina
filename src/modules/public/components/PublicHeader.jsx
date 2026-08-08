@@ -39,7 +39,7 @@ export default function PublicHeader({ onOpenLoginModal }) {
       <div aria-hidden="true" className="h-1 bg-gradient-to-r from-status-confirmed via-status-pending to-secondary" />
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-12">
         <Link aria-label="Ir al inicio de Lumina Skin" className="group shrink-0" to="/">
-          <img alt="Lumina Skin" className="h-auto w-36 transition-transform duration-300 group-hover:scale-[1.02] sm:w-44" src="/LuminaLogo.svg" />
+          <img alt="Lumina Skin" className="h-auto w-36 transition-transform duration-300 group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transform-none sm:w-44" src="/LuminaLogo.svg" />
         </Link>
 
         <nav aria-label="Navegación principal" className="hidden items-center gap-8 md:flex">
@@ -56,7 +56,7 @@ export default function PublicHeader({ onOpenLoginModal }) {
             <FiLogIn aria-hidden="true" />
             Personal
           </button>
-          <Link aria-label="Agendar una cita" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-status-pending px-4 text-sm font-semibold text-primary shadow-md shadow-status-pending/20 transition duration-300 hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none sm:px-5" to="/agendar">
+          <Link aria-label="Agendar una cita" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-status-pending px-4 text-sm font-semibold text-primary shadow-md shadow-status-pending/20 transition duration-300 hover:-translate-y-0.5 hover:brightness-95 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none sm:px-5" to="/agendar">
             <FiCalendar aria-hidden="true" />
             <span className="hidden sm:inline">Agendar cita</span>
           </Link>
@@ -66,19 +66,30 @@ export default function PublicHeader({ onOpenLoginModal }) {
         </div>
       </div>
 
-      {mobileNavigationOpen && (
-        <nav aria-label="Navegación móvil" className="absolute inset-x-0 top-full border-b border-surface-hover bg-background px-5 py-4 shadow-xl shadow-primary/10 md:hidden" id="public-mobile-navigation">
+      <button
+        aria-label="Cerrar menú"
+        className={`fixed inset-0 top-[5.25rem] bg-primary/20 backdrop-blur-[2px] transition-opacity duration-300 md:hidden ${mobileNavigationOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}
+        onClick={closeMobileNavigation}
+        tabIndex="-1"
+        type="button"
+      />
+      <nav
+        aria-hidden={!mobileNavigationOpen}
+        aria-label="Navegación móvil"
+        className={`absolute inset-x-0 top-full origin-top border-b border-surface-hover bg-background px-5 py-4 shadow-xl shadow-primary/10 transition duration-300 ease-out md:hidden ${mobileNavigationOpen ? 'visible translate-y-0 scale-y-100 opacity-100' : 'invisible -translate-y-3 scale-y-95 opacity-0'}`}
+        id="public-mobile-navigation"
+        inert={!mobileNavigationOpen ? '' : undefined}
+      >
           <div className="mx-auto flex max-w-7xl flex-col gap-2">
             {publicNavigation.map(({ href, label }) => (
-              <a className="rounded-xl px-4 py-3 text-sm font-semibold text-primary transition hover:bg-surface" href={href} key={href} onClick={closeMobileNavigation}>{label}</a>
+              <a className="rounded-xl px-4 py-3 text-sm font-semibold text-primary transition hover:bg-surface active:scale-[0.99]" href={href} key={href} onClick={closeMobileNavigation}>{label}</a>
             ))}
-            <button className="flex items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold text-secondary transition hover:bg-surface" onClick={openMobileLogin} type="button">
+            <button className="flex items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold text-secondary transition hover:bg-surface active:scale-[0.99]" onClick={openMobileLogin} type="button">
               <FiLogIn aria-hidden="true" />
               Acceso del personal
             </button>
           </div>
-        </nav>
-      )}
+      </nav>
     </header>
   );
 }

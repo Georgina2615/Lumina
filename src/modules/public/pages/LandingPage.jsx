@@ -1,5 +1,6 @@
 import {
   PublicContactSection,
+  PublicExperienceSection,
   PublicHero,
   PublicServicesSection
 } from '../components';
@@ -13,6 +14,7 @@ export default function LandingPage() {
   return (
     <>
       <PublicHero />
+      <PublicExperienceSection />
       <PublicServicesSection
         error={catalog.error}
         loading={catalog.loading}

@@ -1,4 +1,5 @@
 import { FiMail, FiMapPin, FiMessageCircle } from 'react-icons/fi';
+import { Reveal } from '../../../shared/components';
 
 // Define los medios de contacto confirmados
 const contactOptions = [
@@ -27,8 +28,10 @@ export default function PublicContactSection() {
   // Devuelve una seccion sin datos simulados
   return (
     <section className="px-5 py-20 sm:px-8 lg:px-12 lg:py-28" id="contacto">
-      <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-primary px-6 py-10 text-surface shadow-2xl shadow-primary/10 sm:px-10 lg:px-14 lg:py-14">
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+      <Reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-primary px-6 py-10 text-surface shadow-2xl shadow-primary/10 sm:px-10 lg:px-14 lg:py-14" variant="scale">
+        <div aria-hidden="true" className="absolute -right-20 -top-24 h-60 w-60 rounded-full border border-status-pending/20" />
+        <div aria-hidden="true" className="absolute -bottom-28 right-16 h-52 w-52 rounded-full bg-status-confirmed/10 blur-2xl" />
+        <div className="relative grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-status-pending">Estamos para orientarte</p>
             <h2 className="mt-4 text-4xl leading-tight sm:text-5xl">Da el primer paso hacia el cuidado de tu piel</h2>
@@ -36,15 +39,15 @@ export default function PublicContactSection() {
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {contactOptions.map(({ href, icon: Icon, label, value }) => (
-              <a className="group rounded-2xl border border-surface/15 bg-surface/5 p-4 transition duration-300 hover:-translate-y-1 hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-pending motion-reduce:transform-none" href={href} key={label} rel="noreferrer" target={href.startsWith('mailto:') ? undefined : '_blank'}>
-                <Icon aria-hidden="true" className="text-status-pending" size={20} />
+              <a className="group rounded-2xl border border-surface/15 bg-surface/5 p-4 transition duration-300 hover:-translate-y-1 hover:bg-surface/10 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-pending motion-reduce:transform-none" href={href} key={label} rel="noreferrer" target={href.startsWith('mailto:') ? undefined : '_blank'}>
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface/10 transition duration-300 group-hover:bg-status-pending group-hover:text-primary"><Icon aria-hidden="true" className="text-status-pending transition-colors group-hover:text-primary" size={20} /></span>
                 <span className="mt-5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-surface/55">{label}</span>
                 <span className="mt-1 block break-words text-xs leading-5 text-surface">{value}</span>
               </a>
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
