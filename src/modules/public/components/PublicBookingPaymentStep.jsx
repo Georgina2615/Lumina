@@ -22,11 +22,11 @@ export default function PublicBookingPaymentStep({
             <p className="text-xs text-surface/60">Anticipo de {service?.name}</p>
             <p className="mt-1 font-title text-3xl font-semibold">{formatPublicPrice(depositAmountCents)}</p>
           </div>
-          <span className="rounded-full bg-status-pending/20 px-3 py-1.5 text-xs text-status-pending">30 % del servicio</span>
+          <span className="rounded-full bg-brand-gold/20 px-3 py-1.5 text-xs text-brand-gold">30 % del servicio</span>
         </div>
         <div className="grid gap-4 p-5 text-sm sm:grid-cols-2 sm:p-7">
-          <div className="flex items-start gap-3"><FiCreditCard className="mt-0.5 text-status-pending" aria-hidden="true" size={19} /><div><p className="font-semibold">Elige cómo pagar</p><p className="mt-1 text-xs leading-5 text-surface/65">Mercado Pago mostrará las opciones disponibles.</p></div></div>
-          <div className="flex items-start gap-3"><FiShield className="mt-0.5 text-status-pending" aria-hidden="true" size={19} /><div><p className="font-semibold">Datos protegidos</p><p className="mt-1 text-xs leading-5 text-surface/65">Lumina Skin no recibe ni guarda los datos de tu tarjeta.</p></div></div>
+          <div className="flex items-start gap-3"><FiCreditCard className="mt-0.5 text-brand-gold" aria-hidden="true" size={19} /><div><p className="font-semibold">Elige cómo pagar</p><p className="mt-1 text-xs leading-5 text-surface/65">Mercado Pago mostrará las opciones disponibles.</p></div></div>
+          <div className="flex items-start gap-3"><FiShield className="mt-0.5 text-brand-gold" aria-hidden="true" size={19} /><div><p className="font-semibold">Datos protegidos</p><p className="mt-1 text-xs leading-5 text-surface/65">Lumina Skin no recibe ni guarda los datos de tu tarjeta.</p></div></div>
         </div>
       </div>
 

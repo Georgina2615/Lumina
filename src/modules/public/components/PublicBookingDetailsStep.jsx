@@ -20,7 +20,7 @@ export default function PublicBookingDetailsStep({
       <p className="mt-3 text-sm leading-6 text-muted">Usaremos estos datos para identificar tu solicitud y comunicarnos contigo.</p>
 
       {service && (
-        <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-status-pending/30 bg-status-pending/10 px-4 py-3">
+        <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-brand-gold/45 bg-brand-blush/30 px-4 py-3">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary">Tratamiento elegido</p>
             <p className="mt-1 truncate text-sm font-semibold text-primary">{service.name}</p>
@@ -49,7 +49,7 @@ export default function PublicBookingDetailsStep({
           </select>
         </label>
       </div>
-      <p className="mt-5 rounded-2xl bg-status-pending/15 px-4 py-3 text-xs leading-5 text-muted">Las solicitudes por internet deben enviarse al menos dos horas antes de la cita.</p>
+      <p className="mt-5 rounded-2xl bg-brand-ivory px-4 py-3 text-xs leading-5 text-muted">Las solicitudes por internet deben enviarse al menos dos horas antes de la cita.</p>
     </section>
   );
 }

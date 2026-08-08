@@ -14,8 +14,8 @@ export default function PublicHero() {
   // Devuelve la portada publica
   return (
     <section className="relative isolate overflow-hidden px-5 pb-12 pt-8 sm:px-8 lg:px-12 lg:pb-16 lg:pt-12">
-      <div aria-hidden="true" className="absolute -left-20 top-16 -z-10 h-72 w-72 rounded-full bg-status-pending/15 blur-3xl motion-safe:animate-pulse" />
-      <div aria-hidden="true" className="absolute -right-24 bottom-0 -z-10 h-80 w-80 rounded-full bg-status-confirmed/10 blur-3xl" />
+      <div aria-hidden="true" className="absolute -left-20 top-16 -z-10 h-72 w-72 rounded-full bg-brand-gold/15 blur-3xl motion-safe:animate-pulse" />
+      <div aria-hidden="true" className="absolute -right-24 bottom-0 -z-10 h-80 w-80 rounded-full bg-brand-sage/10 blur-3xl" />
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div className="relative z-10">
           <Reveal variant="left">
@@ -33,13 +33,13 @@ export default function PublicHero() {
           </Reveal>
           <Reveal delay={200} variant="left">
             <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3 border-t border-surface-hover pt-5">
-              {trustItems.map(({ icon: Icon, label }) => <span className="inline-flex items-center gap-2 text-xs font-medium text-muted" key={label}><Icon aria-hidden="true" className="text-status-confirmed" />{label}</span>)}
+              {trustItems.map(({ icon: Icon, label }) => <span className="inline-flex items-center gap-2 text-xs font-medium text-muted" key={label}><Icon aria-hidden="true" className="text-brand-sage" />{label}</span>)}
             </div>
           </Reveal>
         </div>
 
         <Reveal className="relative" delay={100} variant="scale">
-          <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-status-pending/15 blur-2xl" />
+          <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-brand-gold/15 blur-2xl" />
           <div className="group overflow-hidden rounded-[2rem] border border-surface-hover bg-surface shadow-2xl shadow-primary/10">
             <img alt="Composición de cuidado facial con textiles y recipientes cosméticos" className="aspect-[16/10] h-full w-full object-cover transition duration-700 group-hover:scale-[1.025] motion-reduce:transform-none" fetchPriority="high" src={heroImage} />
           </div>

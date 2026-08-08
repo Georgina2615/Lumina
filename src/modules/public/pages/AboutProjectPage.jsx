@@ -31,17 +31,17 @@ export default function AboutProjectPage() {
   return (
     <div className="bg-background text-primary">
       <section className="relative overflow-hidden bg-primary px-5 py-16 text-surface sm:px-8 lg:px-12 lg:py-24">
-        <div aria-hidden="true" className="absolute -right-24 -top-32 h-96 w-96 rounded-full border border-status-pending/20" />
-        <div aria-hidden="true" className="absolute -bottom-48 right-20 h-80 w-80 rounded-full bg-status-confirmed/10 blur-3xl" />
+        <div aria-hidden="true" className="absolute -right-24 -top-32 h-96 w-96 rounded-full border border-brand-gold/20" />
+        <div aria-hidden="true" className="absolute -bottom-48 right-20 h-80 w-80 rounded-full bg-brand-sage/10 blur-3xl" />
         <div className="relative mx-auto max-w-7xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-status-pending">Proyecto académico</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-brand-gold">Proyecto académico</p>
           <div className="mt-5 grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
             <div>
               <h1 className="max-w-3xl text-4xl leading-tight sm:text-6xl">Tecnología pensada para una atención más humana</h1>
               <p className="mt-6 max-w-2xl text-sm leading-7 text-surface/70 sm:text-base">Lumina Skin reúne el trabajo diario de un centro de cuidado facial, para que cada cita tenga continuidad desde la reservación hasta el seguimiento en cabina.</p>
             </div>
             <div className="rounded-3xl border border-surface/15 bg-surface/5 p-6 backdrop-blur">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-status-pending">Creado por</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-gold">Creado por</p>
               <p className="mt-3 font-title text-2xl font-semibold">Joely Balam Reyes</p>
               <p className="mt-2 text-sm leading-6 text-surface/65">Diseño, investigación, programación y documentación del proyecto.</p>
             </div>
@@ -55,7 +55,7 @@ export default function AboutProjectPage() {
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {projectAreas.map(({ icon: Icon, name, text }) => (
             <article className="rounded-3xl border border-surface-hover bg-surface p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg motion-reduce:transform-none" key={name}>
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-status-confirmed/15 text-status-confirmed"><Icon aria-hidden="true" size={20} /></span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-sage/15 text-brand-sage"><Icon aria-hidden="true" size={20} /></span>
               <h3 className="mt-6 text-xl">{name}</h3>
               <p className="mt-3 text-sm leading-6 text-muted">{text}</p>
             </article>
@@ -71,7 +71,7 @@ export default function AboutProjectPage() {
           <div className="mt-9 grid gap-4 md:grid-cols-2">
             {projectTools.map(({ icon: Icon, name, text }) => (
               <article className="flex gap-4 rounded-3xl bg-background p-6" key={name}>
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-status-pending/20 text-secondary"><Icon aria-hidden="true" size={20} /></span>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-blush/50 text-secondary"><Icon aria-hidden="true" size={20} /></span>
                 <div><h3 className="text-lg">{name}</h3><p className="mt-2 text-sm leading-6 text-muted">{text}</p></div>
               </article>
             ))}

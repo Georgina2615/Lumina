@@ -32,7 +32,7 @@ const mobileNavigationGroups = [
 ];
 
 // Resalta el destino vigente en escritorio
-const getDesktopLinkClassName = ({ isActive }) => `relative py-2 text-sm font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:origin-left after:rounded-full after:bg-status-pending after:transition-transform after:duration-300 ${isActive ? 'text-primary after:scale-x-100' : 'text-muted after:scale-x-0 hover:text-primary hover:after:scale-x-100'}`;
+const getDesktopLinkClassName = ({ isActive }) => `relative py-2 text-sm font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:origin-left after:rounded-full after:bg-brand-gold after:transition-transform after:duration-300 ${isActive ? 'text-primary after:scale-x-100' : 'text-muted after:scale-x-0 hover:text-primary hover:after:scale-x-100'}`;
 
 // Resalta el destino vigente en movil
 const getMobileLinkClassName = ({ isActive }) => `rounded-xl px-4 py-3 text-sm font-semibold transition active:scale-[0.99] ${isActive ? 'bg-primary text-surface' : 'text-primary hover:bg-surface'}`;
@@ -61,7 +61,7 @@ export default function PublicHeader({ onOpenLoginModal }) {
   // Devuelve enlaces que tienen un destino real
   return (
     <header className="sticky top-0 z-50 border-b border-surface-hover bg-background/92 shadow-sm shadow-primary/5 backdrop-blur-xl" onKeyDown={handleHeaderKeyDown}>
-      <div aria-hidden="true" className="h-1 bg-gradient-to-r from-status-confirmed via-status-pending to-secondary" />
+      <div aria-hidden="true" className="h-1 bg-gradient-to-r from-brand-sage via-brand-gold to-brand-blush" />
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-12">
         <a aria-label="Reiniciar la experiencia de Lumina Skin" className="group shrink-0" href="/">
           <img alt="Lumina Skin" className="h-auto w-36 transition-transform duration-300 group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transform-none sm:w-44" src="/LuminaLogo.svg" />
@@ -80,7 +80,7 @@ export default function PublicHeader({ onOpenLoginModal }) {
             <FiLogIn aria-hidden="true" />
             Personal
           </button>
-          <Link aria-label="Agendar una cita" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-status-pending px-4 text-sm font-semibold text-primary shadow-md shadow-status-pending/20 transition duration-300 hover:-translate-y-0.5 hover:brightness-95 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none sm:px-5" to="/agendar">
+          <Link aria-label="Agendar una cita" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-gold px-4 text-sm font-semibold text-primary shadow-md shadow-brand-gold/20 transition duration-300 hover:-translate-y-0.5 hover:brightness-95 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 motion-reduce:transform-none sm:px-5" to="/agendar">
             <FiCalendar aria-hidden="true" />
             <span className="hidden sm:inline">Agendar cita</span>
           </Link>

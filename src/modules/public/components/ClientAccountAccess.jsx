@@ -5,7 +5,7 @@ import { FiLock } from 'react-icons/fi';
 export default function ClientAccountAccess({ connecting, error, onConnect }) {
   return (
     <div className="mx-auto max-w-xl rounded-[2rem] border border-surface-hover bg-surface p-7 text-center shadow-xl shadow-primary/5 sm:p-10">
-      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-status-pending/15 text-secondary">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-blush/50 text-secondary">
         <FiLock aria-hidden="true" size={24} />
       </span>
       <h2 className="mt-5 text-3xl">Consulta tus citas</h2>

@@ -19,14 +19,14 @@ export default function PresentationPage() {
   // Devuelve una experiencia independiente para el codigo QR
   return (
     <main className="relative min-h-dvh overflow-hidden bg-background px-5 py-8 text-primary sm:px-8 sm:py-12">
-      <div aria-hidden="true" className="absolute -left-28 top-20 h-72 w-72 rounded-full bg-status-confirmed/10 blur-3xl" />
-      <div aria-hidden="true" className="absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-status-pending/15 blur-3xl" />
+      <div aria-hidden="true" className="absolute -left-28 top-20 h-72 w-72 rounded-full bg-brand-sage/10 blur-3xl" />
+      <div aria-hidden="true" className="absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-brand-gold/15 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-5xl items-center justify-center sm:min-h-[calc(100dvh-6rem)]">
         <section className="grid w-full overflow-hidden rounded-[2rem] border border-surface-hover bg-surface/90 shadow-2xl shadow-primary/10 backdrop-blur lg:grid-cols-[0.9fr_1.1fr]">
           <div className="relative flex flex-col justify-between overflow-hidden border-b border-surface-hover bg-primary px-6 py-8 text-surface sm:px-10 sm:py-10 lg:border-b-0 lg:border-r">
-            <div aria-hidden="true" className="absolute -right-20 -top-20 h-64 w-64 rounded-full border border-status-pending/30" />
-            <div aria-hidden="true" className="absolute -right-8 -top-8 h-40 w-40 rounded-full border border-status-pending/20" />
+            <div aria-hidden="true" className="absolute -right-20 -top-20 h-64 w-64 rounded-full border border-brand-gold/30" />
+            <div aria-hidden="true" className="absolute -right-8 -top-8 h-40 w-40 rounded-full border border-brand-gold/20" />
 
             <div className="relative">
               <span className="inline-flex rounded-full border border-surface/20 bg-surface/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-surface/80">
@@ -46,7 +46,7 @@ export default function PresentationPage() {
               <ul className="mt-6 space-y-3">
                 {presentationHighlights.map((highlight) => (
                   <li className="flex items-center gap-3 text-sm font-medium" key={highlight}>
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-status-pending/20 text-status-pending">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-gold/20 text-brand-gold">
                       <FiCheck aria-hidden="true" />
                     </span>
                     {highlight}
@@ -96,7 +96,7 @@ export default function PresentationPage() {
                   rel="noreferrer"
                   target="_blank"
                 >
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-status-pending/20 text-secondary">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-blush/50 text-secondary">
                     <FiPlay aria-hidden="true" size={20} />
                   </span>
                   <span className="mt-7 flex items-end justify-between gap-3">
@@ -120,7 +120,7 @@ export default function PresentationPage() {
                     <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-hover/60">
                       <FiPlay aria-hidden="true" size={20} />
                     </span>
-                    <span className="rounded-full bg-status-pending/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-secondary">
+                    <span className="rounded-full bg-brand-blush/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-secondary">
                       En preparación
                     </span>
                   </span>

@@ -20,7 +20,7 @@ export default function PublicSkinTestResult({ onRestart, result }) {
   // Devuelve la recomendación sin tratarla como diagnóstico
   return (
     <section aria-labelledby="skin-result-title">
-      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-status-confirmed">Tu orientación</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-sage">Tu orientación</p>
       <h1 className="mt-4 text-4xl leading-tight text-primary sm:text-5xl" id="skin-result-title">{result.title}</h1>
       <p className="mt-5 max-w-2xl text-base leading-7 text-muted">{result.summary}</p>
       {result.requiresContact && (
@@ -30,15 +30,15 @@ export default function PublicSkinTestResult({ onRestart, result }) {
         </div>
       )}
       <div className="mt-8 rounded-3xl bg-primary p-6 text-surface sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-status-pending">Tratamiento sugerido</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold">Tratamiento sugerido</p>
         <h2 className="mt-3 text-3xl text-surface">{result.service.name}</h2>
         {result.service.description && <p className="mt-3 max-w-xl text-sm leading-6 text-surface/75">{result.service.description}</p>}
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-surface/15 pt-5">
           <p className="font-title text-3xl font-semibold">{formatPublicPrice(result.service.priceCents)}</p>
           {result.requiresContact ? (
-            <a className="inline-flex min-h-12 items-center gap-2 rounded-full bg-status-pending px-6 text-sm font-semibold text-primary transition hover:brightness-95" href="https://wa.me/529811017687?text=Hola%20realic%C3%A9%20el%20test%20de%20piel%20y%20quiero%20recibir%20orientaci%C3%B3n" rel="noreferrer" target="_blank">Solicitar orientación<FiMessageCircle aria-hidden="true" /></a>
+            <a className="inline-flex min-h-12 items-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-semibold text-primary transition hover:brightness-95" href="https://wa.me/529811017687?text=Hola%20realic%C3%A9%20el%20test%20de%20piel%20y%20quiero%20recibir%20orientaci%C3%B3n" rel="noreferrer" target="_blank">Solicitar orientación<FiMessageCircle aria-hidden="true" /></a>
           ) : (
-            <Link className="inline-flex min-h-12 items-center gap-2 rounded-full bg-status-pending px-6 text-sm font-semibold text-primary transition hover:brightness-95" to={`/agendar?servicio=${encodeURIComponent(result.service.id)}`}>Agendar este tratamiento<FiArrowRight aria-hidden="true" /></Link>
+            <Link className="inline-flex min-h-12 items-center gap-2 rounded-full bg-brand-gold px-6 text-sm font-semibold text-primary transition hover:brightness-95" to={`/agendar?servicio=${encodeURIComponent(result.service.id)}`}>Agendar este tratamiento<FiArrowRight aria-hidden="true" /></Link>
           )}
         </div>
       </div>

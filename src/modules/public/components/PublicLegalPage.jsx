@@ -13,18 +13,18 @@ export default function PublicLegalPage({ sections, summary, title, updatedAt })
   return (
     <article className="min-h-dvh bg-background">
       <header className="relative overflow-hidden bg-primary px-5 py-14 text-surface sm:px-8 lg:px-12 lg:py-20">
-        <div aria-hidden="true" className="absolute -right-20 -top-28 h-72 w-72 rounded-full border border-status-pending/20" />
+        <div aria-hidden="true" className="absolute -right-20 -top-28 h-72 w-72 rounded-full border border-brand-gold/20" />
         <div className="relative mx-auto max-w-6xl">
           <Link className="inline-flex items-center gap-2 text-sm text-surface/65 transition hover:text-surface" to="/">
             <FiArrowLeft aria-hidden="true" />
             Volver al inicio
           </Link>
           <div className="mt-10 flex max-w-3xl items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-status-pending/15 text-status-pending">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-blush/50 text-brand-espresso">
               <FiShield aria-hidden="true" size={22} />
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-status-pending">Información y transparencia</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-gold">Información y transparencia</p>
               <h1 className="mt-3 text-4xl leading-tight sm:text-5xl">{title}</h1>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-surface/70 sm:text-base">{summary}</p>
               <p className="mt-5 text-xs text-surface/50">Última actualización {updatedAt}</p>

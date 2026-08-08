@@ -11,7 +11,7 @@ const getProductContactUrl = (productName) => {
 export default function PublicProductCard({ product }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-surface-hover bg-background shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 motion-reduce:transform-none">
-      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-white via-surface to-status-pending/10 p-5">
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-white via-surface to-brand-blush/45 p-5">
         {product.imageUrl ? (
           <img alt={product.name} className="h-full w-full object-contain transition duration-500 group-hover:scale-[1.03] motion-reduce:transform-none" loading="lazy" src={product.imageUrl} />
         ) : (

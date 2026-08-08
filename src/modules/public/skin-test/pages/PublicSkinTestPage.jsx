@@ -39,7 +39,7 @@ export default function PublicSkinTestPage() {
                 <button className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-surface transition hover:bg-secondary" onClick={() => test.setStarted(true)} type="button">Comenzar test<FiArrowRight aria-hidden="true" /></button>
               </div>
               <div className="flex flex-col justify-center rounded-3xl bg-surface p-6">
-                <FiShield aria-hidden="true" className="text-status-confirmed" size={28} />
+                <FiShield aria-hidden="true" className="text-brand-sage" size={28} />
                 <h2 className="mt-5 text-2xl text-primary">Tus respuestas son privadas</h2>
                 <p className="mt-3 text-sm leading-6 text-muted">No pedimos tu nombre ni guardamos tus respuestas El resultado es únicamente una orientación estética</p>
                 <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-secondary">{test.questionsCount} preguntas</p>

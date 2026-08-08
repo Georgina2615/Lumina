@@ -12,7 +12,14 @@
   /* Colores Texto */
   --color-primary: #3B2F2F;
   --color-secondary: #665D4E;
-  --color-muted: #5C5E67;
+  --color-muted: #6D6260;
+
+  /* Colores de marca */
+  --color-brand-espresso: #3B2F2F;
+  --color-brand-gold: #D4B872;
+  --color-brand-sage: #7A8B76;
+  --color-brand-blush: #E8D7D2;
+  --color-brand-ivory: #FBF8F5;
   
   /* Colores Estado */
   --color-error: #BA1A1A;
