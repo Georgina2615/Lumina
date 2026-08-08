@@ -5,5 +5,6 @@ export { default as LandingPage } from './LandingPage';
 export { default as PrivacyNoticePage } from './PrivacyNoticePage';
 export { default as PresentationPage } from './PresentationPage';
 export { default as PublicBookingPage } from './PublicBookingPage';
+export { default as PublicProductsPage } from '../catalog/pages/PublicProductsPage';
 export { default as TermsConditionsPage } from './TermsConditionsPage';
 export { default as PublicSkinTestPage } from '../skin-test/pages/PublicSkinTestPage';

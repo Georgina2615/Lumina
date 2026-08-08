@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 // Define los destinos disponibles en la portada
 const publicNavigation = [
   { href: '/#servicios', label: 'Servicios' },
+  { href: '/productos', label: 'Productos' },
   { href: '/#contacto', label: 'Contacto' },
   { href: '/test-de-piel', label: 'Test de piel' },
   { href: '/agendar', label: 'Agendar' },

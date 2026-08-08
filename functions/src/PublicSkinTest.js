@@ -6,6 +6,7 @@ import {
   requirePublishedSkinTest,
   validatePublicSkinAnswers
 } from './PublicSkinTestPolicy.js';
+import { mapPublicProduct } from './PublicProductDocuments.js';
 
 // Convierte errores conocidos al contrato remoto
 const mapError = (error) => {
@@ -35,24 +36,10 @@ const mapService = (snapshot) => {
   };
 };
 
-// Convierte productos disponibles a información pública
-const mapProducts = (snapshots) => snapshots.flatMap((snapshot) => {
-  const data = snapshot.exists ? snapshot.data() : null;
-  if (
-    data?.activo !== true
-    || !Number.isSafeInteger(data?.existencias)
-    || data.existencias < 1
-    || !Number.isSafeInteger(data?.precioCentavos)
-  ) return [];
-  return [{
-    brand: String(data.marca ?? '').trim(),
-    description: String(data.descripcion ?? '').trim(),
-    id: snapshot.id,
-    imageUrl: String(data.imagenUrl ?? '').trim(),
-    name: String(data.nombre ?? '').trim(),
-    priceCents: data.precioCentavos
-  }];
-});
+// Conserva únicamente productos disponibles para recomendar
+const mapProducts = (snapshots) => snapshots
+  .map(mapPublicProduct)
+  .filter((product) => product?.available);
 
 // Carga la configuración publicada
 const loadPublishedConfig = async (firestore) => {

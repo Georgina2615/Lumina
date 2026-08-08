@@ -178,6 +178,7 @@ export const {
   evaluatePublicSkinTest,
   getClientAccount,
   getPublicAvailability,
+  getPublicProductCatalog,
   getPublicSkinTest,
   mercadoPagoWebhook,
   requestClientInvoice,

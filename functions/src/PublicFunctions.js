@@ -9,6 +9,7 @@ import {
   getPublicAvailabilityHandler
 } from './GetPublicAvailability.js';
 import { getClientAccountHandler } from './GetClientAccount.js';
+import { getPublicProductCatalogHandler } from './GetPublicProductCatalog.js';
 import {
   submitPublicAppointmentRequestHandler
 } from './SubmitPublicAppointmentRequest.js';
@@ -68,6 +69,13 @@ export const createPublicFunctions = ({
     enforceAppCheck
   }, (request) => getPublicAvailabilityHandler({
     data: request.data,
+    firestore: firestore()
+  })),
+  getPublicProductCatalog: onCall({
+    ...runtimeOptions,
+    enforceAppCheck,
+    invoker: 'public'
+  }, () => getPublicProductCatalogHandler({
     firestore: firestore()
   })),
   getPublicSkinTest: onCall({

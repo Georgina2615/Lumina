@@ -29,6 +29,7 @@ export default function PublicFooter() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-status-pending">Explora</p>
           <nav aria-label="Navegación del pie" className="mt-5 flex flex-col items-start gap-3">
             <a className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" href="/#servicios">Servicios</a>
+            <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/productos">Productos</Link>
             <a className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" href="/#contacto">Contacto</a>
             <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/sobre-el-proyecto">Sobre el proyecto</Link>
             <Link className="text-sm text-surface/75 transition hover:translate-x-1 hover:text-surface motion-reduce:transform-none" to="/aviso-privacidad">Aviso de privacidad</Link>

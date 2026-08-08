@@ -7,7 +7,7 @@ import { PublicLayout, DashboardLayout } from './app/layouts';
 // Expone las capacidades públicas
 import {
   AboutProjectPage, CancellationPolicyPage, ClientAccountPage, LandingPage, PresentationPage,
-  PrivacyNoticePage, PublicBookingPage, PublicSkinTestPage, TermsConditionsPage
+  PrivacyNoticePage, PublicBookingPage, PublicProductsPage, PublicSkinTestPage, TermsConditionsPage
 } from './modules/public/pages';
 // Expone las capacidades de recepción
 import {
@@ -86,6 +86,7 @@ export default function App() {
             <Route path="/aviso-privacidad" element={<PrivacyNoticePage />} />
             <Route path="/politica-cancelacion" element={<CancellationPolicyPage />} />
             <Route path="/agendar" element={<PublicBookingPage />} />
+            <Route path="/productos" element={<PublicProductsPage />} />
             <Route path="/test-de-piel" element={<PublicSkinTestPage />} />
             <Route path="/mi-cuenta" element={<ClientAccountPage />} />
             <Route path="/sobre-el-proyecto" element={<AboutProjectPage />} />

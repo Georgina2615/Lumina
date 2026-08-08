@@ -62,11 +62,13 @@ const createFirestore = (config) => {
     }],
     ['productos/product-one', {
       activo: true,
+      categoria: 'Protector solar',
       descripcion: 'Protección para el cuidado diario',
       existencias: 4,
       marca: 'Marca real',
       nombre: 'Protector solar',
-      precioCentavos: 40000
+      precioCentavos: 40000,
+      schemaVersion: 1
     }]
   ]);
   const createReference = (collectionName, id) => ({
