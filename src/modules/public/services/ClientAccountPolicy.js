@@ -8,6 +8,11 @@ const dateFormatter = new Intl.DateTimeFormat('es-MX', {
   timeZone: 'America/Mexico_City'
 });
 
+const saleDateFormatter = new Intl.DateTimeFormat('es-MX', {
+  dateStyle: 'medium',
+  timeZone: 'America/Mexico_City'
+});
+
 export const clientAppointmentStates = Object.freeze({
   por_confirmar: { label: 'Por confirmar', tone: 'pending' },
   confirmada: { label: 'Confirmada', tone: 'confirmed' },
@@ -24,6 +29,19 @@ const finishedStates = new Set(['finalizada', 'cancelada', 'no_asistio']);
 export const formatClientDeposit = (amountCents) => (
   currencyFormatter.format((amountCents ?? 0) / 100)
 );
+
+// Da formato al total de una venta
+export const formatClientSaleAmount = (amountCents) => (
+  currencyFormatter.format((amountCents ?? 0) / 100)
+);
+
+// Da formato a la fecha de una venta
+export const formatClientSaleDate = (createdAt) => {
+  const parsedDate = createdAt ? new Date(createdAt) : null;
+  return parsedDate && !Number.isNaN(parsedDate.getTime())
+    ? saleDateFormatter.format(parsedDate)
+    : 'Fecha no disponible';
+};
 
 // Da formato legible a la fecha
 export const formatClientAppointmentDate = (appointment) => {

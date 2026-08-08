@@ -10,4 +10,6 @@ export { default as PublicBookingProgress } from './PublicBookingProgress';
 export { default as PublicBookingServiceStep } from './PublicBookingServiceStep';
 export { default as PublicBookingSuccess } from './PublicBookingSuccess';
 export { default as ClientAccountAccess } from './ClientAccountAccess';
+export { default as ClientInvoiceRequestModal } from './ClientInvoiceRequestModal';
+export { default as ClientSaleList } from './ClientSaleList';
 export { default as ClientAppointmentList } from './ClientAppointmentList';

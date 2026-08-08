@@ -17,6 +17,7 @@ import {
   getPublicSkinTestHandler
 } from './PublicSkinTest.js';
 import { mercadoPagoWebhookHandler } from './MercadoPagoWebhook.js';
+import { requestClientInvoiceHandler } from './RequestClientInvoice.js';
 
 // Expone las funciones protegidas del sitio publico
 export const createPublicFunctions = ({
@@ -86,6 +87,14 @@ export const createPublicFunctions = ({
     request,
     response,
     webhookSecret: mercadoPagoWebhookSecret.value()
+  })),
+  requestClientInvoice: onCall({
+    ...runtimeOptions,
+    enforceAppCheck
+  }, (request) => requestClientInvoiceHandler({
+    auth: request.auth,
+    data: request.data,
+    firestore: firestore()
   })),
   submitPublicAppointmentRequest: onCall({
     ...runtimeOptions,

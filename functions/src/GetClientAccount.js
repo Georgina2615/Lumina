@@ -1,11 +1,15 @@
 import { HttpsError } from 'firebase-functions/v2/https';
 import {
+  buildInvoiceStatusMap,
   buildVisibleAppointment,
   buildVisibleClient,
-  sortVisibleAppointments
+  buildVisibleSale,
+  sortVisibleAppointments,
+  sortVisibleSales
 } from './ClientAccountDocuments.js';
 import {
   getClientAppointmentLimit,
+  getClientSaleLimit,
   requireClientIdentity,
   requireClientProfile,
   requireVerifiedClientEmail
@@ -23,22 +27,39 @@ export const getClientAccountHandler = async ({ auth, firestore }) => {
   const client = requireClientProfile(clientSnapshot, email);
 
   try {
-    const appointmentSnapshot = await firestore.collection('citas')
-      .where('clienteId', '==', clientId)
-      .limit(getClientAppointmentLimit())
-      .get();
+    const [appointmentSnapshot, saleSnapshot, invoiceSnapshot] = await Promise.all([
+      firestore.collection('citas')
+        .where('clienteId', '==', clientId)
+        .limit(getClientAppointmentLimit())
+        .get(),
+      firestore.collection('ventas')
+        .where('clienteId', '==', clientId)
+        .limit(getClientSaleLimit())
+        .get(),
+      firestore.collection('solicitudesFactura')
+        .where('clienteId', '==', clientId)
+        .limit(getClientSaleLimit())
+        .get()
+    ]);
     const appointments = sortVisibleAppointments(
       appointmentSnapshot.docs.map(buildVisibleAppointment)
     );
+    const invoiceStatuses = buildInvoiceStatusMap(invoiceSnapshot.docs);
+    const sales = sortVisibleSales(
+      saleSnapshot.docs.map((snapshot) => (
+        buildVisibleSale(snapshot, invoiceStatuses)
+      )).filter(Boolean)
+    );
     return {
       client: buildVisibleClient({ clientId, data: client, email }),
-      appointments
+      appointments,
+      sales
     };
   } catch (error) {
     if (error instanceof HttpsError) throw error;
     throw new HttpsError(
       'internal',
-      'No pudimos consultar tus citas en este momento'
+      'No pudimos consultar tu información en este momento'
     );
   }
 };

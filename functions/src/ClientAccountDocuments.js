@@ -7,6 +7,12 @@ const visibleStates = new Set([
   'cancelada',
   'no_asistio'
 ]);
+const visibleInvoiceStates = new Set([
+  'pendiente',
+  'en_preparacion',
+  'enviada',
+  'rechazada'
+]);
 
 // Convierte una fecha segura en texto
 const toIsoDate = (value) => {
@@ -52,6 +58,57 @@ export const sortVisibleAppointments = (appointments) => (
     const secondValue = second.startAt ?? `${second.date}T${second.time}`;
     return secondValue.localeCompare(firstValue);
   })
+);
+
+// Resume el estado de facturación sin revelar datos fiscales
+export const buildInvoiceStatusMap = (snapshots) => new Map(
+  snapshots.map((snapshot) => {
+    const data = snapshot.data();
+    return [
+      data.ventaId,
+      data.schemaVersion === 1 && visibleInvoiceStates.has(data.estado)
+        ? data.estado
+        : null
+    ];
+  }).filter(([saleId, status]) => (
+    typeof saleId === 'string' && saleId && status
+  ))
+);
+
+// Convierte una venta pagada en información segura
+export const buildVisibleSale = (snapshot, invoiceStatuses = new Map()) => {
+  const data = snapshot.data();
+  const totalAmountCents = data.desglose?.totalCentavos;
+  const createdAt = toIsoDate(data.creadaEn);
+
+  if (
+    data.schemaVersion !== 1
+    || data.estado !== 'pagada'
+    || !['cita', 'mostrador'].includes(data.tipo)
+    || !Number.isSafeInteger(totalAmountCents)
+    || totalAmountCents <= 0
+    || typeof data.folio !== 'string'
+    || !data.folio.trim()
+    || !createdAt
+  ) {
+    return null;
+  }
+
+  return {
+    id: snapshot.id,
+    folio: data.folio.trim(),
+    createdAt,
+    saleType: data.tipo === 'mostrador' ? 'mostrador' : 'cita',
+    totalAmountCents,
+    invoiceStatus: invoiceStatuses.get(snapshot.id) ?? null
+  };
+};
+
+// Ordena las ventas desde la más reciente
+export const sortVisibleSales = (sales) => (
+  [...sales].sort((first, second) => (
+    String(second.createdAt ?? '').localeCompare(String(first.createdAt ?? ''))
+  ))
 );
 
 // Construye el perfil mínimo del portal

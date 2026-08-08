@@ -17,7 +17,7 @@ const mapClientAccountError = (error) => {
   if (error?.code === 'functions/permission-denied') {
     return 'Esta cuenta no puede consultar estas citas';
   }
-  return 'No pudimos consultar tus citas en este momento';
+  return 'No pudimos consultar tu información en este momento';
 };
 
 // Consulta el perfil limitado de la clienta
@@ -28,6 +28,9 @@ export const loadClientAccount = async () => {
       client: response.data?.client ?? null,
       appointments: Array.isArray(response.data?.appointments)
         ? response.data.appointments
+        : [],
+      sales: Array.isArray(response.data?.sales)
+        ? response.data.sales
         : []
     };
   } catch (error) {

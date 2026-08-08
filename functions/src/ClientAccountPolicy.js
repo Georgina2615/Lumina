@@ -1,6 +1,7 @@
 import { HttpsError } from 'firebase-functions/v2/https';
 
 const maximumAppointments = 100;
+const maximumSales = 100;
 
 // Obtiene un correo comprobado por Firebase
 export const requireVerifiedClientEmail = (auth) => {
@@ -19,6 +20,9 @@ export const requireVerifiedClientEmail = (auth) => {
 
 // Limita la cantidad de citas devueltas
 export const getClientAppointmentLimit = () => maximumAppointments;
+
+// Limita la cantidad de ventas devueltas
+export const getClientSaleLimit = () => maximumSales;
 
 // Exige una identidad enlazada a una clienta
 export const requireClientIdentity = (snapshot) => {

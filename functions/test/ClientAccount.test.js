@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { HttpsError } from 'firebase-functions/v2/https';
 import {
-  buildVisibleAppointment
+  buildVisibleAppointment,
+  buildVisibleSale
 } from '../src/ClientAccountDocuments.js';
 import {
   requireVerifiedClientEmail
@@ -62,6 +63,33 @@ test('devuelve solo campos seguros de la cita', () => {
   assert.equal('notasClinicas' in appointment, false);
   assert.equal('fichaTecnica' in appointment, false);
   assert.equal('anticipoPagos' in appointment, false);
+});
+
+test('devuelve una venta sin datos internos ni fiscales', () => {
+  const sale = buildVisibleSale({
+    id: 'sale-1',
+    data: () => ({
+      schemaVersion: 1,
+      estado: 'pagada',
+      folio: 'LS-001',
+      tipo: 'cita',
+      creadaEn: new Date('2026-08-08T10:00:00-06:00'),
+      desglose: { totalCentavos: 90000 },
+      metodosPago: ['tarjeta'],
+      clienteEmail: 'privado@example.com'
+    })
+  });
+  assert.deepEqual(Object.keys(sale).sort(), [
+    'createdAt',
+    'folio',
+    'id',
+    'invoiceStatus',
+    'saleType',
+    'totalAmountCents'
+  ]);
+  assert.equal(sale.totalAmountCents, 90000);
+  assert.equal('clienteEmail' in sale, false);
+  assert.equal('metodosPago' in sale, false);
 });
 
 // Crea una base mínima para comprobar el aislamiento

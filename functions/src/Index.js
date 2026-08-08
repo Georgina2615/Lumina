@@ -179,6 +179,7 @@ export const {
   getPublicAvailability,
   getPublicSkinTest,
   mercadoPagoWebhook,
+  requestClientInvoice,
   submitPublicAppointmentRequest
 } = createPublicFunctions({
   enforceAppCheck,

@@ -75,6 +75,7 @@ export const useClientAccount = () => {
   const appointments = useMemo(() => groupClientAppointments(
     visibleAccount?.appointments ?? []
   ), [visibleAccount]);
+  const sales = visibleAccount?.sales ?? [];
 
   return {
     account: visibleAccount,
@@ -86,6 +87,7 @@ export const useClientAccount = () => {
     loading: loading || sessionLoading
       || Boolean(user && !visibleAccount && !error),
     refresh,
+    sales,
     user
   };
 };
