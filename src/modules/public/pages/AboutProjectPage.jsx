@@ -29,7 +29,7 @@ const projectTools = [
 export default function AboutProjectPage() {
   // Devuelve la historia completa de Lumina Skin
   return (
-    <main className="bg-background text-primary">
+    <div className="bg-background text-primary">
       <section className="relative overflow-hidden bg-primary px-5 py-16 text-surface sm:px-8 lg:px-12 lg:py-24">
         <div aria-hidden="true" className="absolute -right-24 -top-32 h-96 w-96 rounded-full border border-status-pending/20" />
         <div aria-hidden="true" className="absolute -bottom-48 right-20 h-80 w-80 rounded-full bg-status-confirmed/10 blur-3xl" />
@@ -78,6 +78,6 @@ export default function AboutProjectPage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

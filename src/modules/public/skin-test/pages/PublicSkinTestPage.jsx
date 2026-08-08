@@ -9,25 +9,25 @@ export default function PublicSkinTestPage() {
 
   // Devuelve un estado de carga estable
   if (test.loading) {
-    return <main className="min-h-[70vh] bg-surface px-5 py-16 sm:px-8"><div aria-label="Cargando test de piel" className="mx-auto h-96 max-w-4xl animate-pulse rounded-[2rem] bg-surface-hover/60" /></main>;
+    return <div className="min-h-[70vh] bg-surface px-5 py-16 sm:px-8"><div aria-label="Cargando test de piel" className="mx-auto h-96 max-w-4xl animate-pulse rounded-[2rem] bg-surface-hover/60" /></div>;
   }
 
   // Devuelve una recuperación sin datos inventados
   if (!test.currentQuestion) {
     return (
-      <main className="min-h-[70vh] bg-surface px-5 py-16 sm:px-8">
+      <div className="min-h-[70vh] bg-surface px-5 py-16 sm:px-8">
         <section className="mx-auto max-w-xl rounded-[2rem] border border-surface-hover bg-background p-8 text-center shadow-sm" role="alert">
           <h1 className="text-3xl text-primary">Test no disponible</h1>
           <p className="mt-4 text-sm leading-6 text-muted">{test.error || 'Vuelve a intentarlo más tarde'}</p>
           <button className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-surface" onClick={test.load} type="button"><FiRefreshCw aria-hidden="true" />Intentar nuevamente</button>
         </section>
-      </main>
+      </div>
     );
   }
 
   // Devuelve la introducción el recorrido o el resultado
   return (
-    <main className="min-h-[75vh] bg-gradient-to-b from-background to-surface px-5 py-14 sm:px-8 lg:py-20">
+    <div className="min-h-[75vh] bg-gradient-to-b from-background to-surface px-5 py-14 sm:px-8 lg:py-20">
       <div className="mx-auto max-w-4xl">
         <div className="overflow-hidden rounded-[2rem] border border-surface-hover bg-background shadow-xl shadow-primary/5">
           {!test.started && !test.result && (
@@ -50,6 +50,6 @@ export default function PublicSkinTestPage() {
           {test.result && <div className="p-7 sm:p-10 lg:p-14"><PublicSkinTestResult onRestart={test.restart} result={test.result} /></div>}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

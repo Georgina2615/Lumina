@@ -28,8 +28,11 @@ export default function Sidebar({
 }) {
   // Conserva el estado visual del menú
   const [isExpanded, setIsExpanded] = useState(false);
+  const [failedPhotoUrl, setFailedPhotoUrl] = useState('');
   const sidebarRef = useRef(null);
   const { pathname } = useLocation();
+  const photoUrl = user?.photoURL || '';
+  const showPhoto = Boolean(photoUrl && failedPhotoUrl !== photoUrl);
 
   useEffect(() => {
     // Cierra el menú al interactuar fuera de su espacio
@@ -143,11 +146,13 @@ export default function Sidebar({
 
       <div className="flex flex-col gap-4 border-t border-surface-hover p-4">
         <div className="flex items-center gap-3">
-          {user?.photoURL ? (
+          {showPhoto ? (
             <img
               alt={`Perfil de ${user.displayName || 'usuario'}`}
               className="h-10 w-10 flex-shrink-0 rounded-full border-2 border-surface-hover object-cover"
-              src={user.photoURL}
+              onError={() => setFailedPhotoUrl(photoUrl)}
+              referrerPolicy="no-referrer"
+              src={photoUrl}
             />
           ) : (
             <span

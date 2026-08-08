@@ -7,7 +7,7 @@ export default function PublicProductsPage() {
   const catalog = usePublicCatalog();
 
   return (
-    <main className="min-h-[75vh] bg-gradient-to-b from-background via-background to-surface px-5 py-14 sm:px-8 lg:px-12 lg:py-20">
+    <div className="min-h-[75vh] bg-gradient-to-b from-background via-background to-surface px-5 py-14 sm:px-8 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-7xl">
         <header className="grid items-end gap-6 lg:grid-cols-[1fr_auto]">
           <div className="max-w-3xl">
@@ -30,6 +30,6 @@ export default function PublicProductsPage() {
           <PublicCatalogGrid error={catalog.error} loading={catalog.loading} onRetry={catalog.load} products={catalog.visibleProducts} />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

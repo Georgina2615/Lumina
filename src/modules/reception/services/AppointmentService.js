@@ -11,10 +11,8 @@ export const appointmentStatus = Object.freeze({
 
 // Define los canales válidos de confirmación
 export const confirmationChannel = Object.freeze({
-  email: 'correo',
   phoneCall: 'llamada',
-  whatsapp: 'whatsapp',
-  inPerson: 'presencial'
+  whatsapp: 'whatsapp'
 });
 
 // Define los orígenes válidos de cancelación

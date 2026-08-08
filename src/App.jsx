@@ -6,7 +6,7 @@ import { ProtectedRoute } from './modules/auth/components';
 import { PublicLayout, DashboardLayout } from './app/layouts';
 // Expone las capacidades públicas
 import {
-  AboutProjectPage, CancellationPolicyPage, ClientAccountPage, LandingPage, PresentationPage,
+  AboutProjectPage, CancellationPolicyPage, ClientAccountPage, LandingPage, NotFoundPage, PresentationPage,
   PrivacyNoticePage, PublicBookingPage, PublicProductsPage, PublicSkinTestPage, TermsConditionsPage
 } from './modules/public/pages';
 // Expone las capacidades de recepción
@@ -91,6 +91,7 @@ export default function App() {
             <Route path="/mi-cuenta" element={<ClientAccountPage />} />
             <Route path="/sobre-el-proyecto" element={<AboutProjectPage />} />
             <Route path="/terminos-condiciones" element={<TermsConditionsPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
 
           <Route
@@ -195,6 +196,7 @@ export default function App() {
                 />
               </Route>
             </Route>
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>
       </BrowserRouter>
