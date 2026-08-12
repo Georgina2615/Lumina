@@ -1,4 +1,5 @@
 import { FiMessageCircle, FiPackage } from 'react-icons/fi';
+import PublicCard from '../../components/PublicCard';
 import { formatCatalogPrice } from '../services/PublicCatalogPolicy';
 
 // Construye el enlace de orientación para un producto
@@ -10,7 +11,7 @@ const getProductContactUrl = (productName) => {
 // Presenta un producto sin exponer información interna
 export default function PublicProductCard({ product }) {
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-brand-blush bg-brand-ivory shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-gold/70 hover:shadow-xl hover:shadow-brand-gold/10 motion-reduce:transform-none">
+    <PublicCard className="flex h-full flex-col overflow-hidden">
       <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-white via-surface to-brand-blush/55 p-5 sm:aspect-square">
         <span aria-hidden="true" className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-brand-gold/15 blur-2xl transition duration-500 group-hover:scale-125 motion-reduce:transform-none" />
         {product.imageUrl ? (
@@ -46,6 +47,6 @@ export default function PublicProductCard({ product }) {
           )}
         </div>
       </div>
-    </article>
+    </PublicCard>
   );
 }

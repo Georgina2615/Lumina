@@ -1,6 +1,7 @@
 import { FiArrowRight, FiClock, FiRefreshCw } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { Reveal } from '../../../shared/components';
+import PublicCard from './PublicCard';
 
 // Formatea precios mexicanos con IVA incluido
 const formatPrice = (priceCents) => new Intl.NumberFormat('es-MX', {
@@ -8,36 +9,56 @@ const formatPrice = (priceCents) => new Intl.NumberFormat('es-MX', {
   style: 'currency'
 }).format(priceCents / 100);
 
+// Convierte la duración en horas y minutos
+const formatDuration = (durationMinutes) => {
+  const hours = Math.floor(durationMinutes / 60);
+  const minutes = durationMinutes % 60;
+  return `${hours ? `${hours} h` : ''}${hours && minutes ? ' ' : ''}${minutes ? `${minutes} min` : ''}`;
+};
+
+// Define variaciones suaves para las tarjetas
+const cardTones = [
+  'from-brand-blush/45 via-brand-ivory to-brand-ivory',
+  'from-brand-sage/15 via-brand-ivory to-brand-ivory',
+  'from-brand-gold/15 via-brand-ivory to-brand-ivory'
+];
+
 // Presenta una tarjeta comercial de servicio
 function PublicServiceCard({ service, index }) {
+  // Selecciona una variación visual sin cambiar el significado
+  const cardTone = cardTones[index % cardTones.length];
+
   // Devuelve los datos reales del servicio
   return (
-    <article className="group flex h-full min-h-64 flex-col justify-between rounded-3xl border border-surface-hover bg-background p-6 transition duration-300 hover:-translate-y-1 hover:border-secondary/30 hover:shadow-xl hover:shadow-primary/5 active:scale-[0.99] motion-reduce:transform-none">
+    <PublicCard className={`flex h-full min-h-72 flex-col justify-between overflow-hidden bg-gradient-to-br p-6 ${cardTone}`}>
+      <span aria-hidden="true" className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+      <span aria-hidden="true" className="absolute -right-14 -top-14 h-36 w-36 rounded-full border border-brand-gold/20 transition duration-500 group-hover:scale-110 motion-reduce:transform-none" />
       <div>
         <div className="flex items-start justify-between gap-4">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-secondary">
-            Tratamiento {String(index + 1).padStart(2, '0')}
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary font-title text-sm font-semibold text-brand-gold shadow-md shadow-primary/10">
+            {String(index + 1).padStart(2, '0')}
           </span>
           {service.durationMinutes && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs text-muted">
+            <span className="relative inline-flex items-center gap-1.5 rounded-full border border-brand-blush bg-background/75 px-3 py-1.5 text-xs text-muted backdrop-blur">
               <FiClock aria-hidden="true" />
-              {Math.floor(service.durationMinutes / 60)} h {service.durationMinutes % 60 || ''}
+              {formatDuration(service.durationMinutes)}
             </span>
           )}
         </div>
-        <h3 className="mt-6 text-2xl leading-tight text-primary">{service.name}</h3>
+        <p className="mt-6 text-[10px] font-semibold uppercase tracking-[0.22em] text-secondary">Tratamiento facial</p>
+        <h3 className="mt-2 text-2xl leading-tight text-primary">{service.name}</h3>
         <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted">
           {service.description || 'Atención estética adaptada a las necesidades de tu piel.'}
         </p>
       </div>
-      <div className="mt-8 flex items-end justify-between gap-4 border-t border-surface-hover pt-5">
+      <div className="mt-8 flex flex-wrap items-end justify-between gap-4 border-t border-brand-blush pt-5">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">Precio con IVA</p>
           <p className="mt-1 font-title text-2xl font-semibold text-primary">{formatPrice(service.priceCents)}</p>
         </div>
-        <Link aria-label={`Agendar ${service.name}`} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-surface px-4 text-xs font-semibold text-secondary transition duration-300 hover:bg-primary hover:text-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary" to={`/agendar?servicio=${encodeURIComponent(service.id)}`}>Agendar<FiArrowRight aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transform-none" /></Link>
+        <Link aria-label={`Agendar ${service.name}`} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-xs font-semibold text-surface shadow-md shadow-primary/10 transition duration-300 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 motion-reduce:transform-none" to={`/agendar?servicio=${encodeURIComponent(service.id)}`}>Agendar cita<FiArrowRight aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transform-none" /></Link>
       </div>
-    </article>
+    </PublicCard>
   );
 }
 
@@ -48,8 +69,10 @@ export default function PublicServicesSection({ error, loading, onRetry, service
 
   // Devuelve la seccion con sus estados completos
   return (
-    <section className="bg-surface px-5 py-14 sm:px-8 lg:px-12 lg:py-16">
-      <div className="mx-auto max-w-7xl">
+    <section className="relative overflow-hidden bg-gradient-to-b from-surface via-brand-blush/15 to-surface px-5 py-14 sm:px-8 lg:px-12 lg:py-16">
+      <div aria-hidden="true" className="absolute -right-28 top-10 h-72 w-72 rounded-full bg-brand-gold/10 blur-3xl" />
+      <div aria-hidden="true" className="absolute -left-32 bottom-10 h-72 w-72 rounded-full bg-brand-sage/10 blur-3xl" />
+      <div className="relative mx-auto max-w-7xl">
         <Reveal className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-secondary">{showAllLink ? 'Una mirada a nuestros tratamientos' : 'Nuestros tratamientos'}</p>
           <TitleTag className="mt-4 text-4xl leading-tight text-primary sm:text-5xl">Un cuidado pensado para cada piel</TitleTag>
@@ -78,7 +101,7 @@ export default function PublicServicesSection({ error, loading, onRetry, service
 
         {!loading && !error && services.length > 0 && (
           <>
-            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {services.map((service, index) => (
                 <Reveal className="h-full" delay={[0, 100, 200][index % 3]} key={service.id}>
                   <PublicServiceCard index={index} service={service} />

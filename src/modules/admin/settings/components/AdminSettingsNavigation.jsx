@@ -1,4 +1,4 @@
-import { FiCalendar, FiClipboard, FiSliders } from 'react-icons/fi';
+import { FiCalendar, FiClipboard, FiSliders, FiUsers } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 
 const settingsItems = [
@@ -6,6 +6,11 @@ const settingsItems = [
     icon: FiSliders,
     label: 'Servicios',
     path: '/dashboard/admin/configuracion/servicios'
+  },
+  {
+    icon: FiUsers,
+    label: 'Usuarios',
+    path: '/dashboard/admin/configuracion/usuarios'
   },
   {
     icon: FiCalendar,

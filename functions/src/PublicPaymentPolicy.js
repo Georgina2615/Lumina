@@ -59,11 +59,20 @@ export const validatePublicPaymentRequest = (data, now = new Date()) => {
   }
 
   const returnOrigin = String(data.returnOrigin ?? '').trim().replace(/\/$/, '');
-  if (![
+  // Determina orígenes permitidos desde variable de entorno (coma-separados)
+  const envAllowed = String(process.env.ALLOWED_RETURN_ORIGINS ?? '').split(',')
+    .map((s) => String(s ?? '').trim())
+    .filter(Boolean);
+
+  const defaultAllowed = [
     'https://lumina-f247c.web.app',
     'https://lumina-f247c.firebaseapp.com',
     'http://localhost:5173'
-  ].includes(returnOrigin)) {
+  ];
+
+  const allowed = envAllowed.length > 0 ? envAllowed : defaultAllowed;
+
+  if (!allowed.includes(returnOrigin)) {
     fail('invalid-argument', 'El regreso al sitio no es válido');
   }
 

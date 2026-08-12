@@ -1,5 +1,6 @@
 import { FiCalendar, FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { Reveal } from '../../../shared/components';
+import PublicCard from './PublicCard';
 
 // Define el recorrido real de una visita
 const experienceSteps = [
@@ -40,7 +41,7 @@ export default function PublicExperienceSection() {
           <div aria-hidden="true" className="absolute left-[16%] right-[16%] top-10 hidden h-px bg-gradient-to-r from-transparent via-brand-gold/60 to-transparent lg:block" />
           {experienceSteps.map(({ description, icon: Icon, number, title }, index) => (
             <Reveal className="relative" delay={index * 100} key={number}>
-              <article className="group h-full rounded-3xl border border-brand-blush bg-brand-ivory p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-gold/60 hover:shadow-xl hover:shadow-primary/5 active:scale-[0.99] motion-reduce:transform-none sm:p-7">
+              <PublicCard className="h-full p-6 sm:p-7">
                 <div className="flex items-center justify-between">
                   <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-brand-gold shadow-lg shadow-primary/10 transition duration-300 group-hover:-rotate-3 group-hover:scale-105 motion-reduce:transform-none">
                     <Icon aria-hidden="true" size={20} />
@@ -49,7 +50,7 @@ export default function PublicExperienceSection() {
                 </div>
                 <h3 className="mt-7 text-2xl text-primary">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted">{description}</p>
-              </article>
+              </PublicCard>
             </Reveal>
           ))}
         </div>

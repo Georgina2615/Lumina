@@ -25,6 +25,8 @@ import { resolveUnconfirmedSaleTicketHandler } from './ResolveUnconfirmedSaleTic
 import { retrySaleTicketHandler } from './RetrySaleTicket.js';
 import { sendSaleTicketHandler } from './SendSaleTicket.js';
 import { createAppointmentEmailFunction } from './AppointmentEmailFunction.js';
+import { manageAuthUserHandler } from './ManageAuthUser.js';
+import { createAuthUserHandler } from './CreateAuthUser.js';
 
 initializeApp();
 
@@ -227,6 +229,26 @@ export const manageServiceCatalog = onCall({
   ...runtimeOptions,
   enforceAppCheck
 }, (request) => manageServiceCatalogHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Administra usuarios en Firebase Auth (disable/enable/delete)
+export const manageAuthUser = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => manageAuthUserHandler({
+  auth: request.auth,
+  data: request.data,
+  firestore: getFirestore()
+}));
+
+// Crea un usuario en Firebase Auth (solo administradores activos)
+export const createAuthUser = onCall({
+  ...runtimeOptions,
+  enforceAppCheck
+}, (request) => createAuthUserHandler({
   auth: request.auth,
   data: request.data,
   firestore: getFirestore()

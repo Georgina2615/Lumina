@@ -32,7 +32,8 @@ import {
   AdminRetailInventory,
   AdminSkinTest,
   AdminServices,
-  AdminSettingsLayout
+  AdminSettingsLayout,
+  AdminUsers
 } from './modules/admin';
 // Expone las capacidades clínicas
 import {
@@ -151,11 +152,12 @@ export default function App() {
                 <Route path="configuracion" element={<AdminSettingsLayout />}>
                   <Route index element={<Navigate to="servicios" replace />} />
                   <Route path="servicios" element={<AdminServices />} />
+                  <Route path="usuarios" element={<AdminUsers />} />
                   <Route
-                  path="disponibilidad"
-                  element={<AdminAvailability />}
-                />
-                <Route path="test-piel" element={<AdminSkinTest />} />
+                    path="disponibilidad"
+                    element={<AdminAvailability />}
+                  />
+                  <Route path="test-piel" element={<AdminSkinTest />} />
                   <Route
                     path="*"
                     element={(
